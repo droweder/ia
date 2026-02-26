@@ -89,7 +89,20 @@ ALTER DEFAULT PRIVILEGES IN SCHEMA planintex GRANT SELECT ON TABLES TO ai_reader
 ALTER DEFAULT PRIVILEGES IN SCHEMA planintex REVOKE INSERT, UPDATE, DELETE, TRUNCATE ON TABLES FROM ai_reader_role;
 
 
--- 5. RLS (Row Level Security) e Políticas
+-- 5. Permissões para Aplicação (Role Authenticated)
+-- Necessário para que os usuários logados acessem os schemas customizados
+
+GRANT USAGE ON SCHEMA planintex TO authenticated;
+GRANT USAGE ON SCHEMA droweder_ia TO authenticated;
+
+GRANT ALL ON ALL TABLES IN SCHEMA droweder_ia TO authenticated;
+GRANT ALL ON ALL SEQUENCES IN SCHEMA droweder_ia TO authenticated;
+
+-- Apenas SELECT nas tabelas base do planintex (para lookup de empresa)
+GRANT SELECT ON ALL TABLES IN SCHEMA planintex TO authenticated;
+
+
+-- 6. RLS (Row Level Security) e Políticas
 
 -- Habilitar RLS nas tabelas do droweder_ia
 ALTER TABLE droweder_ia.conversations ENABLE ROW LEVEL SECURITY;

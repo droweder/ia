@@ -1,12 +1,48 @@
-import React from 'react';
-import { MoreHorizontal, Plus, Search, Building2 } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { MoreHorizontal, Plus, Search, Building2, Loader2 } from 'lucide-react';
+import { supabase } from '../../lib/supabaseClient';
+
+interface Company {
+    id: string;
+    name: string;
+    cnpj?: string;
+    created_at: string;
+}
 
 const Companies: React.FC = () => {
-  const companies = [
-    { id: 1, name: 'Planintex Corp', plan: 'Enterprise', status: 'Active', users: 12, spent: 'R$ 450.00' },
-    { id: 2, name: 'Metalúrgica Silva', plan: 'Pro', status: 'Active', users: 5, spent: 'R$ 120.00' },
-    { id: 3, name: 'Indústria Beta', plan: 'Starter', status: 'Inactive', users: 2, spent: 'R$ 0.00' },
-  ];
+  const [companies, setCompanies] = useState<Company[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchCompanies();
+  }, []);
+
+  const fetchCompanies = async () => {
+    try {
+        // This assumes the logged in user has permission to see planintex.empresas
+        // In a real scenario, this might need a specific RPC or Admin API if RLS is strict
+        const { data, error } = await supabase
+            .schema('planintex')
+            .from('empresas')
+            .select('*', { head: false, count: 'exact' });
+
+        if (error) {
+             console.error('Error fetching companies:', error);
+             // Fallback to empty if permission denied or error
+             setCompanies([]);
+        } else {
+            setCompanies(data || []);
+        }
+    } catch (error) {
+        console.error('Unexpected error:', error);
+    } finally {
+        setLoading(false);
+    }
+  };
+
+  if (loading) {
+      return <div className="p-8 flex items-center justify-center"><Loader2 className="animate-spin text-indigo-600" /></div>;
+  }
 
   return (
     <div className="p-8 max-w-6xl mx-auto space-y-8 h-full overflow-y-auto">
@@ -37,40 +73,39 @@ const Companies: React.FC = () => {
                 <thead className="bg-gray-50 text-gray-500 font-medium border-b border-gray-100">
                     <tr>
                         <th className="px-6 py-3 font-semibold uppercase text-xs tracking-wider">Empresa</th>
-                        <th className="px-6 py-3 font-semibold uppercase text-xs tracking-wider">Plano</th>
-                        <th className="px-6 py-3 font-semibold uppercase text-xs tracking-wider">Status</th>
-                        <th className="px-6 py-3 text-right font-semibold uppercase text-xs tracking-wider">Usuários</th>
-                        <th className="px-6 py-3 text-right font-semibold uppercase text-xs tracking-wider">Gasto (Mês)</th>
+                        <th className="px-6 py-3 font-semibold uppercase text-xs tracking-wider">CNPJ</th>
+                        <th className="px-6 py-3 font-semibold uppercase text-xs tracking-wider">Data Criação</th>
                         <th className="px-6 py-3 text-center font-semibold uppercase text-xs tracking-wider">Ações</th>
                     </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100">
-                    {companies.map((company) => (
-                        <tr key={company.id} className="hover:bg-gray-50 transition-colors group">
-                            <td className="px-6 py-4 font-medium text-gray-900 flex items-center gap-3">
-                                <div className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center text-gray-500 border border-gray-200">
-                                    <Building2 size={16} />
-                                </div>
-                                {company.name}
-                            </td>
-                            <td className="px-6 py-4 text-gray-600">
-                                <span className="bg-indigo-50 text-indigo-700 px-2.5 py-1 rounded-full text-xs font-medium border border-indigo-100">{company.plan}</span>
-                            </td>
-                            <td className="px-6 py-4">
-                                <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium border ${company.status === 'Active' ? 'bg-emerald-50 text-emerald-700 border-emerald-100' : 'bg-gray-100 text-gray-600 border-gray-200'}`}>
-                                    <span className={`w-1.5 h-1.5 rounded-full mr-1.5 ${company.status === 'Active' ? 'bg-emerald-500' : 'bg-gray-400'}`}></span>
-                                    {company.status === 'Active' ? 'Ativo' : 'Inativo'}
-                                </span>
-                            </td>
-                            <td className="px-6 py-4 text-right text-gray-600">{company.users}</td>
-                            <td className="px-6 py-4 text-right font-semibold text-gray-900">{company.spent}</td>
-                            <td className="px-6 py-4 text-center">
-                                <button className="text-gray-400 hover:text-gray-600 p-1 hover:bg-gray-100 rounded-lg transition-colors">
-                                    <MoreHorizontal size={18} />
-                                </button>
-                            </td>
+                    {companies.length === 0 ? (
+                         <tr>
+                            <td colSpan={4} className="px-6 py-8 text-center text-gray-500">Nenhuma empresa encontrada ou acesso negado.</td>
                         </tr>
-                    ))}
+                    ) : (
+                        companies.map((company) => (
+                            <tr key={company.id} className="hover:bg-gray-50 transition-colors group">
+                                <td className="px-6 py-4 font-medium text-gray-900 flex items-center gap-3">
+                                    <div className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center text-gray-500 border border-gray-200">
+                                        <Building2 size={16} />
+                                    </div>
+                                    {company.name}
+                                </td>
+                                <td className="px-6 py-4 text-gray-600 font-mono text-xs">
+                                    {company.cnpj || 'N/A'}
+                                </td>
+                                <td className="px-6 py-4 text-gray-600 text-xs">
+                                    {new Date(company.created_at).toLocaleDateString()}
+                                </td>
+                                <td className="px-6 py-4 text-center">
+                                    <button className="text-gray-400 hover:text-gray-600 p-1 hover:bg-gray-100 rounded-lg transition-colors">
+                                        <MoreHorizontal size={18} />
+                                    </button>
+                                </td>
+                            </tr>
+                        ))
+                    )}
                 </tbody>
             </table>
         </div>

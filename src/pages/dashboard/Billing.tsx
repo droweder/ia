@@ -1,13 +1,50 @@
-import React from 'react';
-import { CreditCard, Zap, TrendingUp, Calendar } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { CreditCard, Zap, TrendingUp, Calendar, Loader2 } from 'lucide-react';
+import { supabase } from '../../lib/supabaseClient';
+import { useAuth } from '../../contexts/AuthContext';
+
+interface BillingLog {
+    id: string;
+    transaction_date: string;
+    tokens_used: number;
+    cost_brl: number;
+    description?: string;
+}
 
 const Billing: React.FC = () => {
-  const billingLogs = [
-    { id: 1, date: '2023-10-25 14:30', tokens: 1500, cost: 0.15, description: 'Análise de Gargalos' },
-    { id: 2, date: '2023-10-25 15:45', tokens: 3200, cost: 0.32, description: 'Geração de Relatório' },
-    { id: 3, date: '2023-10-26 09:10', tokens: 800, cost: 0.08, description: 'Consulta Simples' },
-    { id: 4, date: '2023-10-26 11:20', tokens: 5000, cost: 0.50, description: 'Análise Complexa de Produção' },
-  ];
+  const [logs, setLogs] = useState<BillingLog[]>([]);
+  const [loading, setLoading] = useState(true);
+  const { user } = useAuth();
+
+  useEffect(() => {
+    if (user) {
+        fetchBillingLogs();
+    }
+  }, [user]);
+
+  const fetchBillingLogs = async () => {
+    try {
+        const { data, error } = await supabase
+            .schema('droweder_ia')
+            .from('billing_logs')
+            .select('*')
+            .order('transaction_date', { ascending: false });
+
+        if (error) throw error;
+        setLogs(data || []);
+    } catch (error) {
+        console.error('Error fetching billing logs:', error);
+    } finally {
+        setLoading(false);
+    }
+  };
+
+  const totalTokens = logs.reduce((acc, log) => acc + log.tokens_used, 0);
+  const totalCost = logs.reduce((acc, log) => acc + log.cost_brl, 0);
+
+  if (loading) {
+      return <div className="p-8 flex items-center justify-center"><Loader2 className="animate-spin text-indigo-600" /></div>;
+  }
 
   return (
     <div className="p-8 max-w-6xl mx-auto space-y-8 h-full overflow-y-auto">
@@ -31,8 +68,8 @@ const Billing: React.FC = () => {
                     <Zap size={24} />
                 </div>
                 <div>
-                    <p className="text-xs text-gray-500 font-bold uppercase tracking-wider">Total Tokens (Mês)</p>
-                    <h3 className="text-2xl font-bold text-gray-900 mt-1">10,500</h3>
+                    <p className="text-xs text-gray-500 font-bold uppercase tracking-wider">Total Tokens</p>
+                    <h3 className="text-2xl font-bold text-gray-900 mt-1">{totalTokens.toLocaleString()}</h3>
                 </div>
             </div>
         </div>
@@ -42,8 +79,8 @@ const Billing: React.FC = () => {
                     <CreditCard size={24} />
                 </div>
                 <div>
-                    <p className="text-xs text-gray-500 font-bold uppercase tracking-wider">Custo Estimado</p>
-                    <h3 className="text-2xl font-bold text-gray-900 mt-1">R$ 1.05</h3>
+                    <p className="text-xs text-gray-500 font-bold uppercase tracking-wider">Custo Total</p>
+                    <h3 className="text-2xl font-bold text-gray-900 mt-1">R$ {totalCost.toFixed(2)}</h3>
                 </div>
             </div>
         </div>
@@ -53,8 +90,8 @@ const Billing: React.FC = () => {
                     <TrendingUp size={24} />
                 </div>
                 <div>
-                    <p className="text-xs text-gray-500 font-bold uppercase tracking-wider">Média Diária</p>
-                    <h3 className="text-2xl font-bold text-gray-900 mt-1">R$ 0.35</h3>
+                    <p className="text-xs text-gray-500 font-bold uppercase tracking-wider">Média por Transação</p>
+                    <h3 className="text-2xl font-bold text-gray-900 mt-1">R$ {logs.length > 0 ? (totalCost / logs.length).toFixed(2) : '0.00'}</h3>
                 </div>
             </div>
         </div>
@@ -80,14 +117,20 @@ const Billing: React.FC = () => {
                     </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100">
-                    {billingLogs.map((log) => (
-                        <tr key={log.id} className="hover:bg-gray-50 transition-colors group">
-                            <td className="px-6 py-4 text-gray-600 font-mono text-xs">{log.date}</td>
-                            <td className="px-6 py-4 font-medium text-gray-900">{log.description}</td>
-                            <td className="px-6 py-4 text-right text-gray-600 font-mono bg-gray-50/50 rounded-lg m-1">{log.tokens.toLocaleString()}</td>
-                            <td className="px-6 py-4 text-right font-semibold text-gray-900">R$ {log.cost.toFixed(2)}</td>
+                    {logs.length === 0 ? (
+                        <tr>
+                            <td colSpan={4} className="px-6 py-8 text-center text-gray-500">Nenhum registro de faturamento encontrado.</td>
                         </tr>
-                    ))}
+                    ) : (
+                        logs.map((log) => (
+                            <tr key={log.id} className="hover:bg-gray-50 transition-colors group">
+                                <td className="px-6 py-4 text-gray-600 font-mono text-xs">{new Date(log.transaction_date).toLocaleString()}</td>
+                                <td className="px-6 py-4 font-medium text-gray-900">{log.description || 'Consumo de IA'}</td>
+                                <td className="px-6 py-4 text-right text-gray-600 font-mono bg-gray-50/50 rounded-lg m-1">{log.tokens_used.toLocaleString()}</td>
+                                <td className="px-6 py-4 text-right font-semibold text-gray-900">R$ {log.cost_brl.toFixed(2)}</td>
+                            </tr>
+                        ))
+                    )}
                 </tbody>
             </table>
         </div>

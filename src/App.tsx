@@ -3,18 +3,27 @@ import Layout from './components/Layout';
 import Chat from './pages/Chat';
 import Billing from './pages/dashboard/Billing';
 import Companies from './pages/admin/Companies';
+import Login from './pages/Login';
+import { AuthProvider } from './contexts/AuthContext';
+import PrivateRoute from './components/PrivateRoute';
 
 function App() {
   return (
     <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Layout />}>
-          <Route index element={<Navigate to="/chat" replace />} />
-          <Route path="chat" element={<Chat />} />
-          <Route path="dashboard/billing" element={<Billing />} />
-          <Route path="super-admin/companies" element={<Companies />} />
-        </Route>
-      </Routes>
+      <AuthProvider>
+        <Routes>
+          <Route path="/login" element={<Login />} />
+
+          <Route element={<PrivateRoute />}>
+            <Route path="/" element={<Layout />}>
+              <Route index element={<Navigate to="/chat" replace />} />
+              <Route path="chat" element={<Chat />} />
+              <Route path="dashboard/billing" element={<Billing />} />
+              <Route path="super-admin/companies" element={<Companies />} />
+            </Route>
+          </Route>
+        </Routes>
+      </AuthProvider>
     </BrowserRouter>
   );
 }
