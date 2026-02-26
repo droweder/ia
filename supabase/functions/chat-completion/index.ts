@@ -32,12 +32,40 @@ serve(async (req) => {
   }
 
   try {
-    const { messages, model } = await req.json();
+    const requestBody = await req.json();
+    const { messages, model } = requestBody;
+
+    // Validate request body
+    if (!messages || !Array.isArray(messages) || messages.length === 0) {
+      return new Response(
+        JSON.stringify({ error: "Missing or invalid 'messages' array in request body." }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    if (!model) {
+       return new Response(
+        JSON.stringify({ error: "Missing 'model' in request body." }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
     const lastUserMessage = messages[messages.length - 1].content;
+    if (!lastUserMessage) {
+        return new Response(
+            JSON.stringify({ error: "Last message content is empty." }),
+            { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+    }
 
     const OPENROUTER_API_KEY = Deno.env.get("OPENROUTER_API_KEY");
     if (!OPENROUTER_API_KEY) {
-      throw new Error("Missing OPENROUTER_API_KEY");
+      // Return 500 but with a clear message (in production, hide sensitive info)
+      // Here, useful for debugging the user issue.
+      return new Response(
+        JSON.stringify({ error: "Server configuration error: Missing OPENROUTER_API_KEY." }),
+        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
     }
 
     // --- STEP 1: Text-to-SQL Generation ---
@@ -92,7 +120,7 @@ serve(async (req) => {
 
     if (!response.ok) {
         const errorText = await response.text();
-        return new Response(JSON.stringify({ error: errorText }), {
+        return new Response(JSON.stringify({ error: `OpenRouter API Error: ${errorText}` }), {
             status: response.status,
             headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
