@@ -1,51 +1,23 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { MessageSquare, CreditCard, Shield, Sun, Moon, LogOut, ChevronDown, Plus } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
-import { supabase } from '../lib/supabaseClient';
-
-interface Conversation {
-    id: string;
-    title: string;
-    created_at: string;
-}
+import { useChat, Conversation } from '../contexts/ChatContext';
 
 const Sidebar: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
   const { theme, toggleTheme } = useTheme();
+  const { conversations, loading: loadingHistory } = useChat();
   const [showUserMenu, setShowUserMenu] = useState(false);
-  const [conversations, setConversations] = useState<Conversation[]>([]);
-  const [loadingHistory, setLoadingHistory] = useState(false);
 
   // Derive display name from user metadata or email
   const displayName = user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'Usuário';
   const companyName = user?.user_metadata?.company_name || 'Minha Empresa';
 
   const isActive = (path: string) => location.pathname === path;
-
-  useEffect(() => {
-    if (user) {
-        fetchConversations();
-    }
-  }, [user]);
-
-  const fetchConversations = async () => {
-    setLoadingHistory(true);
-    const { data, error } = await supabase
-        .schema('droweder_ia')
-        .from('conversations')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-    if (error) console.error('Error fetching conversations:', error);
-    if (data) {
-        setConversations(data);
-    }
-    setLoadingHistory(false);
-  };
 
   const groupConversations = (conversations: Conversation[]) => {
       const today = new Date();

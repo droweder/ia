@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Send, ChevronDown, Bot, User, Database, ShieldCheck, Loader2, AlertCircle } from 'lucide-react';
 import { supabase } from '../lib/supabaseClient';
 import { useAuth } from '../contexts/AuthContext';
+import { useChat } from '../contexts/ChatContext';
 import { chatWithOpenRouterViaEdge } from '../lib/openRouterEdge';
 import type { OpenRouterMessage } from '../types';
 import { useParams, useNavigate } from 'react-router-dom';
@@ -11,7 +12,7 @@ interface Message {
     role: 'user' | 'assistant';
     content: string;
     model_used?: string;
-    sql_query?: string; // New field for internal SQL logging (if we decide to show it later)
+    sql_query?: string;
 }
 
 const Chat: React.FC = () => {
@@ -21,10 +22,10 @@ const Chat: React.FC = () => {
   const [showSql, setShowSql] = useState<string | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [activeConversationId, setActiveConversationId] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [companyId, setCompanyId] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [isSending, setIsSending] = useState(false);
+  const [chatError, setChatError] = useState<string | null>(null);
   const { user } = useAuth();
+  const { companyId, error: contextError, addConversation } = useChat();
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // Hidden feature flag for SQL debug (can be enabled via query param or user role later)
@@ -40,12 +41,6 @@ const Chat: React.FC = () => {
   ];
 
   useEffect(() => {
-    if (user) {
-        fetchCompanyId();
-    }
-  }, [user]);
-
-  useEffect(() => {
       // Sync URL parameter with local state
       if (routeConversationId) {
           setActiveConversationId(routeConversationId);
@@ -58,37 +53,10 @@ const Chat: React.FC = () => {
 
   useEffect(() => {
     scrollToBottom();
-  }, [messages, loading]);
+  }, [messages, isSending]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
-
-  const fetchCompanyId = async () => {
-    if (!user) return;
-    try {
-        const { data, error } = await supabase
-            .schema('planintex')
-            .from('users')
-            .select('company_id')
-            .eq('id', user.id)
-            .single();
-
-        if (error || !data) {
-            // If company not found, try to auto-create (if the backend function exists)
-            // Or show a more helpful error for now.
-            console.error('Error fetching user company:', error);
-
-            // Attempt to call the auto-fix function (if implemented in backend)
-            // For now, we'll just show the error, but we can instruct the user.
-            setError("Não foi possível identificar sua empresa. Contate o suporte ou execute o script de setup.");
-        } else {
-            setCompanyId(data.company_id);
-            setError(null);
-        }
-    } catch (err) {
-        console.error("Unexpected error fetching company:", err);
-    }
   };
 
   const fetchMessages = async (conversationId: string) => {
@@ -104,44 +72,56 @@ const Chat: React.FC = () => {
   };
 
   const handleSendMessage = async () => {
-    if (!input.trim() || !user || !companyId) {
-        if (!companyId) setError("Empresa não identificada. Contate o suporte.");
+    if (!input.trim() || !user) {
+         if (!user) setChatError("Usuário não autenticado.");
+         return;
+    }
+    if (!companyId) {
+        setChatError("Empresa não identificada. Aguarde o carregamento ou contate o suporte.");
         return;
     }
 
     const newMessageContent = input;
     setInput('');
-    setLoading(true);
-    setError(null);
+    setIsSending(true);
+    setChatError(null);
 
     let conversationId = activeConversationId;
 
     // Create conversation if none exists
     if (!conversationId) {
+        const title = newMessageContent.substring(0, 30) + '...';
         const { data: newConv, error: convError } = await supabase
             .schema('droweder_ia')
             .from('conversations')
             .insert({
                 user_id: user.id,
                 company_id: companyId,
-                title: newMessageContent.substring(0, 30) + '...',
+                title: title,
             })
             .select()
             .single();
 
         if (convError || !newConv) {
             console.error('Error creating conversation:', convError);
-            setError("Erro ao iniciar conversa.");
-            setLoading(false);
+            setChatError("Erro ao iniciar conversa.");
+            setIsSending(false);
             return;
         }
         conversationId = newConv.id;
         setActiveConversationId(newConv.id);
+
+        // Update Sidebar immediately via Context
+        addConversation({
+            id: newConv.id,
+            title: newConv.title,
+            created_at: newConv.created_at,
+            company_id: newConv.company_id,
+            user_id: newConv.user_id
+        });
+
         // Navigate to the new conversation URL to sync sidebar and URL
         navigate(`/chat/${newConv.id}`);
-        // We continue here for the optimistic update, but the useEffect will also trigger fetchMessages shortly
-        // To avoid double fetching or race conditions, we can let the useEffect handle it,
-        // BUT for smooth UX (optimistic update), we continue processing here.
     }
 
     // Save user message
@@ -156,7 +136,8 @@ const Chat: React.FC = () => {
 
     if (msgError) {
         console.error('Error saving message:', msgError);
-        setLoading(false);
+        setChatError("Erro ao salvar mensagem.");
+        setIsSending(false);
         return;
     }
 
@@ -182,6 +163,10 @@ const Chat: React.FC = () => {
     try {
         const aiResponse = await chatWithOpenRouterViaEdge(selectedModel, openRouterMessages);
 
+        if (!aiResponse) {
+             throw new Error("No response from AI Edge Function");
+        }
+
         const aiContent = aiResponse?.choices[0]?.message?.content || "Desculpe, não consegui processar sua solicitação no momento.";
         const modelUsed = aiResponse?.model || selectedModel;
 
@@ -202,15 +187,27 @@ const Chat: React.FC = () => {
             setMessages(prev => [...prev, aiMsg as Message]);
         } else if (aiError) {
              console.error('Error saving AI message:', aiError);
-             // Show error in UI as fallback
              setMessages(prev => [...prev, { id: 'err-' + Date.now(), role: 'assistant', content: "Erro ao salvar resposta no histórico." }]);
         }
 
-    } catch (error) {
+    } catch (error: any) {
         console.error("LLM Error:", error);
-        setMessages(prev => [...prev, { id: 'err-' + Date.now(), role: 'assistant', content: "Erro de conexão com a IA. Tente novamente." }]);
+
+        // Try to extract useful error message from the object if possible
+        let errorMessage = "Erro de conexão com a IA. Tente novamente.";
+
+        if (error && typeof error === 'object') {
+             // Supabase Functions often return the error in a specific structure
+             if (error.message) {
+                 errorMessage = `Erro: ${error.message}`;
+             } else if (error.error) { // sometimes strictly { error: "..." }
+                 errorMessage = `Erro: ${error.error}`;
+             }
+        }
+
+        setMessages(prev => [...prev, { id: 'err-' + Date.now(), role: 'assistant', content: errorMessage }]);
     } finally {
-        setLoading(false);
+        setIsSending(false);
     }
   };
 
@@ -222,6 +219,8 @@ const Chat: React.FC = () => {
     }
   }
 
+  // Combine context error (company fetch) with local chat error
+  const displayError = chatError || contextError;
 
   return (
     <div className="flex h-full bg-white dark:bg-gray-900 overflow-hidden transition-colors duration-200">
@@ -263,7 +262,7 @@ const Chat: React.FC = () => {
 
         {/* Messages */}
         <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-6 bg-white dark:bg-gray-900 scrollbar-thin">
-            {messages.length === 0 && !loading && (
+            {messages.length === 0 && !isSending && (
                 <div className="flex flex-col items-center justify-center h-full text-gray-400 space-y-6">
                     <div className="w-16 h-16 bg-white dark:bg-gray-800 rounded-full flex items-center justify-center shadow-sm border border-gray-100 dark:border-gray-700">
                         <Bot size={32} className="text-gray-900 dark:text-gray-100" />
@@ -282,17 +281,19 @@ const Chat: React.FC = () => {
             )}
 
             {/* Error Banner */}
-            {error && (
+            {displayError && (
                 <div className="rounded-md bg-red-50 dark:bg-red-900/20 p-4 border border-red-200 dark:border-red-800 mx-auto max-w-2xl mt-4">
                     <div className="flex">
                         <div className="flex-shrink-0">
                             <AlertCircle className="h-5 w-5 text-red-400" aria-hidden="true" />
                         </div>
                         <div className="ml-3">
-                            <h3 className="text-sm font-medium text-red-800 dark:text-red-200">{error}</h3>
-                            <p className="mt-1 text-xs text-red-700 dark:text-red-300">
-                                Seu usuário não está vinculado a nenhuma empresa no ERP mock.
-                            </p>
+                            <h3 className="text-sm font-medium text-red-800 dark:text-red-200">{displayError}</h3>
+                            {!companyId && (
+                                <p className="mt-1 text-xs text-red-700 dark:text-red-300">
+                                    Seu usuário não está vinculado a nenhuma empresa no ERP mock.
+                                </p>
+                            )}
                         </div>
                     </div>
                 </div>
@@ -332,7 +333,7 @@ const Chat: React.FC = () => {
                     </div>
                 </div>
             ))}
-             {loading && (
+             {isSending && (
                 <div className="flex gap-4 max-w-3xl mx-auto w-full">
                     <div className="w-8 h-8 rounded-sm bg-emerald-600 text-white flex items-center justify-center flex-shrink-0">
                         <Loader2 size={16} className="animate-spin" />
@@ -361,7 +362,7 @@ const Chat: React.FC = () => {
                             }
                         }}
                         placeholder="Envie uma mensagem para o Planintex..."
-                        disabled={loading}
+                        disabled={isSending}
                         rows={1}
                         className="w-full pl-4 pr-12 py-3.5 bg-transparent resize-none focus:outline-none text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 disabled:opacity-50 max-h-32"
                         style={{ minHeight: '52px' }}
@@ -369,8 +370,8 @@ const Chat: React.FC = () => {
                     <div className="absolute right-2 bottom-2 flex items-center gap-1">
                         <button
                             onClick={handleSendMessage}
-                            disabled={!input.trim() || loading}
-                            className={`p-2 rounded-lg transition-colors ${!input.trim() || loading ? 'bg-gray-100 dark:bg-gray-700 text-gray-400' : 'bg-indigo-600 text-white hover:bg-indigo-700'}`}
+                            disabled={!input.trim() || isSending}
+                            className={`p-2 rounded-lg transition-colors ${!input.trim() || isSending ? 'bg-gray-100 dark:bg-gray-700 text-gray-400' : 'bg-indigo-600 text-white hover:bg-indigo-700'}`}
                         >
                             <Send size={16} />
                         </button>

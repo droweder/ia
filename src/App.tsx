@@ -6,6 +6,7 @@ import Companies from './pages/admin/Companies';
 import Login from './pages/Login';
 import { AuthProvider } from './contexts/AuthContext';
 import { ThemeProvider } from './contexts/ThemeContext';
+import { ChatProvider } from './contexts/ChatContext';
 import PrivateRoute from './components/PrivateRoute';
 
 function App() {
@@ -13,19 +14,21 @@ function App() {
     <BrowserRouter>
       <AuthProvider>
         <ThemeProvider>
-          <Routes>
-            <Route path="/login" element={<Login />} />
+          <ChatProvider>
+            <Routes>
+              <Route path="/login" element={<Login />} />
 
-            <Route element={<PrivateRoute />}>
-              <Route path="/" element={<Layout />}>
-                <Route index element={<Navigate to="/chat" replace />} />
-                <Route path="chat" element={<Chat />} />
-                <Route path="chat/:conversationId" element={<Chat />} />
-                <Route path="dashboard/billing" element={<Billing />} />
-                <Route path="super-admin/companies" element={<Companies />} />
+              <Route element={<PrivateRoute />}>
+                <Route path="/" element={<Layout />}>
+                  <Route index element={<Navigate to="/chat" replace />} />
+                  <Route path="chat" element={<Chat />} />
+                  <Route path="chat/:conversationId" element={<Chat />} />
+                  <Route path="dashboard/billing" element={<Billing />} />
+                  <Route path="super-admin/companies" element={<Companies />} />
+                </Route>
               </Route>
-            </Route>
-          </Routes>
+            </Routes>
+          </ChatProvider>
         </ThemeProvider>
       </AuthProvider>
     </BrowserRouter>
