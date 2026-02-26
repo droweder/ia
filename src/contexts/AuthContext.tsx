@@ -6,7 +6,7 @@ interface AuthContextType {
   session: Session | null;
   user: User | null;
   loading: boolean;
-  signIn: (email: string) => Promise<void>;
+  signIn: (email: string, password?: string) => Promise<void>;
   signOut: () => Promise<void>;
 }
 
@@ -41,9 +41,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return () => subscription.unsubscribe();
   }, []);
 
-  const signIn = async (email: string) => {
-    const { error } = await supabase.auth.signInWithOtp({ email });
-    if (error) throw error;
+  const signIn = async (email: string, password?: string) => {
+    if (password) {
+        // Login with password
+        const { error } = await supabase.auth.signInWithPassword({ email, password });
+        if (error) throw error;
+    } else {
+        // Fallback to Magic Link if password is not provided (legacy support or forgot password flow)
+        const { error } = await supabase.auth.signInWithOtp({ email });
+        if (error) throw error;
+    }
   };
 
   const signOut = async () => {

@@ -1,25 +1,36 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { Mail, ShieldCheck } from 'lucide-react';
+import { Mail, Lock, ShieldCheck, Loader2, AlertCircle } from 'lucide-react';
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState('');
   const [error, setError] = useState('');
   const { signIn } = useAuth();
+  const navigate = useNavigate();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!email || !password) {
+        setError("Por favor, preencha todos os campos.");
+        return;
+    }
+
     setLoading(true);
     setError('');
-    setMessage('');
 
     try {
-      await signIn(email);
-      setMessage('Verifique seu e-mail para o link mágico de login!');
+      await signIn(email, password);
+      navigate('/chat');
     } catch (err: any) {
-      setError('Erro ao fazer login: ' + err.message);
+      console.error(err);
+      if (err.message === "Invalid login credentials") {
+          setError("E-mail ou senha incorretos.");
+      } else {
+          setError('Erro ao fazer login: ' + err.message);
+      }
     } finally {
       setLoading(false);
     }
@@ -35,7 +46,7 @@ const Login: React.FC = () => {
           Entrar na DRoweder AI
         </h2>
         <p className="mt-2 text-center text-sm text-gray-600">
-          Acesso seguro via Link Mágico (Magic Link)
+          Acesso seguro para empresas conectadas ao Planintex
         </p>
       </div>
 
@@ -64,21 +75,36 @@ const Login: React.FC = () => {
               </div>
             </div>
 
+            <div>
+              <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+                Senha
+              </label>
+              <div className="mt-1 relative rounded-md shadow-sm">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <Lock className="h-5 w-5 text-gray-400" aria-hidden="true" />
+                </div>
+                <input
+                  id="password"
+                  name="password"
+                  type="password"
+                  autoComplete="current-password"
+                  required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="focus:ring-indigo-500 focus:border-indigo-500 block w-full pl-10 sm:text-sm border-gray-300 rounded-md py-2.5 border"
+                  placeholder="••••••••"
+                />
+              </div>
+            </div>
+
             {error && (
                 <div className="rounded-md bg-red-50 p-4 border border-red-200">
                     <div className="flex">
+                        <div className="flex-shrink-0">
+                            <AlertCircle className="h-5 w-5 text-red-400" aria-hidden="true" />
+                        </div>
                         <div className="ml-3">
                             <h3 className="text-sm font-medium text-red-800">{error}</h3>
-                        </div>
-                    </div>
-                </div>
-            )}
-
-            {message && (
-                <div className="rounded-md bg-green-50 p-4 border border-green-200">
-                    <div className="flex">
-                        <div className="ml-3">
-                            <h3 className="text-sm font-medium text-green-800">{message}</h3>
                         </div>
                     </div>
                 </div>
@@ -88,9 +114,16 @@ const Login: React.FC = () => {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full flex justify-center py-2.5 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 transition-colors"
+                className="w-full flex justify-center py-2.5 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 transition-colors gap-2 items-center"
               >
-                {loading ? 'Enviando link...' : 'Enviar Link de Acesso'}
+                {loading ? (
+                    <>
+                        <Loader2 className="animate-spin h-4 w-4" />
+                        Entrando...
+                    </>
+                ) : (
+                    'Entrar'
+                )}
               </button>
             </div>
           </form>
@@ -107,8 +140,8 @@ const Login: React.FC = () => {
               </div>
             </div>
 
-            <div className="mt-6 flex justify-center gap-2 text-xs text-gray-400 items-center">
-                <ShieldCheck size={14} />
+            <div className="mt-6 flex justify-center gap-2 text-xs text-gray-400 items-center text-center">
+                <ShieldCheck size={14} className="flex-shrink-0" />
                 <span>Seus dados são protegidos com criptografia de ponta a ponta.</span>
             </div>
           </div>
