@@ -3,7 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { MessageSquare, CreditCard, Shield, Sun, Moon, LogOut, ChevronDown, Plus } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
-import { useChat, Conversation } from '../contexts/ChatContext';
+import { useChat, type Conversation } from '../contexts/ChatContext';
 
 const Sidebar: React.FC = () => {
   const location = useLocation();
