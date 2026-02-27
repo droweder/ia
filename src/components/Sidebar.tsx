@@ -99,18 +99,27 @@ const Sidebar: React.FC = () => {
 
             {/* Main Menu */}
             <div className="space-y-1">
-                <button className="w-full flex items-center gap-3 px-2 py-2 text-sm font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-md transition-colors">
+                <button
+                    onClick={() => navigate('/chat')}
+                    className={`w-full flex items-center gap-3 px-2 py-2 text-sm font-medium rounded-md transition-colors ${isActive('/chat') && !location.pathname.startsWith('/chat/') ? 'bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800'}`}
+                >
                     <Search size={18} />
                     <span>Buscar em chats</span>
                 </button>
-                <button className="w-full flex items-center gap-3 px-2 py-2 text-sm font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-md transition-colors">
+                <Link
+                    to="/files"
+                    className={`w-full flex items-center gap-3 px-2 py-2 text-sm font-medium rounded-md transition-colors ${isActive('/files') ? 'bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800'}`}
+                >
                     <Folder size={18} />
                     <span>Arquivos</span>
-                </button>
-                <button className="w-full flex items-center gap-3 px-2 py-2 text-sm font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-md transition-colors">
+                </Link>
+                 <Link
+                    to="/files"
+                    className="w-full flex items-center gap-3 px-2 py-2 text-sm font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-md transition-colors"
+                >
                     <FileText size={18} />
                     <span>Documentos</span>
-                </button>
+                </Link>
                  <button className="w-full flex items-center gap-3 px-2 py-2 text-sm font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-md transition-colors">
                     <Tag size={18} />
                     <span>Categorias</span>
@@ -120,19 +129,25 @@ const Sidebar: React.FC = () => {
             {/* Assistentes */}
             <div>
                 <div className="px-2 mb-2 text-[11px] font-bold text-gray-400 uppercase tracking-wider">Assistentes</div>
-                 <button className="w-full flex items-center gap-3 px-2 py-2 text-sm font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-md transition-colors">
+                 <Link
+                    to="/assistants"
+                    className={`w-full flex items-center gap-3 px-2 py-2 text-sm font-medium rounded-md transition-colors ${isActive('/assistants') ? 'bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800'}`}
+                >
                     <Compass size={18} />
                     <span>Explorar</span>
-                </button>
+                </Link>
             </div>
 
              {/* Projetos (Mapping Legacy Apps here) */}
             <div>
                 <div className="px-2 mb-2 text-[11px] font-bold text-gray-400 uppercase tracking-wider">Projetos</div>
-                <button className="w-full flex items-center gap-3 px-2 py-2 text-sm font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-md mb-1 transition-colors">
+                <Link
+                    to="/projects"
+                    className={`w-full flex items-center gap-3 px-2 py-2 text-sm font-medium rounded-md mb-1 transition-colors ${isActive('/projects') ? 'bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800'}`}
+                >
                     <Plus size={16} />
                     <span>Novo projeto</span>
-                </button>
+                </Link>
 
                  <Link
                     to="/dashboard/billing"
