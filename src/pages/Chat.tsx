@@ -255,7 +255,7 @@ const Chat: React.FC = () => {
         <div className="p-3">
              <button
                 onClick={() => setActiveConversationId(null)}
-                className="w-full flex items-center justify-center gap-2 px-3 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-md text-sm font-medium transition-colors"
+                className="w-full flex items-center justify-center gap-2 px-3 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-md text-sm font-medium transition-colors"
              >
                 <Plus size={16} />
                 Nova Conversa
@@ -343,7 +343,7 @@ const Chat: React.FC = () => {
 
             {messages.map((msg) => (
                 <div key={msg.id} className={`flex gap-4 max-w-3xl mx-auto w-full animate-in fade-in slide-in-from-bottom-2 duration-300 group`}>
-                    <div className={`w-8 h-8 rounded-sm flex items-center justify-center flex-shrink-0 ${msg.role === 'user' ? 'bg-gray-200 dark:bg-gray-700' : 'bg-emerald-600 text-white'}`}>
+                    <div className={`w-8 h-8 rounded-sm flex items-center justify-center flex-shrink-0 ${msg.role === 'user' ? 'bg-gray-200 dark:bg-gray-700' : 'bg-purple-600 text-white'}`}>
                         {msg.role === 'user' ? <User size={16} className="text-gray-600 dark:text-gray-300" /> : <Bot size={16} />}
                     </div>
 
@@ -377,7 +377,7 @@ const Chat: React.FC = () => {
             ))}
              {loading && (
                 <div className="flex gap-4 max-w-3xl mx-auto w-full">
-                    <div className="w-8 h-8 rounded-sm bg-emerald-600 text-white flex items-center justify-center flex-shrink-0">
+                    <div className="w-8 h-8 rounded-sm bg-purple-600 text-white flex items-center justify-center flex-shrink-0">
                         <Loader2 size={16} className="animate-spin" />
                     </div>
                     <div className="flex items-center">
@@ -393,7 +393,7 @@ const Chat: React.FC = () => {
         {/* Input Area */}
         <div className="p-4 bg-white dark:bg-gray-900">
             <div className="max-w-3xl mx-auto">
-                <div className="relative group bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-sm focus-within:ring-2 focus-within:ring-indigo-500/20 focus-within:border-indigo-500 transition-all">
+                <div className="relative group bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-sm focus-within:ring-2 focus-within:ring-purple-500/20 focus-within:border-purple-500 transition-all">
                     <textarea
                         value={input}
                         onChange={(e) => setInput(e.target.value)}
@@ -413,7 +413,7 @@ const Chat: React.FC = () => {
                         <button
                             onClick={handleSendMessage}
                             disabled={!input.trim() || loading}
-                            className={`p-2 rounded-lg transition-colors ${!input.trim() || loading ? 'bg-gray-100 dark:bg-gray-700 text-gray-400' : 'bg-indigo-600 text-white hover:bg-indigo-700'}`}
+                            className={`p-2 rounded-lg transition-colors ${!input.trim() || loading ? 'bg-gray-100 dark:bg-gray-700 text-gray-400' : 'bg-purple-600 text-white hover:bg-purple-700'}`}
                         >
                             <Send size={16} />
                         </button>

@@ -71,7 +71,7 @@ const Layout: React.FC = () => {
                 onClick={() => setShowUserMenu(!showUserMenu)}
                 className="w-full flex items-center gap-3 hover:bg-gray-800 p-2 rounded-md transition-colors text-left group"
              >
-                <div className="w-8 h-8 bg-indigo-600 rounded-md flex items-center justify-center text-xs text-white font-medium uppercase">
+                <div className="w-8 h-8 bg-purple-600 rounded-md flex items-center justify-center text-xs text-white font-medium uppercase">
                     {displayName.substring(0, 2)}
                 </div>
                 <div className="flex-1 min-w-0">
