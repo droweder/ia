@@ -81,3 +81,6 @@ As tabelas da aplicação `droweder_ia` possuem políticas RLS ativas baseadas n
 
 ### 3. Proteção de API Keys
 A chave do OpenRouter nunca é exposta no frontend. O cliente React chama a Edge Function `chat-completion`, que proxyia a requisição para a LLM de forma segura.
+
+---
+*MVP v1.0.0 - Deploy pronto para QA/Produção*
