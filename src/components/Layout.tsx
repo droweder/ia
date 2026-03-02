@@ -67,13 +67,14 @@ const Layout: React.FC = () => {
         {/* Header da Sidebar */}
         <div className="h-12 flex items-center justify-between px-4 border-b border-slate-200 dark:border-white/10">
              {!isSidebarCollapsed && (
-                <div className="font-bold text-lg tracking-tight flex items-center gap-2">
-                    <div className="w-6 h-6 bg-[#7e639f] rounded flex items-center justify-center text-white text-xs">M</div>
-                    Multiplier AI
+                <div className="flex items-center">
+                    <img src="https://phofwpyxbeulodrzfdjq.supabase.co/storage/v1/object/public/imagens_app/logo_droweder_IA.png" alt="DRoweder IA" className="h-8 object-contain" />
                 </div>
              )}
              {isSidebarCollapsed && (
-                 <div className="w-6 h-6 bg-[#7e639f] rounded flex items-center justify-center text-white text-xs mx-auto">M</div>
+                 <div className="mx-auto flex items-center justify-center">
+                     <img src="https://phofwpyxbeulodrzfdjq.supabase.co/storage/v1/object/public/imagens_app/favicom_droweder.png" alt="DRoweder IA" className="w-6 h-6 object-contain" />
+                 </div>
              )}
              <button
                 onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
