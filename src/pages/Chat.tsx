@@ -1,5 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Bot, User, ChevronDown, ShieldCheck, Loader2, Database, AlertCircle, Plus, Mic, ArrowUp } from 'lucide-react';
+import { Bot, User, ChevronDown, ShieldCheck, Loader2, Database, AlertCircle, Plus, Mic, ArrowUp, Copy, Check, RefreshCcw } from 'lucide-react';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
+import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { supabase } from '../lib/supabaseClient';
 import { useAuth } from '../contexts/AuthContext';
 import { chatWithOpenRouter } from '../lib/openRouterClient';
@@ -17,6 +21,87 @@ interface Message {
 
 const Chat: React.FC = () => {
   const { conversations, setConversations, activeConversationId, setActiveConversationId } = useOutletContext<LayoutContextType>();
+  const [isRecording, setIsRecording] = useState(false);
+  const recognitionRef = useRef<any>(null);
+
+  useEffect(() => {
+    // Initialize SpeechRecognition
+    if ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window) {
+      const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+      recognitionRef.current = new SpeechRecognition();
+      recognitionRef.current.continuous = false;
+      recognitionRef.current.interimResults = false;
+      recognitionRef.current.lang = 'pt-BR'; // Set language to Portuguese
+
+      recognitionRef.current.onresult = (event: any) => {
+        const transcript = event.results[0][0].transcript;
+        setInput((prev) => prev + (prev ? ' ' : '') + transcript);
+      };
+
+      recognitionRef.current.onerror = (event: any) => {
+        console.error('Speech recognition error', event.error);
+        setIsRecording(false);
+      };
+
+      recognitionRef.current.onend = () => {
+        setIsRecording(false);
+      };
+    }
+  }, []);
+
+  const [copiedMessages, setCopiedMessages] = useState<{ [key: string]: boolean }>({});
+
+  const handleCopyMessage = (content: string, messageId: string) => {
+    navigator.clipboard.writeText(content).then(() => {
+      setCopiedMessages((prev) => ({ ...prev, [messageId]: true }));
+      setTimeout(() => {
+        setCopiedMessages((prev) => ({ ...prev, [messageId]: false }));
+      }, 2000);
+    });
+  };
+
+  const handleRegenerate = async () => {
+    if (messages.length === 0 || loading) return;
+
+    // Find the last user message to resubmit
+    const lastUserMsgIndex = [...messages].reverse().findIndex(m => m.role === 'user');
+    if (lastUserMsgIndex === -1) return;
+
+    const actualIndex = messages.length - 1 - lastUserMsgIndex;
+    const lastUserMessage = messages[actualIndex];
+
+    // Temporarily set input and trigger send, removing all messages after that user message
+    const previousMessages = messages.slice(0, actualIndex);
+    setMessages(previousMessages); // Trim the chat history
+
+    // Call the send function with the previous user's query
+    // To do this cleanly, we can bypass the setInput and just call a custom fetch
+    await handleSendCustomMessage(lastUserMessage.content, previousMessages);
+  };
+
+  const toggleRecording = () => {
+    if (isRecording) {
+      recognitionRef.current?.stop();
+      setIsRecording(false);
+    } else {
+      try {
+        recognitionRef.current?.start();
+        setIsRecording(true);
+      } catch (e) {
+        console.error("Microphone start error:", e);
+      }
+    }
+  };
+  const [copiedBlocks, setCopiedBlocks] = useState<{ [key: string]: boolean }>({});
+
+  const handleCopyCode = (code: string, blockId: string) => {
+    navigator.clipboard.writeText(code).then(() => {
+      setCopiedBlocks((prev) => ({ ...prev, [blockId]: true }));
+      setTimeout(() => {
+        setCopiedBlocks((prev) => ({ ...prev, [blockId]: false }));
+      }, 2000);
+    });
+  };
 
   const [input, setInput] = useState('');
   const [showSql, setShowSql] = useState<string | null>(null);
@@ -97,13 +182,18 @@ const Chat: React.FC = () => {
   };
 
   const handleSendMessage = async () => {
-    if (!input.trim() || !user || !companyId) {
+    if (!input.trim()) return;
+    const content = input;
+    setInput('');
+    await handleSendCustomMessage(content, messages);
+  };
+
+  const handleSendCustomMessage = async (newMessageContent: string, currentHistory: Message[]) => {
+    if (!newMessageContent.trim() || !user || !companyId) {
         if (!companyId) setError("Empresa não identificada. Contate o suporte.");
         return;
     }
 
-    const newMessageContent = input;
-    setInput('');
     setLoading(true);
     setError(null);
 
@@ -151,7 +241,8 @@ const Chat: React.FC = () => {
 
     // Optimistic update
     const userMessage: Message = { id: 'temp-' + Date.now(), role: 'user', content: newMessageContent };
-    setMessages(prev => [...prev, userMessage]);
+    // Only append to the currentHistory we passed in, avoiding race conditions if we trimmed history
+    setMessages([...currentHistory, userMessage]);
 
     // Construct message history for LLM context
     // We instruct the LLM to behave as a data analyst.
@@ -167,7 +258,7 @@ const Chat: React.FC = () => {
         4. NÃO exponha o comando SQL bruto na resposta final, a menos que o usuário peça explicitamente "Mostre o SQL".
         5. Seja conciso, profissional e use Português do Brasil.
         ` },
-        ...messages.map(m => ({ role: m.role, content: m.content }) as OpenRouterMessage),
+        ...currentHistory.map(m => ({ role: m.role, content: m.content }) as OpenRouterMessage),
         { role: 'user', content: newMessageContent }
     ];
 
@@ -289,9 +380,80 @@ const Chat: React.FC = () => {
                         <div className="text-sm font-semibold text-slate-800 dark:text-gray-200">
                             {msg.role === 'user' ? 'Você' : 'DRoweder IA'}
                         </div>
-                        <div className="prose prose-sm prose-slate dark:prose-invert max-w-none text-slate-700 dark:text-gray-300 leading-relaxed whitespace-pre-wrap">
-                            {msg.content}
+                        <div className="prose prose-sm prose-slate dark:prose-invert max-w-none text-slate-700 dark:text-gray-300 leading-relaxed break-words">
+                            {msg.role === 'user' ? (
+                                <div className="whitespace-pre-wrap">{msg.content}</div>
+                            ) : (
+                                <ReactMarkdown
+                                    remarkPlugins={[remarkGfm]}
+                                    components={{
+                                        code(props) {
+                                            const { children, className, ...rest } = props;
+                                            const match = /language-(\w+)/.exec(className || '');
+                                            const codeString = String(children).replace(/\n$/, '');
+                                            const blockId = `${msg.id}-${codeString.substring(0, 10)}`;
+
+                                            return match ? (
+                                                <div className="relative group/code mt-4 mb-4 rounded-md overflow-hidden bg-[#1E1E1E] border border-gray-700/50">
+                                                    <div className="flex items-center justify-between px-4 py-2 bg-[#2D2D2D] text-xs text-gray-400">
+                                                        <span>{match[1]}</span>
+                                                        <button
+                                                            onClick={() => handleCopyCode(codeString, blockId)}
+                                                            className="flex items-center gap-1 hover:text-white transition-colors"
+                                                            title="Copiar código"
+                                                        >
+                                                            {copiedBlocks[blockId] ? <Check size={14} className="text-green-400" /> : <Copy size={14} />}
+                                                            <span>{copiedBlocks[blockId] ? 'Copiado!' : 'Copiar'}</span>
+                                                        </button>
+                                                    </div>
+                                                    <div className="p-4 overflow-x-auto text-sm">
+                                                        <SyntaxHighlighter
+                                                            {...({ ...rest, ref: undefined } as any)}
+                                                            PreTag="div"
+                                                            children={codeString}
+                                                            language={match[1]}
+                                                            style={vscDarkPlus}
+                                                            customStyle={{ margin: 0, padding: 0, background: 'transparent' }}
+                                                        />
+                                                    </div>
+                                                </div>
+                                            ) : (
+                                                <code {...rest} className={`${className} bg-slate-100 dark:bg-white/10 px-1.5 py-0.5 rounded-md font-mono text-sm text-pink-600 dark:text-pink-400`}>
+                                                    {children}
+                                                </code>
+                                            );
+                                        }
+                                    }}
+                                >
+                                    {msg.content}
+                                </ReactMarkdown>
+                            )}
                         </div>
+
+                        {/* Action Buttons for AI messages */}
+                        {msg.role === 'assistant' && (
+                            <div className="flex items-center gap-2 mt-2">
+                                <button
+                                    onClick={() => handleCopyMessage(msg.content, msg.id)}
+                                    className="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-gray-300 rounded-md hover:bg-slate-100 dark:hover:bg-white/5 transition-colors"
+                                    title="Copiar mensagem"
+                                >
+                                    {copiedMessages[msg.id] ? <Check size={16} className="text-green-500" /> : <Copy size={16} />}
+                                </button>
+
+                                {/* Only show regenerate button on the last assistant message */}
+                                {messages[messages.length - 1].id === msg.id && (
+                                    <button
+                                        onClick={handleRegenerate}
+                                        disabled={loading}
+                                        className="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-gray-300 rounded-md hover:bg-slate-100 dark:hover:bg-white/5 transition-colors disabled:opacity-50"
+                                        title="Regerar resposta"
+                                    >
+                                        <RefreshCcw size={16} className={loading ? "animate-spin" : ""} />
+                                    </button>
+                                )}
+                            </div>
+                        )}
 
                         {/* Hidden/Debug SQL Accordion */}
                         {SHOW_SQL_DEBUG && msg.role === 'assistant' && (
@@ -353,7 +515,16 @@ const Chat: React.FC = () => {
                         style={{ minHeight: '52px' }}
                     />
                     <div className="p-2 pr-3 flex items-center gap-2 pb-[10px]">
-                        <button className="w-8 h-8 rounded-full flex items-center justify-center text-slate-500 hover:text-slate-800 dark:text-gray-400 dark:hover:text-gray-200 transition-colors border border-transparent hover:bg-black/5 dark:hover:bg-white/10">
+                        <button
+                            onClick={toggleRecording}
+                            className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors border border-transparent
+                                ${isRecording
+                                    ? 'bg-red-500 text-white animate-pulse'
+                                    : 'text-slate-500 hover:text-slate-800 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-black/5 dark:hover:bg-white/10'
+                                }
+                            `}
+                            title={isRecording ? "Parar gravação" : "Gravar áudio"}
+                        >
                              <Mic size={20} strokeWidth={2} />
                         </button>
                         <button
