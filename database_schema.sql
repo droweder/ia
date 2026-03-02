@@ -20,7 +20,7 @@ END $$;
 -- Tabela de Projetos
 CREATE TABLE IF NOT EXISTS droweder_ia.projects (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    empresa_id UUID NOT NULL REFERENCES planintex.empresas(id),
+    company_id UUID NOT NULL REFERENCES planintex.empresas(id),
     user_id UUID NOT NULL, -- Referência ao usuário que criou
     name TEXT NOT NULL,
     description TEXT,
@@ -32,7 +32,7 @@ CREATE TABLE IF NOT EXISTS droweder_ia.projects (
 CREATE TABLE IF NOT EXISTS droweder_ia.conversations (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id UUID NOT NULL, -- Referência ao usuário que criou
-    empresa_id UUID NOT NULL REFERENCES planintex.empresas(id),
+    company_id UUID NOT NULL REFERENCES planintex.empresas(id),
     project_id UUID REFERENCES droweder_ia.projects(id) ON DELETE SET NULL,
     title TEXT NOT NULL,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
@@ -54,7 +54,7 @@ CREATE TABLE IF NOT EXISTS droweder_ia.messages (
 -- Tabela de Arquivos
 CREATE TABLE IF NOT EXISTS droweder_ia.files (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    empresa_id UUID NOT NULL REFERENCES planintex.empresas(id),
+    company_id UUID NOT NULL REFERENCES planintex.empresas(id),
     user_id UUID NOT NULL,
     name TEXT NOT NULL,
     url TEXT NOT NULL,
@@ -66,7 +66,7 @@ CREATE TABLE IF NOT EXISTS droweder_ia.files (
 -- Tabela de Assistentes
 CREATE TABLE IF NOT EXISTS droweder_ia.assistants (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    empresa_id UUID NOT NULL REFERENCES planintex.empresas(id),
+    company_id UUID NOT NULL REFERENCES planintex.empresas(id),
     user_id UUID NOT NULL,
     name TEXT NOT NULL,
     description TEXT,
@@ -78,7 +78,7 @@ CREATE TABLE IF NOT EXISTS droweder_ia.assistants (
 -- Tabela de Logs de Faturamento (Billing)
 CREATE TABLE IF NOT EXISTS droweder_ia.billing_logs (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    empresa_id UUID NOT NULL REFERENCES planintex.empresas(id),
+    company_id UUID NOT NULL REFERENCES planintex.empresas(id),
     tokens_used INTEGER NOT NULL,
     cost_brl NUMERIC(10, 4) NOT NULL,
     transaction_date TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
@@ -136,30 +136,30 @@ ALTER TABLE droweder_ia.assistants ENABLE ROW LEVEL SECURITY;
 -- Políticas para Projetos, Arquivos e Assistentes (Acesso por Empresa)
 CREATE POLICY "Users can access their company projects" ON droweder_ia.projects
     FOR ALL
-    USING (empresa_id IN (SELECT empresa_id FROM planintex.profiles WHERE id = auth.uid()))
-    WITH CHECK (empresa_id IN (SELECT empresa_id FROM planintex.profiles WHERE id = auth.uid()));
+    USING (company_id IN (SELECT empresa_id FROM planintex.profiles WHERE id = auth.uid()))
+    WITH CHECK (company_id IN (SELECT empresa_id FROM planintex.profiles WHERE id = auth.uid()));
 
 CREATE POLICY "Users can access their company files" ON droweder_ia.files
     FOR ALL
-    USING (empresa_id IN (SELECT empresa_id FROM planintex.profiles WHERE id = auth.uid()))
-    WITH CHECK (empresa_id IN (SELECT empresa_id FROM planintex.profiles WHERE id = auth.uid()));
+    USING (company_id IN (SELECT empresa_id FROM planintex.profiles WHERE id = auth.uid()))
+    WITH CHECK (company_id IN (SELECT empresa_id FROM planintex.profiles WHERE id = auth.uid()));
 
 CREATE POLICY "Users can access their company assistants" ON droweder_ia.assistants
     FOR ALL
-    USING (empresa_id IN (SELECT empresa_id FROM planintex.profiles WHERE id = auth.uid()))
-    WITH CHECK (empresa_id IN (SELECT empresa_id FROM planintex.profiles WHERE id = auth.uid()));
+    USING (company_id IN (SELECT empresa_id FROM planintex.profiles WHERE id = auth.uid()))
+    WITH CHECK (company_id IN (SELECT empresa_id FROM planintex.profiles WHERE id = auth.uid()));
 
 -- Política para Conversations
 -- Usuários só podem acessar conversas da sua empresa
 CREATE POLICY "Users can access their company conversations" ON droweder_ia.conversations
     FOR ALL
     USING (
-        empresa_id IN (
+        company_id IN (
             SELECT empresa_id FROM planintex.profiles WHERE id = auth.uid()
         )
     )
     WITH CHECK (
-        empresa_id IN (
+        company_id IN (
             SELECT empresa_id FROM planintex.profiles WHERE id = auth.uid()
         )
     );
@@ -171,7 +171,7 @@ CREATE POLICY "Users can access messages of their company conversations" ON drow
     USING (
         conversation_id IN (
             SELECT id FROM droweder_ia.conversations
-            WHERE empresa_id IN (
+            WHERE company_id IN (
                 SELECT empresa_id FROM planintex.profiles WHERE id = auth.uid()
             )
         )
@@ -179,7 +179,7 @@ CREATE POLICY "Users can access messages of their company conversations" ON drow
     WITH CHECK (
         conversation_id IN (
             SELECT id FROM droweder_ia.conversations
-            WHERE empresa_id IN (
+            WHERE company_id IN (
                 SELECT empresa_id FROM planintex.profiles WHERE id = auth.uid()
             )
         )
@@ -190,7 +190,7 @@ CREATE POLICY "Users can access messages of their company conversations" ON drow
 CREATE POLICY "Users can view their company billing logs" ON droweder_ia.billing_logs
     FOR SELECT
     USING (
-        empresa_id IN (
+        company_id IN (
             SELECT empresa_id FROM planintex.profiles WHERE id = auth.uid()
         )
     );
