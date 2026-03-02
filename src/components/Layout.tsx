@@ -1,11 +1,20 @@
-import React, { useState } from 'react';
-import { Link, Outlet, useLocation } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { MessageSquare, Sun, Moon, LogOut, ChevronDown, Plus, PanelLeft, Search, FileText, Bot, FolderKanban, MoreVertical, Layers } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
+import { supabase } from '../lib/supabaseClient';
+
+export interface LayoutContextType {
+    conversations: any[];
+    setConversations: React.Dispatch<React.SetStateAction<any[]>>;
+    activeConversationId: string | null;
+    setActiveConversationId: React.Dispatch<React.SetStateAction<string | null>>;
+}
 
 const Layout: React.FC = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const { user, signOut } = useAuth();
   const { theme, toggleTheme } = useTheme();
   const [showUserMenu, setShowUserMenu] = useState(false);
@@ -14,25 +23,49 @@ const Layout: React.FC = () => {
   const [isProjectsOpen, setIsProjectsOpen] = useState(true);
   const [isRecentChatsOpen, setIsRecentChatsOpen] = useState(true);
 
+  const [conversations, setConversations] = useState<any[]>([]);
+  const [activeConversationId, setActiveConversationId] = useState<string | null>(null);
+
   const isActive = (path: string) => location.pathname === path;
 
-  // Placeholder mock data for the layout demo
-  const recentChats = [
-    { id: 1, title: 'Análise de Vendas' },
-    { id: 2, title: 'Relatório Mensal' },
-  ];
+  useEffect(() => {
+    const fetchConversations = async () => {
+      if (!user) return;
+      const { data, error } = await supabase
+          .schema('droweder_ia')
+          .from('conversations')
+          .select('*')
+          .order('created_at', { ascending: false });
+
+      if (error) console.error('Error fetching conversations:', error);
+      if (data) {
+          setConversations(data);
+          if (data.length > 0 && !activeConversationId) {
+              setActiveConversationId(data[0].id);
+          }
+      }
+    };
+
+    fetchConversations();
+  }, [user]);
+
+  const handleNewChat = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setActiveConversationId(null);
+    navigate('/chat');
+  };
 
   // Derive display name from user metadata or email
   const displayName = user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'Usuário';
   const companyName = user?.user_metadata?.company_name || 'Minha Empresa'; // In a real app, fetch from relation
 
   return (
-    <div className="flex h-screen font-sans text-gray-100 transition-colors duration-200 bg-transparent selection:bg-[#7e639f]/30">
+    <div className="flex h-screen font-sans text-slate-800 dark:text-gray-100 transition-colors duration-200 bg-transparent selection:bg-[#7e639f]/30">
       {/* Sidebar - Multiplier AI Style */}
-      <aside className={`${isSidebarCollapsed ? 'w-20' : 'w-72'} border-r border-white/10 bg-white/5 backdrop-blur-xl hidden md:flex flex-col z-10 transition-all duration-300 text-gray-100`}>
+      <aside className={`${isSidebarCollapsed ? 'w-20' : 'w-72'} border-r border-slate-200 dark:border-white/10 bg-white/40 dark:bg-white/5 backdrop-blur-xl hidden md:flex flex-col z-10 transition-all duration-300`}>
 
         {/* Header da Sidebar */}
-        <div className="h-12 flex items-center justify-between px-4 border-b border-white/10">
+        <div className="h-12 flex items-center justify-between px-4 border-b border-slate-200 dark:border-white/10">
              {!isSidebarCollapsed && (
                 <div className="font-bold text-lg tracking-tight flex items-center gap-2">
                     <div className="w-6 h-6 bg-[#7e639f] rounded flex items-center justify-center text-white text-xs">M</div>
@@ -44,47 +77,47 @@ const Layout: React.FC = () => {
              )}
              <button
                 onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
-                className="p-1.5 text-gray-400 hover:bg-white/10 rounded-md transition-colors"
+                className="p-1.5 text-slate-500 hover:bg-slate-200 dark:text-gray-400 dark:hover:bg-white/10 rounded-md transition-colors"
              >
                 <PanelLeft size={18} />
              </button>
         </div>
 
         {/* Menu Principal */}
-        <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-6 scrollbar-thin scrollbar-thumb-white/20 hover:scrollbar-thumb-white/30 scrollbar-track-transparent">
+        <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-6 scrollbar-thin scrollbar-thumb-slate-300 dark:scrollbar-thumb-white/20 hover:scrollbar-thumb-slate-400 dark:hover:scrollbar-thumb-white/30 scrollbar-track-transparent">
 
           <div className="space-y-1">
-              <Link
-                to="/chat"
-                className={`flex items-center gap-3 h-8 px-3 rounded-md transition-all duration-200 text-sm font-medium ${isActive('/chat') ? 'bg-white/10 text-white border-r-2 border-white/50' : 'text-gray-300 hover:bg-white/10 hover:text-white'}`}
+              <button
+                onClick={handleNewChat}
+                className={`w-full flex items-center gap-3 h-8 px-3 rounded-md transition-all duration-200 text-sm font-medium ${isActive('/chat') && !activeConversationId ? 'bg-slate-200 dark:bg-white/10 text-slate-900 dark:text-white border-r-2 border-slate-400 dark:border-white/50' : 'text-slate-600 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-white/10 hover:text-slate-900 dark:hover:text-white'}`}
                 title="Novo Chat"
               >
-                <Plus size={20} className={isActive('/chat') ? 'text-white' : ''} />
+                <Plus size={20} className={isActive('/chat') && !activeConversationId ? 'text-slate-900 dark:text-white' : ''} />
                 {!isSidebarCollapsed && <span>Novo Chat</span>}
-              </Link>
+              </button>
               <button
-                className={`w-full flex items-center gap-3 h-8 px-3 rounded-md transition-all duration-200 text-sm font-medium text-gray-300 hover:bg-white/10 hover:text-white`}
+                className={`w-full flex items-center gap-3 h-8 px-3 rounded-md transition-all duration-200 text-sm font-medium text-slate-600 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-white/10 hover:text-slate-900 dark:hover:text-white`}
                 title="Buscar em chats"
               >
                 <Search size={20} />
                 {!isSidebarCollapsed && <span>Buscar em chats</span>}
               </button>
               <button
-                className={`w-full flex items-center gap-3 h-8 px-3 rounded-md transition-all duration-200 text-sm font-medium text-gray-300 hover:bg-white/10 hover:text-white`}
+                className={`w-full flex items-center gap-3 h-8 px-3 rounded-md transition-all duration-200 text-sm font-medium text-slate-600 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-white/10 hover:text-slate-900 dark:hover:text-white`}
                 title="Arquivos"
               >
                 <FileText size={20} />
                 {!isSidebarCollapsed && <span>Arquivos</span>}
               </button>
               <button
-                className={`w-full flex items-center gap-3 h-8 px-3 rounded-md transition-all duration-200 text-sm font-medium text-gray-300 hover:bg-white/10 hover:text-white`}
+                className={`w-full flex items-center gap-3 h-8 px-3 rounded-md transition-all duration-200 text-sm font-medium text-slate-600 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-white/10 hover:text-slate-900 dark:hover:text-white`}
                 title="Documentos"
               >
                 <MessageSquare size={20} />
                 {!isSidebarCollapsed && <span>Documentos</span>}
               </button>
               <button
-                className={`w-full flex items-center gap-3 h-8 px-3 rounded-md transition-all duration-200 text-sm font-medium text-gray-300 hover:bg-white/10 hover:text-white`}
+                className={`w-full flex items-center gap-3 h-8 px-3 rounded-md transition-all duration-200 text-sm font-medium text-slate-600 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-white/10 hover:text-slate-900 dark:hover:text-white`}
                 title="Categorias"
               >
                 <Layers size={20} />
@@ -99,14 +132,14 @@ const Layout: React.FC = () => {
               <div className="pt-2">
                  <button
                     onClick={() => setIsAssistantsOpen(!isAssistantsOpen)}
-                    className="w-full flex items-center justify-between px-3 py-2 text-xs font-semibold text-gray-400 uppercase tracking-wider hover:text-gray-200 transition-colors group"
+                    className="w-full flex items-center justify-between px-3 py-2 text-xs font-semibold text-slate-500 dark:text-gray-400 uppercase tracking-wider hover:text-slate-800 dark:hover:text-gray-200 transition-colors group"
                  >
                     ASSISTENTES
                     <ChevronDown size={14} className={`transition-transform duration-200 opacity-0 group-hover:opacity-100 ${isAssistantsOpen ? '' : '-rotate-90'}`} />
                  </button>
                  {isAssistantsOpen && (
                      <div className="mt-1 space-y-1">
-                        <button className="w-full flex items-center gap-3 h-8 px-3 rounded-md transition-all duration-200 text-sm font-medium text-gray-300 hover:bg-white/10 hover:text-white">
+                        <button className="w-full flex items-center gap-3 h-8 px-3 rounded-md transition-all duration-200 text-sm font-medium text-slate-600 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-white/10 hover:text-slate-900 dark:hover:text-white">
                             <Bot size={20} />
                             <span>Explorar</span>
                         </button>
@@ -118,14 +151,14 @@ const Layout: React.FC = () => {
               <div className="pt-2">
                  <button
                     onClick={() => setIsProjectsOpen(!isProjectsOpen)}
-                    className="w-full flex items-center justify-between px-3 py-2 text-xs font-semibold text-gray-400 uppercase tracking-wider hover:text-gray-200 transition-colors group"
+                    className="w-full flex items-center justify-between px-3 py-2 text-xs font-semibold text-slate-500 dark:text-gray-400 uppercase tracking-wider hover:text-slate-800 dark:hover:text-gray-200 transition-colors group"
                  >
                     PROJETOS
                     <ChevronDown size={14} className={`transition-transform duration-200 opacity-0 group-hover:opacity-100 ${isProjectsOpen ? '' : '-rotate-90'}`} />
                  </button>
                  {isProjectsOpen && (
                      <div className="mt-1 space-y-1">
-                        <button className="w-full flex items-center gap-3 h-8 px-3 rounded-md transition-all duration-200 text-sm font-medium text-gray-300 hover:bg-white/10 hover:text-white">
+                        <button className="w-full flex items-center gap-3 h-8 px-3 rounded-md transition-all duration-200 text-sm font-medium text-slate-600 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-white/10 hover:text-slate-900 dark:hover:text-white">
                             <FolderKanban size={20} />
                             <span>Novo Projeto</span>
                         </button>
@@ -137,17 +170,24 @@ const Layout: React.FC = () => {
               <div className="pt-2">
                  <button
                     onClick={() => setIsRecentChatsOpen(!isRecentChatsOpen)}
-                    className="w-full flex items-center justify-between px-3 py-2 text-xs font-semibold text-gray-400 uppercase tracking-wider hover:text-gray-200 transition-colors group"
+                    className="w-full flex items-center justify-between px-3 py-2 text-xs font-semibold text-slate-500 dark:text-gray-400 uppercase tracking-wider hover:text-slate-800 dark:hover:text-gray-200 transition-colors group"
                  >
                     CONVERSAS RECENTES
                     <ChevronDown size={14} className={`transition-transform duration-200 opacity-0 group-hover:opacity-100 ${isRecentChatsOpen ? '' : '-rotate-90'}`} />
                  </button>
                  {isRecentChatsOpen && (
                      <div className="mt-1 space-y-1">
-                        {recentChats.map(chat => (
-                            <div key={chat.id} className="group relative flex items-center justify-between h-8 px-3 rounded-md hover:bg-white/10 cursor-pointer text-gray-300 hover:text-white transition-colors">
+                        {conversations.map(chat => (
+                            <div
+                                key={chat.id}
+                                onClick={() => {
+                                    setActiveConversationId(chat.id);
+                                    if (!isActive('/chat')) navigate('/chat');
+                                }}
+                                className={`group relative flex items-center justify-between h-8 px-3 rounded-md cursor-pointer transition-colors ${activeConversationId === chat.id ? 'bg-slate-200 dark:bg-white/10 text-slate-900 dark:text-white' : 'hover:bg-slate-100 dark:hover:bg-white/10 text-slate-600 dark:text-gray-300 hover:text-slate-900 dark:hover:text-white'}`}
+                            >
                                 <span className="text-sm truncate pr-6">{chat.title}</span>
-                                <button className="absolute right-2 opacity-0 group-hover:opacity-100 p-1 hover:bg-white/20 rounded text-gray-400 hover:text-white transition-all">
+                                <button className="absolute right-2 opacity-0 group-hover:opacity-100 p-1 hover:bg-slate-300 dark:hover:bg-white/20 rounded text-slate-500 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white transition-all">
                                     <MoreVertical size={14} />
                                 </button>
                             </div>
@@ -161,11 +201,11 @@ const Layout: React.FC = () => {
         </nav>
 
         {/* User Menu (Bottom) */}
-        <div className="p-3 border-t border-white/10">
+        <div className="p-3 border-t border-slate-200 dark:border-white/10">
           <div className="relative">
              <button
                 onClick={() => setShowUserMenu(!showUserMenu)}
-                className={`w-full flex items-center ${isSidebarCollapsed ? 'justify-center' : 'gap-3'} hover:bg-white/10 p-2 rounded-md transition-colors text-left group`}
+                className={`w-full flex items-center ${isSidebarCollapsed ? 'justify-center' : 'gap-3'} hover:bg-slate-100 dark:hover:bg-white/10 p-2 rounded-md transition-colors text-left group`}
              >
                 <div className="w-8 h-8 bg-[#7e639f] rounded flex items-center justify-center text-xs text-white font-medium uppercase flex-shrink-0">
                     {displayName.substring(0, 2)}
@@ -173,28 +213,28 @@ const Layout: React.FC = () => {
                 {!isSidebarCollapsed && (
                     <>
                         <div className="flex-1 min-w-0">
-                            <p className="text-sm font-medium text-gray-200 truncate group-hover:text-white">{displayName}</p>
-                            <p className="text-xs text-gray-400 truncate">{companyName}</p>
+                            <p className="text-sm font-medium text-slate-700 dark:text-gray-200 truncate group-hover:text-slate-900 dark:group-hover:text-white">{displayName}</p>
+                            <p className="text-xs text-slate-500 dark:text-gray-400 truncate">{companyName}</p>
                         </div>
-                        <ChevronDown size={14} className="text-gray-400 group-hover:text-gray-200" />
+                        <ChevronDown size={14} className="text-slate-400 dark:text-gray-400 group-hover:text-slate-600 dark:group-hover:text-gray-200" />
                     </>
                 )}
              </button>
 
              {/* User Menu Dropdown */}
              {showUserMenu && (
-                <div className="absolute bottom-full left-0 w-full mb-2 bg-slate-800/90 backdrop-blur-xl border border-white/10 rounded-lg shadow-xl py-1 overflow-hidden animate-in fade-in slide-in-from-bottom-2 duration-200 z-50">
+                <div className="absolute bottom-full left-0 w-full mb-2 bg-white/90 dark:bg-slate-800/90 backdrop-blur-xl border border-slate-200 dark:border-white/10 rounded-lg shadow-xl py-1 overflow-hidden animate-in fade-in slide-in-from-bottom-2 duration-200 z-50">
                     <button
                         onClick={toggleTheme}
-                        className="w-full text-left px-4 py-2.5 text-sm text-gray-300 hover:bg-white/10 flex items-center gap-2"
+                        className="w-full text-left px-4 py-2.5 text-sm text-slate-700 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-white/10 flex items-center gap-2"
                     >
                         {theme === 'light' ? <Moon size={16} /> : <Sun size={16} />}
                         <span>{theme === 'light' ? 'Modo Escuro' : 'Modo Claro'}</span>
                     </button>
-                    <div className="border-t border-white/10 my-1"></div>
+                    <div className="border-t border-slate-100 dark:border-white/10 my-1"></div>
                     <button
                         onClick={() => signOut()}
-                        className="w-full text-left px-4 py-2.5 text-sm text-red-400 hover:bg-white/10 flex items-center gap-2"
+                        className="w-full text-left px-4 py-2.5 text-sm text-red-600 dark:text-red-400 hover:bg-slate-100 dark:hover:bg-white/10 flex items-center gap-2"
                     >
                         <LogOut size={16} />
                         <span>Sair</span>
@@ -207,7 +247,7 @@ const Layout: React.FC = () => {
 
       {/* Main Content */}
       <main className="flex-1 overflow-hidden relative flex flex-col bg-transparent">
-        <Outlet />
+        <Outlet context={{ conversations, setConversations, activeConversationId, setActiveConversationId } satisfies LayoutContextType} />
       </main>
     </div>
   );

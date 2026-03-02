@@ -4,7 +4,22 @@
 
 @layer base {
   body {
-    @apply antialiased;
+    @apply antialiased transition-colors duration-300;
+
+    /* Light Mode (Default/Fallback) - Soft, clean light theme */
+    background: radial-gradient(
+      circle at 50% 50%,
+      #f8fafc 0%,
+      #e2e8f0 100%
+    );
+    background-color: #f8fafc;
+    background-image: none;
+    background-attachment: fixed;
+    color: #1e293b;
+  }
+
+  /* Dark Mode Aurora */
+  .dark body {
     /* Aurora Gradient Background */
     background: radial-gradient(
       circle at 50% 50%,

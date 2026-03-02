@@ -33,6 +33,14 @@ serve(async (req) => {
 
   try {
     const { messages, model } = await req.json();
+
+    if (!messages || !Array.isArray(messages) || messages.length === 0) {
+      return new Response(JSON.stringify({ error: "Invalid or empty 'messages' array provided." }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     const lastUserMessage = messages[messages.length - 1].content;
 
     const OPENROUTER_API_KEY = Deno.env.get("OPENROUTER_API_KEY");
@@ -76,6 +84,8 @@ serve(async (req) => {
         { role: 'user', content: lastUserMessage }
     ];
 
+    console.log("Sending to OpenRouter:", { model, messages: finalMessages });
+
     const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -92,8 +102,9 @@ serve(async (req) => {
 
     if (!response.ok) {
         const errorText = await response.text();
-        return new Response(JSON.stringify({ error: errorText }), {
-            status: response.status,
+        console.error("OpenRouter API Error:", response.status, errorText);
+        return new Response(JSON.stringify({ error: `OpenRouter error: ${response.status}`, details: errorText }), {
+            status: response.status, // pass through the 400 from OpenRouter
             headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
     }
@@ -108,6 +119,7 @@ serve(async (req) => {
     });
 
   } catch (error) {
+    console.error("Internal Edge Function Error:", error);
     return new Response(JSON.stringify({ error: error.message }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },

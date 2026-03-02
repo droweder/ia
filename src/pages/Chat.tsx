@@ -3,6 +3,8 @@ import { Send, ChevronDown, Bot, User, Database, ShieldCheck, Loader2, AlertCirc
 import { supabase } from '../lib/supabaseClient';
 import { useAuth } from '../contexts/AuthContext';
 import { chatWithOpenRouterViaEdge } from '../lib/openRouterEdge';
+import { useOutletContext } from 'react-router-dom';
+import type { LayoutContextType } from '../components/Layout';
 import type { OpenRouterMessage } from '../types';
 
 interface Message {
@@ -13,18 +15,12 @@ interface Message {
     sql_query?: string; // New field for internal SQL logging (if we decide to show it later)
 }
 
-interface Conversation {
-    id: string;
-    title: string;
-    created_at: string;
-}
-
 const Chat: React.FC = () => {
+  const { conversations, setConversations, activeConversationId, setActiveConversationId } = useOutletContext<LayoutContextType>();
+
   const [input, setInput] = useState('');
   const [showSql, setShowSql] = useState<string | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
-  const [conversations, setConversations] = useState<Conversation[]>([]);
-  const [activeConversationId, setActiveConversationId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [companyId, setCompanyId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -46,7 +42,6 @@ const Chat: React.FC = () => {
   useEffect(() => {
     if (user) {
         fetchCompanyId();
-        fetchConversations();
     }
   }, [user]);
 
@@ -86,22 +81,6 @@ const Chat: React.FC = () => {
         }
     } catch (err) {
         console.error("Unexpected error fetching company:", err);
-    }
-  };
-
-  const fetchConversations = async () => {
-    const { data, error } = await supabase
-        .schema('droweder_ia')
-        .from('conversations')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-    if (error) console.error('Error fetching conversations:', error);
-    if (data) {
-        setConversations(data);
-        if (data.length > 0 && !activeConversationId) {
-            setActiveConversationId(data[0].id);
-        }
     }
   };
 
@@ -242,45 +221,45 @@ const Chat: React.FC = () => {
       {/* Main Chat Area */}
       <div className="flex-1 flex flex-col min-w-0 bg-transparent transition-colors duration-200">
         {/* Header - Simplified */}
-        <div className="h-14 border-b border-white/10 flex justify-between items-center bg-white/5 backdrop-blur-md px-4 shadow-sm z-10">
+        <div className="h-14 border-b border-slate-200 dark:border-white/10 flex justify-between items-center bg-white/40 dark:bg-white/5 backdrop-blur-md px-4 shadow-sm z-10">
             <div className="flex items-center gap-4">
                  {/* Model Selector */}
                 <div className="relative group">
                     <select
                         value={selectedModel}
                         onChange={(e) => setSelectedModel(e.target.value)}
-                        className="appearance-none bg-transparent font-medium text-gray-200 text-sm hover:bg-white/10 rounded-lg py-1.5 pl-2 pr-8 focus:outline-none cursor-pointer transition-colors"
+                        className="appearance-none bg-transparent font-medium text-slate-700 dark:text-gray-200 text-sm hover:bg-slate-200 dark:hover:bg-white/10 rounded-lg py-1.5 pl-2 pr-8 focus:outline-none cursor-pointer transition-colors"
                     >
                         {models.map(model => (
-                            <option key={model.id} value={model.id} className="bg-slate-800 text-gray-200">{model.name}</option>
+                            <option key={model.id} value={model.id} className="bg-white dark:bg-slate-800 text-slate-900 dark:text-gray-200">{model.name}</option>
                         ))}
                     </select>
-                    <ChevronDown size={14} className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+                    <ChevronDown size={14} className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 dark:text-gray-400 pointer-events-none" />
                 </div>
             </div>
 
             {/* Connection Badge */}
-            <div className="flex items-center gap-2 text-xs font-medium text-gray-300 bg-white/10 px-3 py-1.5 rounded-full">
-                <ShieldCheck size={14} className="text-emerald-400" />
+            <div className="flex items-center gap-2 text-xs font-medium text-slate-600 dark:text-gray-300 bg-slate-200/50 dark:bg-white/10 px-3 py-1.5 rounded-full">
+                <ShieldCheck size={14} className="text-emerald-500 dark:text-emerald-400" />
                 <span className="hidden sm:inline">Planintex Conectado</span>
             </div>
         </div>
 
         {/* Messages */}
-        <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-6 bg-transparent scrollbar-thin scrollbar-thumb-white/20 hover:scrollbar-thumb-white/30">
+        <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-6 bg-transparent scrollbar-thin scrollbar-thumb-slate-300 dark:scrollbar-thumb-white/20 hover:scrollbar-thumb-slate-400 dark:hover:scrollbar-thumb-white/30">
             {messages.length === 0 && !loading && (
-                <div className="flex flex-col items-center justify-center h-full text-gray-300 space-y-6">
-                    <div className="w-16 h-16 bg-white/10 backdrop-blur-md rounded-full flex items-center justify-center shadow-sm border border-white/20">
-                        <Bot size={32} className="text-white" />
+                <div className="flex flex-col items-center justify-center h-full text-slate-500 dark:text-gray-300 space-y-6">
+                    <div className="w-16 h-16 bg-white/60 dark:bg-white/10 backdrop-blur-md rounded-full flex items-center justify-center shadow-sm border border-slate-200 dark:border-white/20">
+                        <Bot size={32} className="text-slate-700 dark:text-white" />
                     </div>
                     <div className="grid grid-cols-2 gap-4 max-w-lg w-full">
-                        <button onClick={() => setInput("Qual a previsão de demanda para o próximo mês?")} className="p-4 border border-white/10 rounded-xl hover:bg-white/10 bg-white/5 backdrop-blur-sm text-left transition-colors">
-                            <h3 className="text-sm font-medium text-white mb-1">Previsão de Demanda</h3>
-                            <p className="text-xs text-gray-400">Analise tendências futuras</p>
+                        <button onClick={() => setInput("Qual a previsão de demanda para o próximo mês?")} className="p-4 border border-slate-200 dark:border-white/10 rounded-xl hover:bg-slate-50 dark:hover:bg-white/10 bg-white/40 dark:bg-white/5 backdrop-blur-sm text-left transition-colors shadow-sm">
+                            <h3 className="text-sm font-medium text-slate-800 dark:text-white mb-1">Previsão de Demanda</h3>
+                            <p className="text-xs text-slate-500 dark:text-gray-400">Analise tendências futuras</p>
                         </button>
-                         <button onClick={() => setInput("Quais ordens estão atrasadas?")} className="p-4 border border-white/10 rounded-xl hover:bg-white/10 bg-white/5 backdrop-blur-sm text-left transition-colors">
-                            <h3 className="text-sm font-medium text-white mb-1">Ordens Atrasadas</h3>
-                            <p className="text-xs text-gray-400">Liste gargalos na produção</p>
+                         <button onClick={() => setInput("Quais ordens estão atrasadas?")} className="p-4 border border-slate-200 dark:border-white/10 rounded-xl hover:bg-slate-50 dark:hover:bg-white/10 bg-white/40 dark:bg-white/5 backdrop-blur-sm text-left transition-colors shadow-sm">
+                            <h3 className="text-sm font-medium text-slate-800 dark:text-white mb-1">Ordens Atrasadas</h3>
+                            <p className="text-xs text-slate-500 dark:text-gray-400">Liste gargalos na produção</p>
                         </button>
                     </div>
                 </div>
@@ -288,13 +267,13 @@ const Chat: React.FC = () => {
 
             {/* Error Banner */}
             {error && (
-                <div className="rounded-md bg-red-900/40 p-4 border border-red-500/30 mx-auto max-w-2xl mt-4 backdrop-blur-sm">
+                <div className="rounded-md bg-red-100/80 dark:bg-red-900/40 p-4 border border-red-300 dark:border-red-500/30 mx-auto max-w-2xl mt-4 backdrop-blur-sm">
                     <div className="flex">
                         <div className="flex-shrink-0">
-                            <AlertCircle className="h-5 w-5 text-red-400" aria-hidden="true" />
+                            <AlertCircle className="h-5 w-5 text-red-600 dark:text-red-400" aria-hidden="true" />
                         </div>
                         <div className="ml-3">
-                            <h3 className="text-sm font-medium text-red-200">{error}</h3>
+                            <h3 className="text-sm font-medium text-red-800 dark:text-red-200">{error}</h3>
                         </div>
                     </div>
                 </div>
@@ -302,15 +281,15 @@ const Chat: React.FC = () => {
 
             {messages.map((msg) => (
                 <div key={msg.id} className={`flex gap-4 max-w-3xl mx-auto w-full animate-in fade-in slide-in-from-bottom-2 duration-300 group`}>
-                    <div className={`w-8 h-8 rounded-sm flex items-center justify-center flex-shrink-0 ${msg.role === 'user' ? 'bg-white/10' : 'bg-purple-600/80 text-white'}`}>
-                        {msg.role === 'user' ? <User size={16} className="text-gray-300" /> : <Bot size={16} />}
+                    <div className={`w-8 h-8 rounded-sm flex items-center justify-center flex-shrink-0 ${msg.role === 'user' ? 'bg-slate-200 dark:bg-white/10 text-slate-600 dark:text-gray-300' : 'bg-[#7e639f] text-white shadow-sm'}`}>
+                        {msg.role === 'user' ? <User size={16} /> : <Bot size={16} />}
                     </div>
 
                     <div className="flex-1 space-y-2 overflow-hidden">
-                        <div className="text-sm font-semibold text-gray-200">
+                        <div className="text-sm font-semibold text-slate-800 dark:text-gray-200">
                             {msg.role === 'user' ? 'Você' : 'DRoweder IA'}
                         </div>
-                        <div className="prose prose-sm dark:prose-invert max-w-none text-gray-300 leading-relaxed whitespace-pre-wrap">
+                        <div className="prose prose-sm prose-slate dark:prose-invert max-w-none text-slate-700 dark:text-gray-300 leading-relaxed whitespace-pre-wrap">
                             {msg.content}
                         </div>
 
@@ -319,13 +298,13 @@ const Chat: React.FC = () => {
                             <div className="mt-2">
                                 <button
                                     onClick={() => toggleSql(msg.id)}
-                                    className="flex items-center gap-1 text-xs text-gray-400 hover:text-gray-300 transition-colors"
+                                    className="flex items-center gap-1 text-xs text-slate-500 hover:text-slate-700 dark:text-gray-400 dark:hover:text-gray-300 transition-colors"
                                 >
                                     <Database size={12} />
                                     <span>{showSql === msg.id ? 'Ocultar SQL' : 'Debug SQL'}</span>
                                 </button>
                                 {showSql === msg.id && (
-                                    <div className="mt-2 p-3 bg-white/5 rounded-md border border-white/10 font-mono text-xs overflow-x-auto text-gray-400 backdrop-blur-sm">
+                                    <div className="mt-2 p-3 bg-slate-100/50 dark:bg-white/5 rounded-md border border-slate-200 dark:border-white/10 font-mono text-xs overflow-x-auto text-slate-600 dark:text-gray-400 backdrop-blur-sm">
                                         SELECT * FROM planintex.ordens ...
                                     </div>
                                 )}
@@ -350,10 +329,10 @@ const Chat: React.FC = () => {
         </div>
 
         {/* Input Area */}
-        <div className="p-4 bg-transparent border-t border-white/10 backdrop-blur-md bg-white/5">
+        <div className="p-4 bg-transparent border-t border-slate-200 dark:border-white/10 backdrop-blur-md bg-white/40 dark:bg-white/5">
             <div className="max-w-3xl mx-auto relative">
-                <div className="relative flex items-end group bg-white/10 border border-white/20 rounded-2xl shadow-sm focus-within:ring-2 focus-within:ring-[#7e639f]/50 focus-within:border-transparent transition-all overflow-hidden backdrop-blur-xl">
-                    <button className="p-3 text-gray-400 hover:text-gray-200 transition-colors">
+                <div className="relative flex items-end group bg-white/60 dark:bg-white/10 border border-slate-300 dark:border-white/20 rounded-2xl shadow-sm focus-within:ring-2 focus-within:ring-[#7e639f]/50 focus-within:border-transparent transition-all overflow-hidden backdrop-blur-xl">
+                    <button className="p-3 text-slate-500 hover:text-slate-800 dark:text-gray-400 dark:hover:text-gray-200 transition-colors">
                         <Paperclip size={20} />
                     </button>
                     <textarea
@@ -368,24 +347,24 @@ const Chat: React.FC = () => {
                         placeholder="Envie uma mensagem..."
                         disabled={loading}
                         rows={1}
-                        className="flex-1 py-3.5 bg-transparent resize-none focus:outline-none text-sm text-gray-100 placeholder-gray-400 disabled:opacity-50 max-h-32"
+                        className="flex-1 py-3.5 bg-transparent resize-none focus:outline-none text-sm text-slate-800 dark:text-gray-100 placeholder-slate-400 dark:placeholder-gray-400 disabled:opacity-50 max-h-32"
                         style={{ minHeight: '52px' }}
                     />
                     <div className="p-2 flex items-center gap-1">
-                        <button className="p-2 text-gray-400 hover:text-gray-200 transition-colors">
+                        <button className="p-2 text-slate-500 hover:text-slate-800 dark:text-gray-400 dark:hover:text-gray-200 transition-colors">
                              <Mic size={20} />
                         </button>
                         <button
                             onClick={handleSendMessage}
                             disabled={!input.trim() || loading}
-                            className={`p-2 rounded-xl transition-colors ${!input.trim() || loading ? 'bg-white/5 text-gray-500' : 'bg-[#7e639f] text-white hover:bg-[#6b528a] shadow-lg shadow-[#7e639f]/20'}`}
+                            className={`p-2 rounded-xl transition-colors ${!input.trim() || loading ? 'bg-slate-200 dark:bg-white/5 text-slate-400 dark:text-gray-500' : 'bg-[#7e639f] text-white hover:bg-[#6b528a] shadow-lg shadow-[#7e639f]/20'}`}
                         >
                             <Send size={18} />
                         </button>
                     </div>
                 </div>
                 <div className="text-center mt-3">
-                    <p className="text-xs text-gray-400">A inteligência artificial pode cometer erros. Verifique informações importantes.</p>
+                    <p className="text-xs text-slate-500 dark:text-gray-400">A inteligência artificial pode cometer erros. Verifique informações importantes.</p>
                 </div>
             </div>
         </div>
