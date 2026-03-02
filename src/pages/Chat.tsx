@@ -170,8 +170,8 @@ const Chat: React.FC = () => {
     try {
         const { data, error } = await supabase
             .schema('planintex')
-            .from('users')
-            .select('company_id')
+            .from('profiles')
+            .select('empresa_id')
             .eq('id', user.id)
             .single();
 
@@ -179,7 +179,7 @@ const Chat: React.FC = () => {
             console.error('Error fetching user company:', error);
             setError("Não foi possível identificar sua empresa.");
         } else if (data) {
-            setCompanyId(data.company_id);
+            setCompanyId(data.empresa_id);
         } else {
              setError("Sua conta não está vinculada a nenhuma empresa no Planintex.");
         }

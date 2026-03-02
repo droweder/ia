@@ -1,37 +1,12 @@
 -- Script de Criação do Banco de Dados - DRoweder AI + Mock Planintex
+-- Script de Criação do Banco de Dados - DRoweder AI
 -- Autor: Jules (Full-Stack & Data Engineer)
+-- O Schema planintex já existe e é gerenciado pelo ERP principal, este script gerencia apenas o app droweder_ia
 
 -- 1. Estrutura de Schemas
-CREATE SCHEMA IF NOT EXISTS planintex;
 CREATE SCHEMA IF NOT EXISTS droweder_ia;
 
--- 2. Tabelas do Schema Planintex (Mock para dependências)
-CREATE TABLE IF NOT EXISTS planintex.empresas (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    name TEXT NOT NULL,
-    cnpj TEXT,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
-);
-
--- Tabela de Usuários para vincular auth.uid() a uma empresa (Mock)
-CREATE TABLE IF NOT EXISTS planintex.users (
-    id UUID PRIMARY KEY, -- Deve corresponder ao auth.users.id do Supabase
-    company_id UUID NOT NULL REFERENCES planintex.empresas(id),
-    name TEXT,
-    email TEXT,
-    role TEXT DEFAULT 'user'
-);
-
-CREATE TABLE IF NOT EXISTS planintex.ordens (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    company_id UUID NOT NULL REFERENCES planintex.empresas(id),
-    status TEXT NOT NULL,
-    description TEXT,
-    amount NUMERIC(10, 2),
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
-);
-
--- 3. Tabelas do Schema DRoweder AI
+-- 2. Tabelas do Schema DRoweder AI
 
 -- Adicionando coluna project_id na tabela conversations caso ela já exista
 DO $$
@@ -161,18 +136,18 @@ ALTER TABLE droweder_ia.assistants ENABLE ROW LEVEL SECURITY;
 -- Políticas para Projetos, Arquivos e Assistentes (Acesso por Empresa)
 CREATE POLICY "Users can access their company projects" ON droweder_ia.projects
     FOR ALL
-    USING (company_id IN (SELECT company_id FROM planintex.users WHERE id = auth.uid()))
-    WITH CHECK (company_id IN (SELECT company_id FROM planintex.users WHERE id = auth.uid()));
+    USING (company_id IN (SELECT empresa_id FROM planintex.profiles WHERE id = auth.uid()))
+    WITH CHECK (company_id IN (SELECT empresa_id FROM planintex.profiles WHERE id = auth.uid()));
 
 CREATE POLICY "Users can access their company files" ON droweder_ia.files
     FOR ALL
-    USING (company_id IN (SELECT company_id FROM planintex.users WHERE id = auth.uid()))
-    WITH CHECK (company_id IN (SELECT company_id FROM planintex.users WHERE id = auth.uid()));
+    USING (company_id IN (SELECT empresa_id FROM planintex.profiles WHERE id = auth.uid()))
+    WITH CHECK (company_id IN (SELECT empresa_id FROM planintex.profiles WHERE id = auth.uid()));
 
 CREATE POLICY "Users can access their company assistants" ON droweder_ia.assistants
     FOR ALL
-    USING (company_id IN (SELECT company_id FROM planintex.users WHERE id = auth.uid()))
-    WITH CHECK (company_id IN (SELECT company_id FROM planintex.users WHERE id = auth.uid()));
+    USING (company_id IN (SELECT empresa_id FROM planintex.profiles WHERE id = auth.uid()))
+    WITH CHECK (company_id IN (SELECT empresa_id FROM planintex.profiles WHERE id = auth.uid()));
 
 -- Política para Conversations
 -- Usuários só podem acessar conversas da sua empresa
@@ -180,12 +155,12 @@ CREATE POLICY "Users can access their company conversations" ON droweder_ia.conv
     FOR ALL
     USING (
         company_id IN (
-            SELECT company_id FROM planintex.users WHERE id = auth.uid()
+            SELECT empresa_id FROM planintex.profiles WHERE id = auth.uid()
         )
     )
     WITH CHECK (
         company_id IN (
-            SELECT company_id FROM planintex.users WHERE id = auth.uid()
+            SELECT empresa_id FROM planintex.profiles WHERE id = auth.uid()
         )
     );
 
@@ -197,7 +172,7 @@ CREATE POLICY "Users can access messages of their company conversations" ON drow
         conversation_id IN (
             SELECT id FROM droweder_ia.conversations
             WHERE company_id IN (
-                SELECT company_id FROM planintex.users WHERE id = auth.uid()
+                SELECT empresa_id FROM planintex.profiles WHERE id = auth.uid()
             )
         )
     )
@@ -205,7 +180,7 @@ CREATE POLICY "Users can access messages of their company conversations" ON drow
         conversation_id IN (
             SELECT id FROM droweder_ia.conversations
             WHERE company_id IN (
-                SELECT company_id FROM planintex.users WHERE id = auth.uid()
+                SELECT empresa_id FROM planintex.profiles WHERE id = auth.uid()
             )
         )
     );
@@ -216,7 +191,7 @@ CREATE POLICY "Users can view their company billing logs" ON droweder_ia.billing
     FOR SELECT
     USING (
         company_id IN (
-            SELECT company_id FROM planintex.users WHERE id = auth.uid()
+            SELECT empresa_id FROM planintex.profiles WHERE id = auth.uid()
         )
     );
 

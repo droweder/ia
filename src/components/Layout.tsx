@@ -46,13 +46,13 @@ const Layout: React.FC = () => {
 
       const { data: userRecord, error: userError } = await supabase
         .schema('planintex')
-        .from('users')
-        .select('company_id')
+        .from('profiles')
+        .select('empresa_id')
         .eq('id', user.id)
         .single();
 
       if (userRecord && !userError) {
-        setCompanyId(userRecord.company_id);
+          setCompanyId(userRecord.empresa_id);
       }
 
       // Fetch conversations
