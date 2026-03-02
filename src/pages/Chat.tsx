@@ -302,7 +302,7 @@ const Chat: React.FC = () => {
             .from('conversations')
             .insert({
                 user_id: user.id,
-                company_id: companyId,
+                empresa_id: companyId,
                 title: finalMessageContent.substring(0, 30) + '...',
             })
             .select()
