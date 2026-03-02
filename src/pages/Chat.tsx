@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Send, ChevronDown, Bot, User, Database, ShieldCheck, Loader2, AlertCircle, Paperclip, Mic } from 'lucide-react';
+import { Bot, User, ChevronDown, ShieldCheck, Loader2, Database, AlertCircle, Plus, Mic, ArrowUp } from 'lucide-react';
 import { supabase } from '../lib/supabaseClient';
 import { useAuth } from '../contexts/AuthContext';
 import { chatWithOpenRouterViaEdge } from '../lib/openRouterEdge';
@@ -329,12 +329,14 @@ const Chat: React.FC = () => {
         </div>
 
         {/* Input Area */}
-        <div className="p-4 bg-transparent border-t border-slate-200 dark:border-white/10 backdrop-blur-md bg-white/40 dark:bg-white/5">
+        <div className="p-4 bg-transparent backdrop-blur-md">
             <div className="max-w-3xl mx-auto relative">
-                <div className="relative flex items-end group bg-white/60 dark:bg-white/10 border border-slate-300 dark:border-white/20 rounded-2xl shadow-sm focus-within:ring-2 focus-within:ring-[#7e639f]/50 focus-within:border-transparent transition-all overflow-hidden backdrop-blur-xl">
-                    <button className="p-3 text-slate-500 hover:text-slate-800 dark:text-gray-400 dark:hover:text-gray-200 transition-colors">
-                        <Paperclip size={20} />
-                    </button>
+                <div className="relative flex items-end group bg-[#f4f4f4] dark:bg-[#2f2f2f] rounded-[26px] transition-all overflow-hidden focus-within:ring-2 focus-within:ring-gray-300 dark:focus-within:ring-gray-600">
+                    <div className="flex items-center justify-center p-2 pl-3 pb-[10px]">
+                        <button className="w-8 h-8 rounded-full flex items-center justify-center text-slate-500 hover:text-slate-800 dark:text-gray-400 dark:hover:text-gray-200 transition-colors border border-transparent hover:bg-black/5 dark:hover:bg-white/10">
+                            <Plus size={20} strokeWidth={2.5} />
+                        </button>
+                    </div>
                     <textarea
                         value={input}
                         onChange={(e) => setInput(e.target.value)}
@@ -344,27 +346,42 @@ const Chat: React.FC = () => {
                                 handleSendMessage();
                             }
                         }}
-                        placeholder="Envie uma mensagem..."
+                        placeholder="Pergunte alguma coisa"
                         disabled={loading}
                         rows={1}
-                        className="flex-1 py-3.5 bg-transparent resize-none focus:outline-none text-sm text-slate-800 dark:text-gray-100 placeholder-slate-400 dark:placeholder-gray-400 disabled:opacity-50 max-h-32"
+                        className="flex-1 py-3.5 bg-transparent resize-none focus:outline-none text-base text-slate-900 dark:text-gray-100 placeholder-slate-500 dark:placeholder-gray-400 disabled:opacity-50 max-h-[200px]"
                         style={{ minHeight: '52px' }}
                     />
-                    <div className="p-2 flex items-center gap-1">
-                        <button className="p-2 text-slate-500 hover:text-slate-800 dark:text-gray-400 dark:hover:text-gray-200 transition-colors">
-                             <Mic size={20} />
+                    <div className="p-2 pr-3 flex items-center gap-2 pb-[10px]">
+                        <button className="w-8 h-8 rounded-full flex items-center justify-center text-slate-500 hover:text-slate-800 dark:text-gray-400 dark:hover:text-gray-200 transition-colors border border-transparent hover:bg-black/5 dark:hover:bg-white/10">
+                             <Mic size={20} strokeWidth={2} />
                         </button>
                         <button
                             onClick={handleSendMessage}
-                            disabled={!input.trim() || loading}
-                            className={`p-2 rounded-xl transition-colors ${!input.trim() || loading ? 'bg-slate-200 dark:bg-white/5 text-slate-400 dark:text-gray-500' : 'bg-[#7e639f] text-white hover:bg-[#6b528a] shadow-lg shadow-[#7e639f]/20'}`}
+                            disabled={!input.trim() && !loading}
+                            className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors
+                                ${!input.trim()
+                                    ? 'bg-black text-white dark:bg-white dark:text-black opacity-100 hover:opacity-80'
+                                    : 'bg-black text-white dark:bg-white dark:text-black hover:opacity-80'
+                                }
+                                ${loading ? 'opacity-50 cursor-not-allowed' : ''}
+                            `}
                         >
-                            <Send size={18} />
+                            {!input.trim() ? (
+                                // Simulate Audio Wave icon
+                                <div className="flex items-center justify-center gap-[2px]">
+                                    <div className="w-[2px] h-2.5 bg-current rounded-full"></div>
+                                    <div className="w-[2px] h-4 bg-current rounded-full"></div>
+                                    <div className="w-[2px] h-2 bg-current rounded-full"></div>
+                                </div>
+                            ) : (
+                                <ArrowUp size={18} strokeWidth={2.5} />
+                            )}
                         </button>
                     </div>
                 </div>
                 <div className="text-center mt-3">
-                    <p className="text-xs text-slate-500 dark:text-gray-400">A inteligência artificial pode cometer erros. Verifique informações importantes.</p>
+                    <p className="text-xs text-slate-500 dark:text-gray-400">O ChatGPT pode cometer erros. Confira informações importantes. Consulte as <a href="#" className="underline">Preferências de cookies</a>.</p>
                 </div>
             </div>
         </div>
