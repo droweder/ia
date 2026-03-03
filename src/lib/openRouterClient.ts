@@ -21,6 +21,12 @@ export const chatWithOpenRouter = async (
   }
 
   try {
+    const requestBody = {
+      model: model,
+      messages: messages,
+    };
+    console.log("OpenRouter API Request:", JSON.stringify(requestBody, null, 2));
+
     const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -29,10 +35,7 @@ export const chatWithOpenRouter = async (
         "X-Title": "DRoweder AI", // Site Title
         "Content-Type": "application/json"
       },
-      body: JSON.stringify({
-        model: model,
-        messages: messages,
-      })
+      body: JSON.stringify(requestBody)
     });
 
     if (!response.ok) {
@@ -62,18 +65,13 @@ export const chatWithOpenRouter = async (
         throw new Error(`OpenRouter API Error: ${errorMessage}`);
     }
 
-    return await response.json();
+    const responseData = await response.json();
+    console.log("OpenRouter API Response:", JSON.stringify(responseData, null, 2));
+    return responseData;
   } catch (error: any) {
     console.error("Failed to fetch from OpenRouter:", error);
-    // Retornar a mensagem de erro para o usuário em vez de falhar silenciosamente
-    return {
-      id: 'error-id',
-      choices: [{
-        message: {
-          role: 'assistant',
-          content: `⚠️ Ocorreu um erro ao comunicar com a IA: ${error.message || 'Erro desconhecido'}.`
-        }
-      }]
-    } as any;
+    // Lançar o erro para ser tratado no componente (Chat.tsx),
+    // permitindo exibir no log ou banner do app em vez de inserir como mensagem
+    throw error;
   }
 };

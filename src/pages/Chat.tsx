@@ -134,13 +134,13 @@ const Chat: React.FC = () => {
   // Hidden feature flag for SQL debug (can be enabled via query param or user role later)
   const SHOW_SQL_DEBUG = false;
 
-  const [selectedModel, setSelectedModel] = useState<string>('google/gemini-2.0-flash-lite-preview-02-05:free');
+  const [selectedModel, setSelectedModel] = useState<string>('google/gemma-3-27b-it:free');
 
   const models = [
-    { id: 'google/gemini-2.0-flash-lite-preview-02-05:free', name: 'Gemini 2.0 Flash Lite (Free)' },
-    { id: 'deepseek/deepseek-r1:free', name: 'DeepSeek R1 (Free)' },
-    { id: 'meta-llama/llama-3-8b-instruct:free', name: 'Llama 3 8B (Free)' },
-    { id: 'mistralai/mistral-7b-instruct:free', name: 'Mistral 7B (Free)' },
+    { id: 'google/gemma-3-27b-it:free', name: 'Gemma 3 27B (Free)' },
+    { id: 'meta-llama/llama-3.3-70b-instruct:free', name: 'Llama 3.3 70B (Free)' },
+    { id: 'mistralai/mistral-small-3.1-24b-instruct:free', name: 'Mistral Small 3.1 24B (Free)' },
+    { id: 'qwen/qwen3-coder:free', name: 'Qwen 3 Coder (Free)' },
   ];
 
   useEffect(() => {
@@ -349,9 +349,9 @@ const Chat: React.FC = () => {
 
         INSTRUÇÕES DE BACKEND (Simulação):
         1. O usuário fará perguntas sobre dados (ordens, estoque, previsão).
-        2. Você (o backend) deve consultar o banco de dados (simulado) para obter os números reais.
-        3. Responda ao usuário final APENAS com a análise em linguagem natural e os dados formatados (tabelas markdown, listas).
-        4. NÃO exponha o comando SQL bruto na resposta final, a menos que o usuário peça explicitamente "Mostre o SQL".
+        2. Como este é um ambiente de simulação sem acesso real ao banco de dados, VOCÊ DEVE INVENTAR/GERAR dados fictícios realistas para responder às perguntas do usuário.
+        3. Responda ao usuário final APENAS com a análise em linguagem natural e os dados formatados (tabelas markdown, listas). Não diga que não tem acesso aos dados.
+        4. NÃO exponha comandos SQL na resposta final, a menos que o usuário peça explicitamente "Mostre o SQL".
         5. Seja conciso, profissional e use Português do Brasil.
         ` },
         ...currentHistory.map(m => ({ role: m.role, content: m.content }) as OpenRouterMessage),
@@ -360,6 +360,13 @@ const Chat: React.FC = () => {
 
     try {
         const aiResponse = await chatWithOpenRouter(selectedModel, openRouterMessages);
+
+        // Check for mock error response from openRouterClient when API key is missing
+        if (aiResponse?.id === 'mock-id') {
+            setError(aiResponse.choices[0].message.content);
+            setLoading(false);
+            return false;
+        }
 
         const aiContent = aiResponse?.choices[0]?.message?.content || "Desculpe, não consegui processar sua solicitação no momento.";
         const modelUsed = aiResponse?.model || selectedModel;
@@ -382,12 +389,12 @@ const Chat: React.FC = () => {
         } else if (aiError) {
              console.error('Error saving AI message:', aiError);
              // Show error in UI as fallback
-             setMessages(prev => [...prev, { id: 'err-' + Date.now(), role: 'assistant', content: "Erro ao salvar resposta no histórico." }]);
+             setError("Erro ao salvar resposta no histórico.");
         }
 
-    } catch (error) {
+    } catch (error: any) {
         console.error("LLM Error:", error);
-        setMessages(prev => [...prev, { id: 'err-' + Date.now(), role: 'assistant', content: "Erro de conexão com a IA. Tente novamente." }]);
+        setError(`Falha na API da IA: ${error.message || 'Erro de conexão com o servidor'}. Verifique o modelo ou tente novamente.`);
         setLoading(false);
         return false;
     } finally {

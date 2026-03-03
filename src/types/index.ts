@@ -4,6 +4,7 @@ export interface OpenRouterMessage {
 }
 
 export interface OpenRouterResponse {
+  id?: string;
   choices: {
     message: OpenRouterMessage;
   }[];
