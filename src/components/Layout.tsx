@@ -339,6 +339,7 @@ const Layout: React.FC = () => {
                                             onClick={(e) => {
                                                 e.stopPropagation();
                                                 setOpenChatMenuId(null);
+                                                alert("Funcionalidade de compartilhar em desenvolvimento.");
                                             }}
                                             className="w-full flex items-center gap-3 px-4 py-2 text-sm text-slate-700 dark:text-gray-200 hover:bg-slate-100 dark:hover:bg-white/5 transition-colors"
                                         >
@@ -349,6 +350,7 @@ const Layout: React.FC = () => {
                                             onClick={(e) => {
                                                 e.stopPropagation();
                                                 setOpenChatMenuId(null);
+                                                alert("Funcionalidade de chat em grupo em desenvolvimento.");
                                             }}
                                             className="w-full flex items-center gap-3 px-4 py-2 text-sm text-slate-700 dark:text-gray-200 hover:bg-slate-100 dark:hover:bg-white/5 transition-colors"
                                         >
@@ -359,6 +361,13 @@ const Layout: React.FC = () => {
                                             onClick={(e) => {
                                                 e.stopPropagation();
                                                 setOpenChatMenuId(null);
+                                                const newTitle = prompt("Digite o novo nome para o chat:", chat.title || 'Novo Chat');
+                                                if (newTitle) {
+                                                    // Simple optimistic UI update for rename
+                                                    setConversations(prev => prev.map(c => c.id === chat.id ? { ...c, title: newTitle } : c));
+                                                    // Supabase update would go here
+                                                    supabase.schema('droweder_ia').from('conversations').update({ title: newTitle }).eq('id', chat.id).then();
+                                                }
                                             }}
                                             className="w-full flex items-center gap-3 px-4 py-2 text-sm text-slate-700 dark:text-gray-200 hover:bg-slate-100 dark:hover:bg-white/5 transition-colors"
                                         >
@@ -385,6 +394,7 @@ const Layout: React.FC = () => {
                                             onClick={(e) => {
                                                 e.stopPropagation();
                                                 setOpenChatMenuId(null);
+                                                alert("Funcionalidade de fixar chat em desenvolvimento.");
                                             }}
                                             className="w-full flex items-center gap-3 px-4 py-2 text-sm text-slate-700 dark:text-gray-200 hover:bg-slate-100 dark:hover:bg-white/5 transition-colors"
                                         >
@@ -395,6 +405,7 @@ const Layout: React.FC = () => {
                                             onClick={(e) => {
                                                 e.stopPropagation();
                                                 setOpenChatMenuId(null);
+                                                alert("Funcionalidade de arquivar chat em desenvolvimento.");
                                             }}
                                             className="w-full flex items-center gap-3 px-4 py-2 text-sm text-slate-700 dark:text-gray-200 hover:bg-slate-100 dark:hover:bg-white/5 transition-colors"
                                         >
