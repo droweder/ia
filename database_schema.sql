@@ -1,46 +1,41 @@
 -- Script de Criação do Banco de Dados - DRoweder AI + Mock Planintex
+-- Script de Criação do Banco de Dados - DRoweder AI
 -- Autor: Jules (Full-Stack & Data Engineer)
+-- O Schema planintex já existe e é gerenciado pelo ERP principal, este script gerencia apenas o app droweder_ia
 
 -- 1. Estrutura de Schemas
-CREATE SCHEMA IF NOT EXISTS planintex;
 CREATE SCHEMA IF NOT EXISTS droweder_ia;
 
--- 2. Tabelas do Schema Planintex (Mock para dependências)
-CREATE TABLE IF NOT EXISTS planintex.empresas (
+-- 2. Tabelas do Schema DRoweder AI
+
+-- Adicionando coluna project_id na tabela conversations caso ela já exista
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns
+                   WHERE table_schema='droweder_ia' AND table_name='conversations' AND column_name='project_id') THEN
+        ALTER TABLE droweder_ia.conversations ADD COLUMN project_id UUID REFERENCES droweder_ia.projects(id) ON DELETE SET NULL;
+    END IF;
+END $$;
+
+-- Tabela de Projetos
+CREATE TABLE IF NOT EXISTS droweder_ia.projects (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    company_id UUID NOT NULL REFERENCES planintex.empresas(id),
     name TEXT NOT NULL,
-    cnpj TEXT,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
-);
-
--- Tabela de Usuários para vincular auth.uid() a uma empresa (Mock)
-CREATE TABLE IF NOT EXISTS planintex.users (
-    id UUID PRIMARY KEY, -- Deve corresponder ao auth.users.id do Supabase
-    company_id UUID NOT NULL REFERENCES planintex.empresas(id),
-    name TEXT,
-    email TEXT,
-    role TEXT DEFAULT 'user'
-);
-
-CREATE TABLE IF NOT EXISTS planintex.ordens (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    company_id UUID NOT NULL REFERENCES planintex.empresas(id),
-    status TEXT NOT NULL,
     description TEXT,
-    amount NUMERIC(10, 2),
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
+    created_by UUID
 );
-
--- 3. Tabelas do Schema DRoweder AI
 
 -- Tabela de Conversas
 CREATE TABLE IF NOT EXISTS droweder_ia.conversations (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    user_id UUID NOT NULL, -- Referência ao usuário que criou
+    user_id UUID NOT NULL,
     company_id UUID NOT NULL REFERENCES planintex.empresas(id),
     title TEXT NOT NULL,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
-    updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
+    project_id UUID REFERENCES droweder_ia.projects(id) ON DELETE SET NULL
 );
 
 -- Tabela de Mensagens
@@ -51,6 +46,29 @@ CREATE TABLE IF NOT EXISTS droweder_ia.messages (
     content TEXT NOT NULL,
     tokens_used INTEGER DEFAULT 0,
     model_used TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+
+-- Tabela de Arquivos
+CREATE TABLE IF NOT EXISTS droweder_ia.files (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    company_id UUID NOT NULL REFERENCES planintex.empresas(id),
+    name TEXT NOT NULL,
+    size BIGINT,
+    type TEXT,
+    url TEXT NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
+    uploaded_by UUID
+);
+
+-- Tabela de Assistentes
+CREATE TABLE IF NOT EXISTS droweder_ia.assistants (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    name TEXT NOT NULL,
+    description TEXT,
+    icon TEXT,
+    category TEXT,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 
@@ -108,31 +126,54 @@ GRANT SELECT ON ALL TABLES IN SCHEMA planintex TO authenticated;
 ALTER TABLE droweder_ia.conversations ENABLE ROW LEVEL SECURITY;
 ALTER TABLE droweder_ia.messages ENABLE ROW LEVEL SECURITY;
 ALTER TABLE droweder_ia.billing_logs ENABLE ROW LEVEL SECURITY;
+ALTER TABLE droweder_ia.projects ENABLE ROW LEVEL SECURITY;
+ALTER TABLE droweder_ia.files ENABLE ROW LEVEL SECURITY;
+ALTER TABLE droweder_ia.assistants ENABLE ROW LEVEL SECURITY;
+
+-- Políticas para Projetos, Arquivos e Assistentes (Acesso por Empresa)
+DROP POLICY IF EXISTS "Users can access their company projects" ON droweder_ia.projects;
+CREATE POLICY "Users can access their company projects" ON droweder_ia.projects
+    FOR ALL
+    USING (company_id IN (SELECT empresa_id FROM planintex.profiles WHERE id = auth.uid()))
+    WITH CHECK (company_id IN (SELECT empresa_id FROM planintex.profiles WHERE id = auth.uid()));
+
+DROP POLICY IF EXISTS "Users can access their company files" ON droweder_ia.files;
+CREATE POLICY "Users can access their company files" ON droweder_ia.files
+    FOR ALL
+    USING (company_id IN (SELECT empresa_id FROM planintex.profiles WHERE id = auth.uid()))
+    WITH CHECK (company_id IN (SELECT empresa_id FROM planintex.profiles WHERE id = auth.uid()));
+
+DROP POLICY IF EXISTS "Users can access all assistants" ON droweder_ia.assistants;
+CREATE POLICY "Users can access all assistants" ON droweder_ia.assistants
+    FOR SELECT
+    USING (true);
 
 -- Política para Conversations
 -- Usuários só podem acessar conversas da sua empresa
+DROP POLICY IF EXISTS "Users can access their company conversations" ON droweder_ia.conversations;
 CREATE POLICY "Users can access their company conversations" ON droweder_ia.conversations
     FOR ALL
     USING (
         company_id IN (
-            SELECT company_id FROM planintex.users WHERE id = auth.uid()
+            SELECT empresa_id FROM planintex.profiles WHERE id = auth.uid()
         )
     )
     WITH CHECK (
         company_id IN (
-            SELECT company_id FROM planintex.users WHERE id = auth.uid()
+            SELECT empresa_id FROM planintex.profiles WHERE id = auth.uid()
         )
     );
 
 -- Política para Messages
 -- Usuários só podem acessar mensagens de conversas da sua empresa
+DROP POLICY IF EXISTS "Users can access messages of their company conversations" ON droweder_ia.messages;
 CREATE POLICY "Users can access messages of their company conversations" ON droweder_ia.messages
     FOR ALL
     USING (
         conversation_id IN (
             SELECT id FROM droweder_ia.conversations
             WHERE company_id IN (
-                SELECT company_id FROM planintex.users WHERE id = auth.uid()
+                SELECT empresa_id FROM planintex.profiles WHERE id = auth.uid()
             )
         )
     )
@@ -140,18 +181,19 @@ CREATE POLICY "Users can access messages of their company conversations" ON drow
         conversation_id IN (
             SELECT id FROM droweder_ia.conversations
             WHERE company_id IN (
-                SELECT company_id FROM planintex.users WHERE id = auth.uid()
+                SELECT empresa_id FROM planintex.profiles WHERE id = auth.uid()
             )
         )
     );
 
 -- Política para Billing Logs
 -- Usuários só podem ver logs da sua empresa (Read Only recomendado para usuários comuns, Insert pelo sistema)
+DROP POLICY IF EXISTS "Users can view their company billing logs" ON droweder_ia.billing_logs;
 CREATE POLICY "Users can view their company billing logs" ON droweder_ia.billing_logs
     FOR SELECT
     USING (
         company_id IN (
-            SELECT company_id FROM planintex.users WHERE id = auth.uid()
+            SELECT empresa_id FROM planintex.profiles WHERE id = auth.uid()
         )
     );
 

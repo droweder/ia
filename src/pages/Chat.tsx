@@ -1,11 +1,17 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Bot, User, ChevronDown, ShieldCheck, Loader2, Database, AlertCircle, Plus, Mic, ArrowUp, Copy, Check, RefreshCcw } from 'lucide-react';
+import { Bot, User, ChevronDown, ShieldCheck, Loader2, Database, AlertCircle, Plus, Mic, ArrowUp, Copy, Check, RefreshCcw, X, File as FileIcon } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { supabase } from '../lib/supabaseClient';
 import { useAuth } from '../contexts/AuthContext';
+import * as pdfjsLib from 'pdfjs-dist';
+import mammoth from 'mammoth';
+
+// Initialize pdfjs worker
+pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.mjs`;
+
 import { chatWithOpenRouter } from '../lib/openRouterClient';
 import { useOutletContext } from 'react-router-dom';
 import type { LayoutContextType } from '../components/Layout';
@@ -109,8 +115,21 @@ const Chat: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [companyId, setCompanyId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [attachments, setAttachments] = useState<File[]>([]);
   const { user } = useAuth();
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      const newFiles = Array.from(e.target.files);
+      setAttachments((prev) => [...prev, ...newFiles]);
+    }
+  };
+
+  const removeAttachment = (index: number) => {
+    setAttachments((prev) => prev.filter((_, i) => i !== index));
+  };
 
   // Hidden feature flag for SQL debug (can be enabled via query param or user role later)
   const SHOW_SQL_DEBUG = false;
@@ -151,8 +170,8 @@ const Chat: React.FC = () => {
     try {
         const { data, error } = await supabase
             .schema('planintex')
-            .from('users')
-            .select('company_id')
+            .from('profiles')
+            .select('empresa_id')
             .eq('id', user.id)
             .single();
 
@@ -160,7 +179,7 @@ const Chat: React.FC = () => {
             console.error('Error fetching user company:', error);
             setError("Não foi possível identificar sua empresa.");
         } else if (data) {
-            setCompanyId(data.company_id);
+            setCompanyId(data.empresa_id);
         } else {
              setError("Sua conta não está vinculada a nenhuma empresa no Planintex.");
         }
@@ -182,22 +201,99 @@ const Chat: React.FC = () => {
   };
 
   const handleSendMessage = async () => {
-    if (!input.trim()) return;
+    if (!input.trim() && attachments.length === 0) return;
     const content = input;
-    setInput('');
-    await handleSendCustomMessage(content, messages);
+    const currentAttachments = [...attachments];
+
+    // Do not clear input and attachments yet; they will be cleared upon successful sending
+    const success = await handleSendCustomMessage(content, messages, currentAttachments);
+    if (success) {
+        setInput('');
+        setAttachments([]);
+    }
   };
 
-  const handleSendCustomMessage = async (newMessageContent: string, currentHistory: Message[]) => {
-    if (!newMessageContent.trim() || !user || !companyId) {
+  const handleSendCustomMessage = async (newMessageContent: string, currentHistory: Message[], files: File[] = []) => {
+    if ((!newMessageContent.trim() && files.length === 0) || !user || !companyId) {
         if (!companyId) setError("Empresa não identificada. Contate o suporte.");
-        return;
+        return false;
     }
 
     setLoading(true);
     setError(null);
 
     let conversationId = activeConversationId;
+
+    // Process files
+    const fileUrls: string[] = [];
+    let extractedTextFromFiles = "";
+
+    if (files.length > 0) {
+        for (const file of files) {
+            const fileExt = file.name.split('.').pop()?.toLowerCase();
+
+            // Text extraction based on file type
+            try {
+                if (fileExt === 'txt' || fileExt === 'csv' || fileExt === 'json') {
+                    const text = await file.text();
+                    extractedTextFromFiles += `\n\n--- Conteúdo do arquivo: ${file.name} ---\n${text}\n--- Fim do arquivo ---\n`;
+                } else if (fileExt === 'pdf') {
+                    const arrayBuffer = await file.arrayBuffer();
+                    const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+                    let fullText = "";
+                    for (let i = 1; i <= pdf.numPages; i++) {
+                        const page = await pdf.getPage(i);
+                        const textContent = await page.getTextContent();
+                        const pageText = textContent.items.map((item: any) => item.str).join(" ");
+                        fullText += pageText + "\n";
+                    }
+                    extractedTextFromFiles += `\n\n--- Conteúdo do arquivo PDF: ${file.name} ---\n${fullText}\n--- Fim do arquivo ---\n`;
+                } else if (fileExt === 'docx') {
+                    const arrayBuffer = await file.arrayBuffer();
+                    const result = await mammoth.extractRawText({ arrayBuffer });
+                    extractedTextFromFiles += `\n\n--- Conteúdo do arquivo DOCX: ${file.name} ---\n${result.value}\n--- Fim do arquivo ---\n`;
+                }
+            } catch (err) {
+                console.error(`Error extracting text from ${file.name}:`, err);
+                // We'll still upload it, even if text extraction fails
+            }
+
+            // Upload the file to keep a record and provide a public URL
+            const fileName = `${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
+            const filePath = `${companyId}/${fileName}`;
+
+            const { error: uploadError } = await supabase.storage
+                .from('company_files')
+                .upload(filePath, file);
+
+            if (uploadError) {
+                console.error("Error uploading file:", uploadError);
+                setError(`Erro ao fazer upload do arquivo ${file.name}`);
+                setLoading(false);
+                return false;
+            }
+
+            const { data } = supabase.storage
+                .from('company_files')
+                .getPublicUrl(filePath);
+
+            fileUrls.push(data.publicUrl);
+        }
+    }
+
+    // Append file info to the user message for context
+    let finalMessageContent = newMessageContent;
+
+    // Add text contents to the user prompt if any files were parsed
+    if (extractedTextFromFiles) {
+        finalMessageContent += extractedTextFromFiles;
+    }
+
+    // Add visual links
+    if (fileUrls.length > 0) {
+        const links = fileUrls.map(url => `[Arquivo anexado](${url})`).join('\n');
+        finalMessageContent = finalMessageContent ? `${finalMessageContent}\n\n${links}` : links;
+    }
 
     // Create conversation if none exists
     if (!conversationId) {
@@ -207,7 +303,7 @@ const Chat: React.FC = () => {
             .insert({
                 user_id: user.id,
                 company_id: companyId,
-                title: newMessageContent.substring(0, 30) + '...',
+                title: finalMessageContent.substring(0, 30) + '...',
             })
             .select()
             .single();
@@ -216,7 +312,7 @@ const Chat: React.FC = () => {
             console.error('Error creating conversation:', convError);
             setError("Erro ao iniciar conversa.");
             setLoading(false);
-            return;
+            return false;
         }
         conversationId = newConv.id;
         setActiveConversationId(newConv.id);
@@ -230,17 +326,17 @@ const Chat: React.FC = () => {
         .insert({
             conversation_id: conversationId,
             role: 'user',
-            content: newMessageContent
+            content: finalMessageContent
         });
 
     if (msgError) {
         console.error('Error saving message:', msgError);
         setLoading(false);
-        return;
+        return false;
     }
 
     // Optimistic update
-    const userMessage: Message = { id: 'temp-' + Date.now(), role: 'user', content: newMessageContent };
+    const userMessage: Message = { id: 'temp-' + Date.now(), role: 'user', content: finalMessageContent };
     // Only append to the currentHistory we passed in, avoiding race conditions if we trimmed history
     setMessages([...currentHistory, userMessage]);
 
@@ -259,7 +355,7 @@ const Chat: React.FC = () => {
         5. Seja conciso, profissional e use Português do Brasil.
         ` },
         ...currentHistory.map(m => ({ role: m.role, content: m.content }) as OpenRouterMessage),
-        { role: 'user', content: newMessageContent }
+        { role: 'user', content: finalMessageContent }
     ];
 
     try {
@@ -292,9 +388,13 @@ const Chat: React.FC = () => {
     } catch (error) {
         console.error("LLM Error:", error);
         setMessages(prev => [...prev, { id: 'err-' + Date.now(), role: 'assistant', content: "Erro de conexão com a IA. Tente novamente." }]);
+        setLoading(false);
+        return false;
     } finally {
         setLoading(false);
     }
+
+    return true;
   };
 
   const toggleSql = (msgId: string) => {
@@ -493,12 +593,47 @@ const Chat: React.FC = () => {
         {/* Input Area */}
         <div className="p-4 bg-transparent backdrop-blur-md">
             <div className="max-w-3xl mx-auto relative">
-                <div className="relative flex items-end group bg-[#f4f4f4] dark:bg-[#2f2f2f] rounded-[26px] transition-all overflow-hidden focus-within:ring-2 focus-within:ring-gray-300 dark:focus-within:ring-gray-600">
-                    <div className="flex items-center justify-center p-2 pl-3 pb-[10px]">
-                        <button className="w-8 h-8 rounded-full flex items-center justify-center text-slate-500 hover:text-slate-800 dark:text-gray-400 dark:hover:text-gray-200 transition-colors border border-transparent hover:bg-black/5 dark:hover:bg-white/10">
-                            <Plus size={20} strokeWidth={2.5} />
-                        </button>
-                    </div>
+                <div className="relative flex flex-col group bg-[#f4f4f4] dark:bg-[#2f2f2f] rounded-[26px] transition-all overflow-hidden focus-within:ring-2 focus-within:ring-gray-300 dark:focus-within:ring-gray-600">
+                    {/* Attachments Preview */}
+                    {attachments.length > 0 && (
+                        <div className="flex flex-wrap gap-2 p-3 pb-0">
+                            {attachments.map((file, index) => (
+                                <div key={index} className="relative group/attachment flex items-center justify-center bg-white dark:bg-slate-700 rounded-xl border border-slate-200 dark:border-white/10 shadow-sm overflow-hidden h-16 w-16">
+                                    {file.type.startsWith('image/') ? (
+                                        <img src={URL.createObjectURL(file)} alt="preview" className="h-full w-full object-cover" />
+                                    ) : (
+                                        <div className="flex flex-col items-center justify-center text-slate-500 dark:text-gray-300">
+                                            <FileIcon size={24} />
+                                            <span className="text-[10px] font-medium mt-1 truncate w-14 text-center px-1">{file.name.split('.').pop()?.toUpperCase()}</span>
+                                        </div>
+                                    )}
+                                    <button
+                                        onClick={() => removeAttachment(index)}
+                                        className="absolute -top-1 -right-1 bg-white dark:bg-slate-800 text-slate-600 dark:text-gray-200 rounded-full p-0.5 opacity-0 group-hover/attachment:opacity-100 transition-opacity border border-slate-200 dark:border-white/10 shadow-sm hover:bg-slate-100 dark:hover:bg-slate-700"
+                                    >
+                                        <X size={12} />
+                                    </button>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+
+                    <div className="relative flex items-end">
+                        <div className="flex items-center justify-center p-2 pl-3 pb-[10px]">
+                            <button
+                                onClick={() => fileInputRef.current?.click()}
+                                className="w-8 h-8 rounded-full flex items-center justify-center text-slate-500 hover:text-slate-800 dark:text-gray-400 dark:hover:text-gray-200 transition-colors border border-transparent hover:bg-black/5 dark:hover:bg-white/10"
+                            >
+                                <Plus size={20} strokeWidth={2.5} />
+                            </button>
+                            <input
+                                type="file"
+                                ref={fileInputRef}
+                                onChange={handleFileChange}
+                                multiple
+                                className="hidden"
+                            />
+                        </div>
                     <textarea
                         value={input}
                         onChange={(e) => setInput(e.target.value)}
@@ -529,16 +664,16 @@ const Chat: React.FC = () => {
                         </button>
                         <button
                             onClick={handleSendMessage}
-                            disabled={!input.trim() && !loading}
+                            disabled={(!input.trim() && attachments.length === 0) || loading}
                             className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors
-                                ${!input.trim()
+                                ${(!input.trim() && attachments.length === 0)
                                     ? 'bg-black text-white dark:bg-white dark:text-black opacity-100 hover:opacity-80'
                                     : 'bg-black text-white dark:bg-white dark:text-black hover:opacity-80'
                                 }
                                 ${loading ? 'opacity-50 cursor-not-allowed' : ''}
                             `}
                         >
-                            {!input.trim() ? (
+                            {(!input.trim() && attachments.length === 0) ? (
                                 // Simulate Audio Wave icon
                                 <div className="flex items-center justify-center gap-[2px]">
                                     <div className="w-[2px] h-2.5 bg-current rounded-full"></div>
@@ -550,6 +685,7 @@ const Chat: React.FC = () => {
                             )}
                         </button>
                     </div>
+                </div>
                 </div>
                 <div className="text-center mt-3">
                     <p className="text-xs text-slate-500 dark:text-gray-400">O ChatGPT pode cometer erros. Confira informações importantes. Consulte as <a href="#" className="underline">Preferências de cookies</a>.</p>

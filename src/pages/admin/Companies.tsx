@@ -27,12 +27,12 @@ const Companies: React.FC = () => {
     try {
         const { data, error } = await supabase
             .schema('planintex')
-            .from('users')
-            .select('role')
+            .from('profiles')
+            .select('role, is_superadmin')
             .eq('id', user.id)
             .single();
 
-        if (error || !data || (data.role !== 'admin' && data.role !== 'super_admin')) {
+        if (error || !data || (data.role !== 'Admin' && data.is_superadmin !== true)) {
              console.warn("User unauthorized for admin page:", data?.role);
              setIsAuthorized(false);
              // In a real app, maybe redirect immediately. For UX, we show a message first.
