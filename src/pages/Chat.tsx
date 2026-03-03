@@ -134,9 +134,10 @@ const Chat: React.FC = () => {
   // Hidden feature flag for SQL debug (can be enabled via query param or user role later)
   const SHOW_SQL_DEBUG = false;
 
-  const [selectedModel, setSelectedModel] = useState<string>('google/gemma-3-27b-it:free');
+  const [selectedModel, setSelectedModel] = useState<string>('google/gemini-2.0-flash-lite-001');
 
   const models = [
+    { id: 'google/gemini-2.0-flash-lite-001', name: 'Gemini 2.0 Flash Lite' },
     { id: 'google/gemma-3-27b-it:free', name: 'Gemma 3 27B (Free)' },
     { id: 'meta-llama/llama-3.3-70b-instruct:free', name: 'Llama 3.3 70B (Free)' },
     { id: 'mistralai/mistral-small-3.1-24b-instruct:free', name: 'Mistral Small 3.1 24B (Free)' },

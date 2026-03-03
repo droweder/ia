@@ -10,6 +10,7 @@ import { SelectProjectModal } from './SelectProjectModal';
 import { RenameChatModal } from './RenameChatModal';
 import { ShareChatModal } from './ShareChatModal';
 import { GroupChatModal } from './GroupChatModal';
+import { DeleteChatModal } from './DeleteChatModal';
 import { Toast } from './Toast';
 import type { ToastType } from './Toast';
 
@@ -48,6 +49,9 @@ const Layout: React.FC = () => {
   const [chatToShareTitle, setChatToShareTitle] = useState('');
 
   const [isGroupChatModalOpen, setIsGroupChatModalOpen] = useState(false);
+
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [chatToDeleteId, setChatToDeleteId] = useState<string | null>(null);
 
   const [conversations, setConversations] = useState<any[]>([]);
   const [activeConversationId, setActiveConversationId] = useState<string | null>(null);
@@ -180,8 +184,6 @@ const Layout: React.FC = () => {
   };
 
   const handleDeleteChat = async (id: string) => {
-    if (!window.confirm("Tem certeza que deseja excluir este chat?")) return;
-
     // Optimistically update UI
     setConversations(prev => prev.filter(c => c.id !== id));
     if (activeConversationId === id) {
@@ -464,7 +466,8 @@ const Layout: React.FC = () => {
                                         <button
                                             onClick={(e) => {
                                                 e.stopPropagation();
-                                                handleDeleteChat(chat.id);
+                                                setChatToDeleteId(chat.id);
+                                                setIsDeleteModalOpen(true);
                                                 setOpenChatMenuId(null);
                                             }}
                                             className="w-full flex items-center gap-3 px-4 py-2 text-sm text-red-600 dark:text-[#f87171] hover:bg-slate-100 dark:hover:bg-white/5 transition-colors"
@@ -589,6 +592,20 @@ const Layout: React.FC = () => {
         onConfirm={() => {
             setIsGroupChatModalOpen(false);
             showToast("Chat em grupo criado com sucesso.", "success");
+        }}
+      />
+
+      <DeleteChatModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => {
+            setIsDeleteModalOpen(false);
+            setChatToDeleteId(null);
+        }}
+        onConfirm={() => {
+            if (chatToDeleteId) {
+                handleDeleteChat(chatToDeleteId);
+                setChatToDeleteId(null);
+            }
         }}
       />
 
