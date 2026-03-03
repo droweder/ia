@@ -26,7 +26,7 @@ interface Message {
 }
 
 const Chat: React.FC = () => {
-  const { conversations, setConversations, activeConversationId, setActiveConversationId } = useOutletContext<LayoutContextType>();
+  const { conversations, setConversations, activeConversationId, setActiveConversationId, activeAssistantId, setActiveAssistantId, assistants } = useOutletContext<LayoutContextType>();
   const [isRecording, setIsRecording] = useState(false);
   const recognitionRef = useRef<any>(null);
 
@@ -153,10 +153,17 @@ const Chat: React.FC = () => {
   useEffect(() => {
     if (activeConversationId) {
         fetchMessages(activeConversationId);
+        // Sync active assistant with the loaded conversation if needed
+        const currentConv = conversations.find(c => c.id === activeConversationId);
+        if (currentConv && currentConv.assistant_id) {
+            setActiveAssistantId(currentConv.assistant_id);
+        } else {
+            setActiveAssistantId(null);
+        }
     } else {
         setMessages([]); // Clear messages when creating new conversation
     }
-  }, [activeConversationId]);
+  }, [activeConversationId, conversations]);
 
   useEffect(() => {
     scrollToBottom();
@@ -305,6 +312,7 @@ const Chat: React.FC = () => {
                 user_id: user.id,
                 company_id: companyId,
                 title: finalMessageContent.substring(0, 30) + '...',
+                assistant_id: activeAssistantId || null,
             })
             .select()
             .single();
@@ -345,16 +353,27 @@ const Chat: React.FC = () => {
     // We instruct the LLM to behave as a data analyst.
     // In a real implementation with Text-to-SQL, the Edge Function handles the "tool calling"
     // to query the database. Here, we simulate that the Edge Function does it.
-    const openRouterMessages: OpenRouterMessage[] = [
-        { role: 'system', content: `Você é o DRoweder IA, um assistente especialista em manufatura conectado ao ERP Planintex.
 
-        INSTRUÇÕES DE BACKEND (Simulação):
+    let systemPrompt = `Você é o DRoweder IA, um assistente especialista em manufatura conectado ao ERP Planintex.
+
+        INSTRUÇÕES BASE:
         1. O usuário fará perguntas sobre dados (ordens, estoque, previsão).
-        2. Como este é um ambiente de simulação sem acesso real ao banco de dados, VOCÊ DEVE INVENTAR/GERAR dados fictícios realistas para responder às perguntas do usuário.
-        3. Responda ao usuário final APENAS com a análise em linguagem natural e os dados formatados (tabelas markdown, listas). Não diga que não tem acesso aos dados.
+        2. Você NÃO DEVE responder com dados fictícios. Apenas com dados reais, se não os tiver, então deve avisar o usuário.
+        3. Responda ao usuário final APENAS com a análise em linguagem natural e os dados formatados (tabelas markdown, listas).
         4. NÃO exponha comandos SQL na resposta final, a menos que o usuário peça explicitamente "Mostre o SQL".
         5. Seja conciso, profissional e use Português do Brasil.
-        ` },
+        `;
+
+    // Inject active assistant instructions if present
+    if (activeAssistantId) {
+        const activeAssistant = assistants.find(a => a.id === activeAssistantId);
+        if (activeAssistant && activeAssistant.instructions) {
+             systemPrompt += `\n\nINSTRUÇÕES ESPECÍFICAS DO ASSISTENTE ATUAL (${activeAssistant.name}):\n${activeAssistant.instructions}`;
+        }
+    }
+
+    const openRouterMessages: OpenRouterMessage[] = [
+        { role: 'system', content: systemPrompt },
         ...currentHistory.map(m => ({ role: m.role, content: m.content }) as OpenRouterMessage),
         { role: 'user', content: finalMessageContent }
     ];
@@ -414,6 +433,8 @@ const Chat: React.FC = () => {
   }
 
 
+  const activeAssistant = assistants.find(a => a.id === activeAssistantId);
+
   return (
     <div className="flex flex-1 flex-col h-full bg-transparent overflow-hidden transition-colors duration-200">
 
@@ -451,16 +472,27 @@ const Chat: React.FC = () => {
                     <div className="w-16 h-16 bg-white/60 dark:bg-white/10 backdrop-blur-md rounded-full flex items-center justify-center shadow-sm border border-slate-200 dark:border-white/20">
                         <Bot size={32} className="text-slate-700 dark:text-white" />
                     </div>
-                    <div className="grid grid-cols-2 gap-4 max-w-lg w-full">
-                        <button onClick={() => setInput("Qual a previsão de demanda para o próximo mês?")} className="p-4 border border-slate-200 dark:border-white/10 rounded-xl hover:bg-slate-50 dark:hover:bg-white/10 bg-white/40 dark:bg-white/5 backdrop-blur-sm text-left transition-colors shadow-sm">
-                            <h3 className="text-sm font-medium text-slate-800 dark:text-white mb-1">Previsão de Demanda</h3>
-                            <p className="text-xs text-slate-500 dark:text-gray-400">Analise tendências futuras</p>
-                        </button>
-                         <button onClick={() => setInput("Quais ordens estão atrasadas?")} className="p-4 border border-slate-200 dark:border-white/10 rounded-xl hover:bg-slate-50 dark:hover:bg-white/10 bg-white/40 dark:bg-white/5 backdrop-blur-sm text-left transition-colors shadow-sm">
-                            <h3 className="text-sm font-medium text-slate-800 dark:text-white mb-1">Ordens Atrasadas</h3>
-                            <p className="text-xs text-slate-500 dark:text-gray-400">Liste gargalos na produção</p>
-                        </button>
-                    </div>
+                    {activeAssistant ? (
+                        <div className="text-center max-w-md">
+                            <h2 className="text-xl font-semibold text-slate-800 dark:text-white mb-2">
+                                Olá! Sou o {activeAssistant.name}
+                            </h2>
+                            <p className="text-sm text-slate-600 dark:text-gray-400">
+                                {activeAssistant.description || "Como posso ajudar você hoje?"}
+                            </p>
+                        </div>
+                    ) : (
+                        <div className="grid grid-cols-2 gap-4 max-w-lg w-full">
+                            <button onClick={() => setInput("Qual a previsão de demanda para o próximo mês?")} className="p-4 border border-slate-200 dark:border-white/10 rounded-xl hover:bg-slate-50 dark:hover:bg-white/10 bg-white/40 dark:bg-white/5 backdrop-blur-sm text-left transition-colors shadow-sm">
+                                <h3 className="text-sm font-medium text-slate-800 dark:text-white mb-1">Previsão de Demanda</h3>
+                                <p className="text-xs text-slate-500 dark:text-gray-400">Analise tendências futuras</p>
+                            </button>
+                             <button onClick={() => setInput("Quais ordens estão atrasadas?")} className="p-4 border border-slate-200 dark:border-white/10 rounded-xl hover:bg-slate-50 dark:hover:bg-white/10 bg-white/40 dark:bg-white/5 backdrop-blur-sm text-left transition-colors shadow-sm">
+                                <h3 className="text-sm font-medium text-slate-800 dark:text-white mb-1">Ordens Atrasadas</h3>
+                                <p className="text-xs text-slate-500 dark:text-gray-400">Liste gargalos na produção</p>
+                            </button>
+                        </div>
+                    )}
                 </div>
             )}
 
@@ -696,7 +728,7 @@ const Chat: React.FC = () => {
                 </div>
                 </div>
                 <div className="text-center mt-3">
-                    <p className="text-xs text-slate-500 dark:text-gray-400">O ChatGPT pode cometer erros. Confira informações importantes. Consulte as <a href="#" className="underline">Preferências de cookies</a>.</p>
+                    <p className="text-xs text-slate-500 dark:text-gray-400">A AI pode cometer erros. Considere verificar informações importantes.</p>
                 </div>
             </div>
         </div>

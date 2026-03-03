@@ -27,6 +27,17 @@ CREATE TABLE IF NOT EXISTS droweder_ia.projects (
     created_by UUID
 );
 
+-- Tabela de Assistentes (Movida para cima para resolver dependência da foreign key em conversations)
+CREATE TABLE IF NOT EXISTS droweder_ia.assistants (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    name TEXT NOT NULL,
+    description TEXT,
+    instructions TEXT,
+    icon TEXT,
+    category TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
 -- Tabela de Conversas
 CREATE TABLE IF NOT EXISTS droweder_ia.conversations (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -35,8 +46,18 @@ CREATE TABLE IF NOT EXISTS droweder_ia.conversations (
     title TEXT NOT NULL,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
-    project_id UUID REFERENCES droweder_ia.projects(id) ON DELETE SET NULL
+    project_id UUID REFERENCES droweder_ia.projects(id) ON DELETE SET NULL,
+    assistant_id UUID REFERENCES droweder_ia.assistants(id) ON DELETE SET NULL
 );
+
+-- Adicionando coluna assistant_id na tabela conversations caso ela já exista
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns
+                   WHERE table_schema='droweder_ia' AND table_name='conversations' AND column_name='assistant_id') THEN
+        ALTER TABLE droweder_ia.conversations ADD COLUMN assistant_id UUID REFERENCES droweder_ia.assistants(id) ON DELETE SET NULL;
+    END IF;
+END $$;
 
 -- Tabela de Mensagens
 CREATE TABLE IF NOT EXISTS droweder_ia.messages (
@@ -62,15 +83,14 @@ CREATE TABLE IF NOT EXISTS droweder_ia.files (
     uploaded_by UUID
 );
 
--- Tabela de Assistentes
-CREATE TABLE IF NOT EXISTS droweder_ia.assistants (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    name TEXT NOT NULL,
-    description TEXT,
-    icon TEXT,
-    category TEXT,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
-);
+-- Adicionando coluna instructions na tabela assistants caso ela já exista (para retrocompatibilidade)
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns
+                   WHERE table_schema='droweder_ia' AND table_name='assistants' AND column_name='instructions') THEN
+        ALTER TABLE droweder_ia.assistants ADD COLUMN instructions TEXT;
+    END IF;
+END $$;
 
 -- Tabela de Logs de Faturamento (Billing)
 CREATE TABLE IF NOT EXISTS droweder_ia.billing_logs (
@@ -147,6 +167,11 @@ DROP POLICY IF EXISTS "Users can access all assistants" ON droweder_ia.assistant
 CREATE POLICY "Users can access all assistants" ON droweder_ia.assistants
     FOR SELECT
     USING (true);
+
+DROP POLICY IF EXISTS "Users can create assistants" ON droweder_ia.assistants;
+CREATE POLICY "Users can create assistants" ON droweder_ia.assistants
+    FOR INSERT
+    WITH CHECK (true);
 
 -- Política para Conversations
 -- Usuários só podem acessar conversas da sua empresa

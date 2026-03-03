@@ -1,15 +1,19 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
+import { createPortal } from 'react-dom';
 import { MessageSquare, Sun, Moon, LogOut, ChevronDown, Plus, PanelLeft, Search, FileText, Bot, FolderKanban, MoreVertical, Layers, Share, UserPlus, Pencil, Folder, Pin, Archive, Trash2, ChevronRight } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
 import { supabase } from '../lib/supabaseClient';
 import { CreateProjectModal } from './CreateProjectModal';
+import { CreateAssistantModal } from './CreateAssistantModal';
 import { NoProjectsWarningModal } from './NoProjectsWarningModal';
 import { SelectProjectModal } from './SelectProjectModal';
 import { RenameChatModal } from './RenameChatModal';
 import { ShareChatModal } from './ShareChatModal';
 import { GroupChatModal } from './GroupChatModal';
+import { SearchModal } from './SearchModal';
+import { ExploreAssistantsModal } from './ExploreAssistantsModal';
 import { DeleteChatModal } from './DeleteChatModal';
 import { Toast } from './Toast';
 import type { ToastType } from './Toast';
@@ -19,6 +23,9 @@ export interface LayoutContextType {
     setConversations: React.Dispatch<React.SetStateAction<any[]>>;
     activeConversationId: string | null;
     setActiveConversationId: React.Dispatch<React.SetStateAction<string | null>>;
+    activeAssistantId: string | null;
+    setActiveAssistantId: React.Dispatch<React.SetStateAction<string | null>>;
+    assistants: any[];
 }
 
 const Layout: React.FC = () => {
@@ -32,6 +39,30 @@ const Layout: React.FC = () => {
   const [isProjectsOpen, setIsProjectsOpen] = useState(true);
   const [isRecentChatsOpen, setIsRecentChatsOpen] = useState(true);
   const [openChatMenuId, setOpenChatMenuId] = useState<string | null>(null);
+  const [chatMenuPosition, setChatMenuPosition] = useState({ top: 0, left: 0 });
+  const chatMenuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleGlobalClick = (e: MouseEvent) => {
+      // Close user menu
+      // Close chat menu if clicking outside
+      if (openChatMenuId && chatMenuRef.current && !chatMenuRef.current.contains(e.target as Node)) {
+        setOpenChatMenuId(null);
+      }
+    };
+    document.addEventListener('click', handleGlobalClick);
+    return () => document.removeEventListener('click', handleGlobalClick);
+  }, [openChatMenuId]);
+
+  useEffect(() => {
+    const handleScroll = () => {
+        if (openChatMenuId) {
+            setOpenChatMenuId(null);
+        }
+    };
+    window.addEventListener('scroll', handleScroll, true);
+    return () => window.removeEventListener('scroll', handleScroll, true);
+  }, [openChatMenuId]);
 
   // Project state
   const [projects, setProjects] = useState<any[]>([]);
@@ -39,6 +70,48 @@ const Layout: React.FC = () => {
   const [isNoProjectsWarningOpen, setIsNoProjectsWarningOpen] = useState(false);
   const [isSelectProjectModalOpen, setIsSelectProjectModalOpen] = useState(false);
   const [chatToTransferId, setChatToTransferId] = useState<string | null>(null);
+
+  // Search Modal
+  const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
+
+  // Assistant state
+  const [assistants, setAssistants] = useState<any[]>([]);
+  const [isCreateAssistantModalOpen, setIsCreateAssistantModalOpen] = useState(false);
+  const [isExploreAssistantsModalOpen, setIsExploreAssistantsModalOpen] = useState(false);
+
+  const loadAssistants = async () => {
+    try {
+      const { data, error } = await supabase.schema('droweder_ia').from('assistants').select('*').order('created_at', { ascending: false });
+      if (error) {
+        console.error('Error loading assistants:', error);
+      } else {
+        setAssistants(data || []);
+      }
+    } catch (err) {
+      console.error('Exception loading assistants:', err);
+    }
+  };
+
+  const handleCreateAssistant = async (name: string, description?: string, instructions?: string) => {
+    try {
+      const { data, error } = await supabase.schema('droweder_ia').from('assistants').insert([{ name, description, instructions }]).select();
+      if (error) {
+        console.error('Error creating assistant:', error);
+        setToastMessage('Erro ao criar assistente: ' + error.message);
+      } else if (data) {
+        setAssistants([data[0], ...assistants]);
+        setToastMessage('Assistente criado com sucesso!');
+      }
+    } catch (err: any) {
+      console.error('Exception creating assistant:', err);
+      setToastMessage('Erro ao criar assistente: ' + err.message);
+    }
+  };
+
+  useEffect(() => {
+    void loadAssistants();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const [isRenameModalOpen, setIsRenameModalOpen] = useState(false);
   const [chatToRenameId, setChatToRenameId] = useState<string | null>(null);
@@ -55,6 +128,7 @@ const Layout: React.FC = () => {
 
   const [conversations, setConversations] = useState<any[]>([]);
   const [activeConversationId, setActiveConversationId] = useState<string | null>(null);
+  const [activeAssistantId, setActiveAssistantId] = useState<string | null>(null);
   const [companyId, setCompanyId] = useState<string | null>(null);
 
   const [toastMessage, setToastMessage] = useState<string | null>(null);
@@ -180,6 +254,7 @@ const Layout: React.FC = () => {
   const handleNewChat = (e: React.MouseEvent) => {
     e.preventDefault();
     setActiveConversationId(null);
+    setActiveAssistantId(null);
     navigate('/chat');
   };
 
@@ -255,6 +330,7 @@ const Layout: React.FC = () => {
                 {!isSidebarCollapsed && <span>Novo Chat</span>}
               </button>
               <button
+                onClick={() => setIsSearchModalOpen(true)}
                 className={`w-full flex items-center gap-3 h-8 px-3 rounded-md transition-all duration-200 text-sm font-medium text-slate-600 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-white/10 hover:text-slate-900 dark:hover:text-white`}
                 title="Buscar em chats"
               >
@@ -298,7 +374,34 @@ const Layout: React.FC = () => {
                  </button>
                  {isAssistantsOpen && (
                      <div className="mt-1 space-y-1">
-                        <button className="w-full flex items-center gap-3 h-8 px-3 rounded-md transition-all duration-200 text-sm font-medium text-slate-600 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-white/10 hover:text-slate-900 dark:hover:text-white">
+                        <button
+                           onClick={() => setIsCreateAssistantModalOpen(true)}
+                           className="w-full flex items-center gap-3 h-8 px-3 rounded-md transition-all duration-200 text-sm font-medium text-slate-600 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-white/10 hover:text-slate-900 dark:hover:text-white">
+                           <div className="w-5 h-5 rounded-full border border-dashed border-slate-400 dark:border-gray-500 flex items-center justify-center">
+                              <Plus size={12} />
+                           </div>
+                           <span>Criar assistente</span>
+                        </button>
+                        {assistants.map((assistant) => (
+                           <button
+                              key={assistant.id}
+                              onClick={() => {
+                                setActiveConversationId(null);
+                                setActiveAssistantId(assistant.id);
+                                if (!isActive('/chat')) navigate('/chat');
+                              }}
+                              className={`w-full flex items-center gap-3 h-8 px-3 rounded-md transition-all duration-200 text-sm font-medium text-slate-600 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-white/10 hover:text-slate-900 dark:hover:text-white ${activeAssistantId === assistant.id && !activeConversationId ? 'bg-slate-200 dark:bg-white/10 text-slate-900 dark:text-white' : ''}`}
+                           >
+                              <div className="w-5 h-5 bg-[#7e639f] rounded-sm flex items-center justify-center text-white flex-shrink-0">
+                                 <Bot size={12} />
+                              </div>
+                              <span className="truncate">{assistant.name}</span>
+                           </button>
+                        ))}
+                        <button
+                            onClick={() => setIsExploreAssistantsModalOpen(true)}
+                            className="w-full flex items-center gap-3 h-8 px-3 rounded-md transition-all duration-200 text-sm font-medium text-slate-600 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-white/10 hover:text-slate-900 dark:hover:text-white"
+                        >
                             <Bot size={20} />
                             <span>Explorar</span>
                         </button>
@@ -351,15 +454,33 @@ const Layout: React.FC = () => {
                                     <button
                                         onClick={(e) => {
                                             e.stopPropagation();
-                                            setOpenChatMenuId(openChatMenuId === chat.id ? null : chat.id);
+                                            if (openChatMenuId === chat.id) {
+                                                setOpenChatMenuId(null);
+                                            } else {
+                                                const rect = e.currentTarget.getBoundingClientRect();
+                                                setChatMenuPosition({
+                                                    top: rect.bottom,
+                                                    left: rect.right
+                                                });
+                                                setOpenChatMenuId(chat.id);
+                                            }
                                         }}
                                         className="absolute right-2 opacity-0 group-hover:opacity-100 p-1 hover:bg-slate-300 dark:hover:bg-white/20 rounded text-slate-500 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white transition-all"
                                     >
                                         <MoreVertical size={14} />
                                     </button>
                                 </div>
-                                {openChatMenuId === chat.id && (
-                                    <div className="absolute left-8 top-full mt-1 w-60 bg-white dark:bg-[#2b2d31] border border-slate-200 dark:border-white/10 rounded-xl shadow-xl py-2 z-50">
+                                {openChatMenuId === chat.id && createPortal(
+                                    <div
+                                        ref={chatMenuRef}
+                                        style={{
+                                            position: 'fixed',
+                                            top: `${chatMenuPosition.top + 4}px`,
+                                            left: `${Math.min(chatMenuPosition.left - 240, window.innerWidth - 250)}px`,
+                                            zIndex: 9999
+                                        }}
+                                        className="w-60 bg-white dark:bg-[#2b2d31] border border-slate-200 dark:border-white/10 rounded-xl shadow-xl py-2"
+                                    >
                                         <button
                                             onClick={(e) => {
                                                 e.stopPropagation();
@@ -475,7 +596,8 @@ const Layout: React.FC = () => {
                                             <Trash2 size={16} />
                                             Excluir
                                         </button>
-                                    </div>
+                                    </div>,
+                                    document.body
                                 )}
                             </div>
                         ))}
@@ -537,6 +659,14 @@ const Layout: React.FC = () => {
           isOpen={isCreateProjectModalOpen}
           onClose={() => setIsCreateProjectModalOpen(false)}
           onCreate={handleCreateProject}
+      />
+
+      <CreateAssistantModal
+        isOpen={isCreateAssistantModalOpen}
+        onClose={() => setIsCreateAssistantModalOpen(false)}
+        onCreate={(name, description, instructions) => {
+          void handleCreateAssistant(name, description, instructions);
+        }}
       />
 
       <NoProjectsWarningModal
@@ -609,6 +739,23 @@ const Layout: React.FC = () => {
         }}
       />
 
+      <SearchModal
+          isOpen={isSearchModalOpen}
+          onClose={() => setIsSearchModalOpen(false)}
+          conversations={conversations}
+      />
+
+      <ExploreAssistantsModal
+          isOpen={isExploreAssistantsModalOpen}
+          onClose={() => setIsExploreAssistantsModalOpen(false)}
+          assistants={assistants}
+          onSelectAssistant={(assistantId) => {
+              setActiveConversationId(null);
+              setActiveAssistantId(assistantId);
+              if (!isActive('/chat')) navigate('/chat');
+          }}
+      />
+
       {toastMessage && (
         <Toast
           message={toastMessage}
@@ -619,7 +766,7 @@ const Layout: React.FC = () => {
 
       {/* Main Content */}
       <main className="flex-1 overflow-hidden relative flex flex-col bg-transparent">
-        <Outlet context={{ conversations, setConversations, activeConversationId, setActiveConversationId } satisfies LayoutContextType} />
+        <Outlet context={{ conversations, setConversations, activeConversationId, setActiveConversationId, activeAssistantId, setActiveAssistantId, assistants } satisfies LayoutContextType} />
       </main>
     </div>
   );
