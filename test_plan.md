@@ -1,5 +1,13 @@
-1. **Fix OpenRouter Model ID:** Change the default model in `src/pages/Chat.tsx` from `google/gemini-2.0-flash-lite-preview-02-05:free` to `google/gemini-2.0-flash-lite-001` or another valid free model such as `google/gemini-2.0-flash-001`. The image provided by the user confirms a 400 Bad Request error from OpenRouter stating that the model ID is not valid. I'll update `src/pages/Chat.tsx` to use `google/gemini-2.0-flash-lite-001`.
-2. **Implement Custom Toast/Alert System:** Remove the native browser `alert()` calls in `src/components/Layout.tsx` for unimplemented features (Share, Group Chat, Pin, Archive). I will create a reusable `Toast` component (e.g., `src/components/Toast.tsx` and `src/contexts/ToastContext.tsx`) or simply implement a simple toast state in `Layout.tsx` that displays a nicely styled in-app notification.
-3. **Implement OpenRouter API Logging:** Create a visual log/debug viewer for OpenRouter API interactions to identify failures. This could be a development/admin-only feature or a generic error display when a message fails to send. I will update `src/pages/Chat.tsx` to display detailed API errors in the chat UI when a request fails, rather than just returning a generic error string.
-4. **Complete pre commit steps:** Complete pre commit steps to make sure proper testing, verifications, reviews and reflections are done.
-5. **Submit the change.**
+1. **Create Custom Delete Chat Modal:**
+   - Create `src/components/DeleteChatModal.tsx` containing a custom UI modal for confirming chat deletion.
+   - Use the existing design language (Tailwind CSS, `lucide-react` icons) to match other modals.
+
+2. **Integrate Custom Delete Modal in Layout Component:**
+   - In `src/components/Layout.tsx`, import `DeleteChatModal`.
+   - Add state variables (`isDeleteModalOpen`, `chatToDeleteId`) to manage the modal's visibility and track which chat is being deleted.
+   - Update the "Excluir" button in the chat menu to open this modal instead of calling the native browser `window.confirm()`.
+   - Update the `handleDeleteChat` function to perform the actual deletion logic when confirmed via the modal, and remove the `window.confirm()` call from it.
+
+3. **Verify and Pre-commit Steps:**
+   - Run tests/linting (via `pre_commit_instructions`) and address any issues.
+   - Commit the changes and submit.
