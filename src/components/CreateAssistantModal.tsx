@@ -1,27 +1,27 @@
 import { useState } from 'react';
-import { Settings, X, Lightbulb, User, CircleDollarSign, GraduationCap, PenTool, Plane } from 'lucide-react';
+import { Settings, X, Lightbulb, Bot, Briefcase, Code, GraduationCap, PenTool } from 'lucide-react';
 
-interface CreateProjectModalProps {
+interface CreateAssistantModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onCreate: (name: string, category?: string) => void;
+  onCreate: (name: string, description?: string) => void;
 }
 
-export function CreateProjectModal({ isOpen, onClose, onCreate }: CreateProjectModalProps) {
-  const [projectName, setProjectName] = useState('');
+export function CreateAssistantModal({ isOpen, onClose, onCreate }: CreateAssistantModalProps) {
+  const [assistantName, setAssistantName] = useState('');
 
   if (!isOpen) return null;
 
   const handleCreate = () => {
-    if (projectName.trim()) {
-      onCreate(projectName.trim());
-      setProjectName('');
+    if (assistantName.trim()) {
+      onCreate(assistantName.trim());
+      setAssistantName('');
       onClose();
     }
   };
 
   const handleSuggestionClick = (suggestion: string) => {
-    setProjectName(suggestion);
+    setAssistantName(suggestion);
   };
 
   return (
@@ -30,7 +30,7 @@ export function CreateProjectModal({ isOpen, onClose, onCreate }: CreateProjectM
 
         {/* Header */}
         <div className="flex items-center justify-between p-6 pb-4">
-          <h2 className="text-xl font-semibold">Criar projeto</h2>
+          <h2 className="text-xl font-semibold">Criar assistente</h2>
           <div className="flex items-center gap-2">
             <button className="p-2 text-slate-500 hover:text-slate-800 dark:text-gray-400 dark:hover:text-white transition-colors rounded-lg hover:bg-slate-100 dark:hover:bg-white/10">
               <Settings size={20} />
@@ -47,13 +47,13 @@ export function CreateProjectModal({ isOpen, onClose, onCreate }: CreateProjectM
           {/* Input */}
           <div className="relative group">
             <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 dark:text-gray-400 group-focus-within:text-slate-800 dark:group-focus-within:text-white transition-colors">
-              <User size={20} className="rounded-full border-2 border-current p-[2px]" />
+              <Bot size={20} className="rounded-full border-2 border-current p-[2px]" />
             </div>
             <input
               type="text"
-              value={projectName}
-              onChange={(e) => setProjectName(e.target.value)}
-              placeholder="Viagem a Copenhague"
+              value={assistantName}
+              onChange={(e) => setAssistantName(e.target.value)}
+              placeholder="Analista de Dados"
               className="w-full bg-white/40 dark:bg-white/5 backdrop-blur-sm border border-slate-200 dark:border-white/10 rounded-xl py-3 pl-12 pr-4 text-slate-800 dark:text-white placeholder-slate-500 dark:placeholder-gray-500 focus:outline-none focus:border-slate-300 dark:focus:border-gray-400 transition-colors shadow-sm"
               autoFocus
               onKeyDown={(e) => {
@@ -65,28 +65,28 @@ export function CreateProjectModal({ isOpen, onClose, onCreate }: CreateProjectM
           {/* Suggestions */}
           <div className="flex flex-wrap gap-3">
             <button
-                onClick={() => handleSuggestionClick('Investimentos')}
+                onClick={() => handleSuggestionClick('Analista de Dados')}
                 className="flex items-center gap-2 px-4 py-2 rounded-xl border border-slate-200 dark:border-white/10 hover:bg-slate-50 dark:hover:bg-white/10 bg-white/40 dark:bg-white/5 backdrop-blur-sm transition-colors text-sm font-medium text-slate-800 dark:text-white shadow-sm">
-              <CircleDollarSign size={16} className="text-emerald-500 dark:text-emerald-400" />
-              Investimentos
+              <Briefcase size={16} className="text-emerald-500 dark:text-emerald-400" />
+              Analista
             </button>
             <button
-                 onClick={() => handleSuggestionClick('Dever de casa')}
+                 onClick={() => handleSuggestionClick('Revisor de Código')}
                  className="flex items-center gap-2 px-4 py-2 rounded-xl border border-slate-200 dark:border-white/10 hover:bg-slate-50 dark:hover:bg-white/10 bg-white/40 dark:bg-white/5 backdrop-blur-sm transition-colors text-sm font-medium text-slate-800 dark:text-white shadow-sm">
-              <GraduationCap size={16} className="text-blue-500 dark:text-blue-400" />
-              Dever de casa
+              <Code size={16} className="text-blue-500 dark:text-blue-400" />
+              Desenvolvedor
             </button>
             <button
-                onClick={() => handleSuggestionClick('Escrita')}
+                onClick={() => handleSuggestionClick('Tutor de Matemática')}
                 className="flex items-center gap-2 px-4 py-2 rounded-xl border border-slate-200 dark:border-white/10 hover:bg-slate-50 dark:hover:bg-white/10 bg-white/40 dark:bg-white/5 backdrop-blur-sm transition-colors text-sm font-medium text-slate-800 dark:text-white shadow-sm">
-              <PenTool size={16} className="text-purple-500 dark:text-purple-400" />
-              Escrita
+              <GraduationCap size={16} className="text-purple-500 dark:text-purple-400" />
+              Tutor
             </button>
             <button
-                onClick={() => handleSuggestionClick('Viagem')}
+                onClick={() => handleSuggestionClick('Criador de Conteúdo')}
                 className="flex items-center gap-2 px-4 py-2 rounded-xl border border-slate-200 dark:border-white/10 hover:bg-slate-50 dark:hover:bg-white/10 bg-white/40 dark:bg-white/5 backdrop-blur-sm transition-colors text-sm font-medium text-slate-800 dark:text-white shadow-sm">
-              <Plane size={16} className="text-amber-500 dark:text-amber-400" />
-              Viagem
+              <PenTool size={16} className="text-amber-500 dark:text-amber-400" />
+              Criador
             </button>
           </div>
 
@@ -94,7 +94,7 @@ export function CreateProjectModal({ isOpen, onClose, onCreate }: CreateProjectM
           <div className="flex items-start gap-4 p-4 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/5">
             <Lightbulb size={24} className="text-amber-500 dark:text-gray-300 shrink-0 mt-1" />
             <p className="text-sm text-slate-600 dark:text-gray-300 leading-relaxed">
-              Os projetos mantêm chats, arquivos e instruções personalizadas em um só lugar. Use-os para trabalhos em andamento ou apenas para manter as coisas organizadas.
+              Os assistentes são versões personalizadas da IA. Você pode dar a eles instruções específicas e conhecimentos para ajudá-lo com tarefas particulares.
             </p>
           </div>
 
@@ -104,10 +104,10 @@ export function CreateProjectModal({ isOpen, onClose, onCreate }: CreateProjectM
         <div className="p-6 pt-2 flex justify-end border-t border-slate-200 dark:border-white/10 mt-2">
           <button
             onClick={handleCreate}
-            disabled={!projectName.trim()}
+            disabled={!assistantName.trim()}
             className="px-6 py-2.5 mt-2 rounded-full bg-slate-900 dark:bg-white text-white dark:text-black font-semibold text-sm disabled:opacity-50 disabled:bg-slate-200 disabled:dark:bg-gray-600 disabled:text-slate-500 disabled:dark:text-gray-400 transition-all hover:opacity-90 active:scale-95"
           >
-            Criar projeto
+            Criar assistente
           </button>
         </div>
 

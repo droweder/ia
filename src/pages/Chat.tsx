@@ -348,10 +348,10 @@ const Chat: React.FC = () => {
     const openRouterMessages: OpenRouterMessage[] = [
         { role: 'system', content: `Você é o DRoweder IA, um assistente especialista em manufatura conectado ao ERP Planintex.
 
-        INSTRUÇÕES DE BACKEND (Simulação):
+        INSTRUÇÕES:
         1. O usuário fará perguntas sobre dados (ordens, estoque, previsão).
-        2. Como este é um ambiente de simulação sem acesso real ao banco de dados, VOCÊ DEVE INVENTAR/GERAR dados fictícios realistas para responder às perguntas do usuário.
-        3. Responda ao usuário final APENAS com a análise em linguagem natural e os dados formatados (tabelas markdown, listas). Não diga que não tem acesso aos dados.
+        2. Você NÃO DEVE responder com dados fictícios. Apenas com dados reais, se não os tiver, então deve avisar o usuário.
+        3. Responda ao usuário final APENAS com a análise em linguagem natural e os dados formatados (tabelas markdown, listas).
         4. NÃO exponha comandos SQL na resposta final, a menos que o usuário peça explicitamente "Mostre o SQL".
         5. Seja conciso, profissional e use Português do Brasil.
         ` },
@@ -696,7 +696,7 @@ const Chat: React.FC = () => {
                 </div>
                 </div>
                 <div className="text-center mt-3">
-                    <p className="text-xs text-slate-500 dark:text-gray-400">O ChatGPT pode cometer erros. Confira informações importantes. Consulte as <a href="#" className="underline">Preferências de cookies</a>.</p>
+                    <p className="text-xs text-slate-500 dark:text-gray-400">A AI pode cometer erros. Considere verificar informações importantes.</p>
                 </div>
             </div>
         </div>

@@ -5,6 +5,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
 import { supabase } from '../lib/supabaseClient';
 import { CreateProjectModal } from './CreateProjectModal';
+import { CreateAssistantModal } from './CreateAssistantModal';
 import { NoProjectsWarningModal } from './NoProjectsWarningModal';
 import { SelectProjectModal } from './SelectProjectModal';
 import { RenameChatModal } from './RenameChatModal';
@@ -39,6 +40,10 @@ const Layout: React.FC = () => {
   const [isNoProjectsWarningOpen, setIsNoProjectsWarningOpen] = useState(false);
   const [isSelectProjectModalOpen, setIsSelectProjectModalOpen] = useState(false);
   const [chatToTransferId, setChatToTransferId] = useState<string | null>(null);
+
+  // Assistant state
+  const [assistants, setAssistants] = useState<any[]>([]);
+  const [isCreateAssistantModalOpen, setIsCreateAssistantModalOpen] = useState(false);
 
   const [isRenameModalOpen, setIsRenameModalOpen] = useState(false);
   const [chatToRenameId, setChatToRenameId] = useState<string | null>(null);
@@ -298,6 +303,25 @@ const Layout: React.FC = () => {
                  </button>
                  {isAssistantsOpen && (
                      <div className="mt-1 space-y-1">
+                        <button
+                           onClick={() => setIsCreateAssistantModalOpen(true)}
+                           className="w-full flex items-center gap-3 h-8 px-3 rounded-md transition-all duration-200 text-sm font-medium text-slate-600 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-white/10 hover:text-slate-900 dark:hover:text-white">
+                           <div className="w-5 h-5 rounded-full border border-dashed border-slate-400 dark:border-gray-500 flex items-center justify-center">
+                              <Plus size={12} />
+                           </div>
+                           <span>Criar assistente</span>
+                        </button>
+                        {assistants.map((assistant) => (
+                           <button
+                              key={assistant.id}
+                              className="w-full flex items-center gap-3 h-8 px-3 rounded-md transition-all duration-200 text-sm font-medium text-slate-600 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-white/10 hover:text-slate-900 dark:hover:text-white"
+                           >
+                              <div className="w-5 h-5 bg-[#7e639f] rounded-sm flex items-center justify-center text-white flex-shrink-0">
+                                 <Bot size={12} />
+                              </div>
+                              <span className="truncate">{assistant.name}</span>
+                           </button>
+                        ))}
                         <button className="w-full flex items-center gap-3 h-8 px-3 rounded-md transition-all duration-200 text-sm font-medium text-slate-600 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-white/10 hover:text-slate-900 dark:hover:text-white">
                             <Bot size={20} />
                             <span>Explorar</span>
@@ -537,6 +561,14 @@ const Layout: React.FC = () => {
           isOpen={isCreateProjectModalOpen}
           onClose={() => setIsCreateProjectModalOpen(false)}
           onCreate={handleCreateProject}
+      />
+
+      <CreateAssistantModal
+        isOpen={isCreateAssistantModalOpen}
+        onClose={() => setIsCreateAssistantModalOpen(false)}
+        onCreate={(name) => {
+          setAssistants([...assistants, { id: 'asst-' + Date.now(), name }]);
+        }}
       />
 
       <NoProjectsWarningModal
