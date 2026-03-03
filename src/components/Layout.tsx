@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
-import { MessageSquare, Sun, Moon, LogOut, ChevronDown, Plus, PanelLeft, Search, FileText, Bot, FolderKanban, MoreVertical, Layers } from 'lucide-react';
+import { MessageSquare, Sun, Moon, LogOut, ChevronDown, Plus, PanelLeft, Search, FileText, Bot, FolderKanban, MoreVertical, Layers, Share, UserPlus, Pencil, Folder, Pin, Archive, Trash2, ChevronRight } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
 import { supabase } from '../lib/supabaseClient';
@@ -188,23 +188,33 @@ const Layout: React.FC = () => {
       <aside className={`${isSidebarCollapsed ? 'w-20' : 'w-72'} border-r border-slate-200 dark:border-white/10 bg-white/40 dark:bg-white/5 backdrop-blur-xl hidden md:flex flex-col z-10 transition-all duration-300`}>
 
         {/* Header da Sidebar */}
-        <div className="h-12 flex items-center justify-between px-4 border-b border-slate-200 dark:border-white/10">
+        <div className={`h-12 flex items-center px-4 border-b border-slate-200 dark:border-white/10 ${isSidebarCollapsed ? 'justify-center' : 'justify-between'}`}>
              {!isSidebarCollapsed && (
-                <div className="flex items-center">
-                    <img src="https://phofwpyxbeulodrzfdjq.supabase.co/storage/v1/object/public/imagens_app/logo_droweder_IA.png" alt="DRoweder IA" className="h-6 object-contain" />
-                </div>
+                <>
+                  <div className="flex items-center">
+                      <img src="https://phofwpyxbeulodrzfdjq.supabase.co/storage/v1/object/public/imagens_app/logo_droweder_IA.png" alt="DRoweder IA" className="h-6 object-contain" />
+                  </div>
+                  <button
+                      onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+                      className="p-1.5 text-slate-500 hover:bg-slate-200 dark:text-gray-400 dark:hover:bg-white/10 rounded-md transition-colors"
+                  >
+                      <PanelLeft size={18} />
+                  </button>
+                </>
              )}
              {isSidebarCollapsed && (
-                 <div className="mx-auto flex items-center justify-center">
-                     <img src="https://phofwpyxbeulodrzfdjq.supabase.co/storage/v1/object/public/imagens_app/favicom_droweder.png" alt="DRoweder IA" className="w-6 h-6 object-contain" />
-                 </div>
+                 <button
+                    onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+                    className="relative flex items-center justify-center group w-8 h-8 rounded-md hover:bg-slate-200 dark:hover:bg-white/10 transition-colors"
+                 >
+                     <img
+                        src="https://phofwpyxbeulodrzfdjq.supabase.co/storage/v1/object/public/imagens_app/favicom_droweder.png"
+                        alt="DRoweder IA"
+                        className="w-6 h-6 object-contain transition-opacity duration-200 group-hover:opacity-0"
+                     />
+                     <PanelLeft size={18} className="absolute inset-0 m-auto text-slate-500 dark:text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
+                 </button>
              )}
-             <button
-                onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
-                className="p-1.5 text-slate-500 hover:bg-slate-200 dark:text-gray-400 dark:hover:bg-white/10 rounded-md transition-colors"
-             >
-                <PanelLeft size={18} />
-             </button>
         </div>
 
         {/* Menu Principal */}
@@ -324,15 +334,72 @@ const Layout: React.FC = () => {
                                     </button>
                                 </div>
                                 {openChatMenuId === chat.id && (
-                                    <div className="absolute right-0 top-full mt-1 w-48 bg-white dark:bg-slate-800 border border-slate-200 dark:border-white/10 rounded-lg shadow-lg py-1 z-50">
+                                    <div className="absolute left-8 top-full mt-1 w-60 bg-white dark:bg-[#2b2d31] border border-slate-200 dark:border-white/10 rounded-xl shadow-xl py-2 z-50">
+                                        <button
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                setOpenChatMenuId(null);
+                                            }}
+                                            className="w-full flex items-center gap-3 px-4 py-2 text-sm text-slate-700 dark:text-gray-200 hover:bg-slate-100 dark:hover:bg-white/5 transition-colors"
+                                        >
+                                            <Share size={16} />
+                                            Compartilhar
+                                        </button>
+                                        <button
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                setOpenChatMenuId(null);
+                                            }}
+                                            className="w-full flex items-center gap-3 px-4 py-2 text-sm text-slate-700 dark:text-gray-200 hover:bg-slate-100 dark:hover:bg-white/5 transition-colors"
+                                        >
+                                            <UserPlus size={16} />
+                                            Iniciar um chat em grupo
+                                        </button>
+                                        <button
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                setOpenChatMenuId(null);
+                                            }}
+                                            className="w-full flex items-center gap-3 px-4 py-2 text-sm text-slate-700 dark:text-gray-200 hover:bg-slate-100 dark:hover:bg-white/5 transition-colors"
+                                        >
+                                            <Pencil size={16} />
+                                            Renomear
+                                        </button>
                                         <button
                                             onClick={(e) => {
                                                 e.stopPropagation();
                                                 handleTransferToProjectClick(chat.id);
                                             }}
-                                            className="w-full text-left px-4 py-2 text-sm text-slate-700 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-white/10"
+                                            className="w-full flex items-center justify-between px-4 py-2 text-sm text-slate-700 dark:text-gray-200 hover:bg-slate-100 dark:hover:bg-white/5 transition-colors"
                                         >
-                                            Transferir para Projeto
+                                            <div className="flex items-center gap-3">
+                                                <Folder size={16} />
+                                                Mover para o projeto
+                                            </div>
+                                            <ChevronRight size={16} />
+                                        </button>
+
+                                        <div className="h-px bg-slate-200 dark:bg-white/10 my-1 mx-4"></div>
+
+                                        <button
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                setOpenChatMenuId(null);
+                                            }}
+                                            className="w-full flex items-center gap-3 px-4 py-2 text-sm text-slate-700 dark:text-gray-200 hover:bg-slate-100 dark:hover:bg-white/5 transition-colors"
+                                        >
+                                            <Pin size={16} />
+                                            Fixar chat
+                                        </button>
+                                        <button
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                setOpenChatMenuId(null);
+                                            }}
+                                            className="w-full flex items-center gap-3 px-4 py-2 text-sm text-slate-700 dark:text-gray-200 hover:bg-slate-100 dark:hover:bg-white/5 transition-colors"
+                                        >
+                                            <Archive size={16} />
+                                            Arquivar
                                         </button>
                                         <button
                                             onClick={(e) => {
@@ -340,9 +407,10 @@ const Layout: React.FC = () => {
                                                 handleDeleteChat(chat.id);
                                                 setOpenChatMenuId(null);
                                             }}
-                                            className="w-full text-left px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-slate-100 dark:hover:bg-white/10"
+                                            className="w-full flex items-center gap-3 px-4 py-2 text-sm text-red-600 dark:text-[#f87171] hover:bg-slate-100 dark:hover:bg-white/5 transition-colors"
                                         >
-                                            Excluir Chat
+                                            <Trash2 size={16} />
+                                            Excluir
                                         </button>
                                     </div>
                                 )}
