@@ -14,6 +14,7 @@ import { ShareChatModal } from './ShareChatModal';
 import { GroupChatModal } from './GroupChatModal';
 import { SearchModal } from './SearchModal';
 import { ExploreAssistantsModal } from './ExploreAssistantsModal';
+import { DeleteAssistantModal } from './DeleteAssistantModal';
 import { DeleteChatModal } from './DeleteChatModal';
 import { Toast } from './Toast';
 import type { ToastType } from './Toast';
@@ -78,6 +79,8 @@ const Layout: React.FC = () => {
   const [assistants, setAssistants] = useState<any[]>([]);
   const [isCreateAssistantModalOpen, setIsCreateAssistantModalOpen] = useState(false);
   const [isExploreAssistantsModalOpen, setIsExploreAssistantsModalOpen] = useState(false);
+  const [assistantToEdit, setAssistantToEdit] = useState<any>(null);
+  const [assistantToDelete, setAssistantToDelete] = useState<any>(null);
 
   const loadAssistants = async () => {
     try {
@@ -93,18 +96,74 @@ const Layout: React.FC = () => {
   };
 
   const handleCreateAssistant = async (name: string, description?: string, instructions?: string) => {
-    try {
-      const { data, error } = await supabase.schema('droweder_ia').from('assistants').insert([{ name, description, instructions }]).select();
-      if (error) {
-        console.error('Error creating assistant:', error);
-        setToastMessage('Erro ao criar assistente: ' + error.message);
-      } else if (data) {
-        setAssistants([data[0], ...assistants]);
-        setToastMessage('Assistente criado com sucesso!');
+    if (assistantToEdit) {
+      try {
+        const { data, error } = await supabase
+          .schema('droweder_ia')
+          .from('assistants')
+          .update({ name, description, instructions })
+          .eq('id', assistantToEdit.id)
+          .select();
+
+        if (error) {
+          console.error('Error updating assistant:', error);
+          setToastMessage('Erro ao atualizar assistente: ' + error.message);
+        } else if (data) {
+          setAssistants(assistants.map(a => a.id === data[0].id ? data[0] : a));
+          setToastMessage('Assistente atualizado com sucesso!');
+        }
+      } catch (err: any) {
+        console.error('Exception updating assistant:', err);
+        setToastMessage('Erro ao atualizar assistente.');
+      } finally {
+        setAssistantToEdit(null);
       }
-    } catch (err: any) {
-      console.error('Exception creating assistant:', err);
-      setToastMessage('Erro ao criar assistente: ' + err.message);
+    } else {
+      try {
+        const { data, error } = await supabase
+          .schema('droweder_ia')
+          .from('assistants')
+          .insert([{ name, description, instructions, created_by: user?.id }])
+          .select();
+
+        if (error) {
+          console.error('Error creating assistant:', error);
+          setToastMessage('Erro ao criar assistente: ' + error.message);
+        } else if (data) {
+          setAssistants([data[0], ...assistants]);
+          setToastMessage('Assistente criado com sucesso!');
+        }
+      } catch (err: any) {
+        console.error('Exception creating assistant:', err);
+        setToastMessage('Erro ao criar assistente.');
+      }
+    }
+  };
+
+  const handleDeleteAssistant = async () => {
+    if (!assistantToDelete) return;
+    try {
+      const { error } = await supabase
+        .schema('droweder_ia')
+        .from('assistants')
+        .delete()
+        .eq('id', assistantToDelete.id);
+
+      if (error) {
+        console.error('Error deleting assistant:', error);
+        setToastMessage('Erro ao excluir assistente: ' + error.message);
+      } else {
+        setAssistants(assistants.filter(a => a.id !== assistantToDelete.id));
+        if (activeAssistantId === assistantToDelete.id) {
+            setActiveAssistantId(null);
+        }
+        setToastMessage('Assistente excluído com sucesso!');
+      }
+    } catch (err) {
+      console.error('Exception deleting assistant:', err);
+      setToastMessage('Erro ao excluir assistente.');
+    } finally {
+      setAssistantToDelete(null);
     }
   };
 
@@ -479,7 +538,7 @@ const Layout: React.FC = () => {
                                             left: `${Math.min(chatMenuPosition.left - 240, window.innerWidth - 250)}px`,
                                             zIndex: 9999
                                         }}
-                                        className="w-60 bg-white dark:bg-black/20 border border-slate-200 dark:border-white/10 rounded-xl shadow-xl py-2"
+                                        className="w-60 bg-white dark:bg-[#2b2d31] border border-slate-200 dark:border-white/10 rounded-xl shadow-xl py-2"
                                     >
                                         <button
                                             onClick={(e) => {
@@ -663,10 +722,14 @@ const Layout: React.FC = () => {
 
       <CreateAssistantModal
         isOpen={isCreateAssistantModalOpen}
-        onClose={() => setIsCreateAssistantModalOpen(false)}
+        onClose={() => {
+          setIsCreateAssistantModalOpen(false);
+          setAssistantToEdit(null);
+        }}
         onCreate={(name, description, instructions) => {
           void handleCreateAssistant(name, description, instructions);
         }}
+        assistantToEdit={assistantToEdit}
       />
 
       <NoProjectsWarningModal
@@ -754,7 +817,27 @@ const Layout: React.FC = () => {
               setActiveAssistantId(assistantId);
               if (!isActive('/chat')) navigate('/chat');
           }}
+          onEditAssistant={(assistant) => {
+              setAssistantToEdit(assistant);
+              setIsCreateAssistantModalOpen(true);
+              setIsExploreAssistantsModalOpen(false);
+          }}
+          onDeleteAssistant={(assistantId) => {
+              const assistant = assistants.find(a => a.id === assistantId);
+              if (assistant) {
+                  setAssistantToDelete(assistant);
+              }
+          }}
       />
+
+      {assistantToDelete && (
+        <DeleteAssistantModal
+            isOpen={!!assistantToDelete}
+            onClose={() => setAssistantToDelete(null)}
+            onConfirm={handleDeleteAssistant}
+            assistantName={assistantToDelete.name}
+        />
+      )}
 
       {toastMessage && (
         <Toast

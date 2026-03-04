@@ -1,12 +1,11 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { ShieldCheck, Loader2, AlertCircle, Eye, EyeOff } from 'lucide-react';
+import { Mail, Lock, ShieldCheck, Loader2, AlertCircle } from 'lucide-react';
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const { signIn } = useAuth();
@@ -69,6 +68,9 @@ const Login: React.FC = () => {
                 Endereço de e-mail
               </label>
               <div className="mt-1 relative rounded-md shadow-sm">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <Mail className="h-5 w-5 text-gray-400" aria-hidden="true" />
+                </div>
                 <input
                   id="email"
                   name="email"
@@ -77,15 +79,9 @@ const Login: React.FC = () => {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="focus:ring-blue-500 focus:border-blue-500 block w-full pl-4 pr-10 sm:text-sm border-transparent rounded-md py-2.5 border bg-[#e6f0ff] text-slate-900 placeholder-slate-500 transition-all font-medium"
+                  className="focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 sm:text-sm border-white/10 rounded-md py-2.5 border bg-white/5 text-white placeholder-gray-400 backdrop-blur-sm transition-all"
                   placeholder="voce@empresa.com"
                 />
-                <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                  {/* The image shows a key icon in a hexagon on the right side of the input boxes */}
-                  <div className="text-slate-700 bg-slate-300/50 p-1 rounded">
-                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"></path></svg>
-                  </div>
-                </div>
               </div>
             </div>
 
@@ -94,34 +90,20 @@ const Login: React.FC = () => {
                 Senha
               </label>
               <div className="mt-1 relative rounded-md shadow-sm">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <Lock className="h-5 w-5 text-gray-400" aria-hidden="true" />
+                </div>
                 <input
                   id="password"
                   name="password"
-                  type={showPassword ? "text" : "password"}
+                  type="password"
                   autoComplete="current-password"
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="focus:ring-blue-500 focus:border-blue-500 block w-full pl-4 pr-16 sm:text-sm border-transparent rounded-md py-2.5 border bg-[#e6f0ff] text-slate-900 placeholder-slate-500 transition-all font-medium tracking-widest"
+                  className="focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 sm:text-sm border-white/10 rounded-md py-2.5 border bg-white/5 text-white placeholder-gray-400 backdrop-blur-sm transition-all"
                   placeholder="••••••••"
                 />
-                <div className="absolute inset-y-0 right-0 pr-1 flex items-center gap-1">
-                  <button
-                    type="button"
-                    className="p-1 text-slate-500 hover:text-slate-700 focus:outline-none"
-                    onClick={() => setShowPassword(!showPassword)}
-                    title={showPassword ? "Ocultar senha" : "Mostrar senha"}
-                  >
-                    {showPassword ? (
-                      <EyeOff className="h-4 w-4" aria-hidden="true" />
-                    ) : (
-                      <Eye className="h-4 w-4" aria-hidden="true" />
-                    )}
-                  </button>
-                  <div className="text-slate-700 bg-slate-300/50 p-1 rounded pointer-events-none mr-2">
-                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"></path></svg>
-                  </div>
-                </div>
               </div>
             </div>
 

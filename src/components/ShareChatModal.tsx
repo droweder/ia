@@ -31,7 +31,7 @@ export const ShareChatModal: React.FC<ShareChatModalProps> = ({
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
       <div
-        className="bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl w-full max-w-md rounded-2xl shadow-2xl border border-slate-200 dark:border-white/10 overflow-hidden transform transition-all scale-100 animate-in zoom-in-95 duration-200"
+        className="bg-white dark:bg-[#1a1b1e] w-full max-w-md rounded-2xl shadow-2xl border border-slate-200 dark:border-white/10 overflow-hidden transform transition-all scale-100 animate-in zoom-in-95 duration-200"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between p-6 border-b border-slate-100 dark:border-white/5">
@@ -54,7 +54,7 @@ export const ShareChatModal: React.FC<ShareChatModalProps> = ({
               type="text"
               readOnly
               value={shareUrl}
-              className="flex-1 px-4 py-3 bg-slate-50 dark:bg-black/20 border border-slate-200 dark:border-white/10 rounded-xl outline-none text-slate-900 dark:text-white text-sm"
+              className="flex-1 px-4 py-3 bg-slate-50 dark:bg-[#2b2d31] border border-slate-200 dark:border-white/10 rounded-xl outline-none text-slate-900 dark:text-white text-sm"
             />
             <button
               onClick={handleCopy}
