@@ -594,49 +594,21 @@ const Layout: React.FC = () => {
                                         <div className="h-px bg-slate-200 dark:bg-white/10 my-1 mx-4"></div>
 
                                         <button
-                                            onClick={async (e) => {
+                                            onClick={(e) => {
                                                 e.stopPropagation();
                                                 setOpenChatMenuId(null);
-
-                                                // Toggle pin status (requires boolean column 'is_pinned' on 'conversations')
-                                                const newPinnedStatus = !chat.is_pinned;
-                                                setConversations(prev => prev.map(c => c.id === chat.id ? { ...c, is_pinned: newPinnedStatus } : c));
-
-                                                const { error } = await supabase.schema('droweder_ia').from('conversations').update({ is_pinned: newPinnedStatus }).eq('id', chat.id);
-
-                                                if (error) {
-                                                    // Rollback
-                                                    setConversations(prev => prev.map(c => c.id === chat.id ? { ...c, is_pinned: !newPinnedStatus } : c));
-                                                    showToast("Erro ao fixar o chat.", "error");
-                                                } else {
-                                                    showToast(newPinnedStatus ? "Chat fixado com sucesso." : "Chat desfixado com sucesso.", "success");
-                                                }
+                                                showToast("Recurso 'Fixar chat' em breve.", "info");
                                             }}
                                             className="w-full flex items-center gap-3 px-4 py-2 text-sm text-slate-700 dark:text-gray-200 hover:bg-slate-100 dark:hover:bg-white/5 transition-colors"
                                         >
-                                            <Pin size={16} className={chat.is_pinned ? "text-[#7e639f]" : ""} />
-                                            {chat.is_pinned ? 'Desfixar chat' : 'Fixar chat'}
+                                            <Pin size={16} />
+                                            Fixar chat
                                         </button>
                                         <button
-                                            onClick={async (e) => {
+                                            onClick={(e) => {
                                                 e.stopPropagation();
                                                 setOpenChatMenuId(null);
-
-                                                // Archive chat
-                                                setConversations(prev => prev.filter(c => c.id !== chat.id));
-                                                const { error } = await supabase.schema('droweder_ia').from('conversations').update({ is_archived: true }).eq('id', chat.id);
-
-                                                if (error) {
-                                                    // Rollback
-                                                    setConversations(prev => [...prev, chat]);
-                                                    showToast("Erro ao arquivar o chat.", "error");
-                                                } else {
-                                                    showToast("Chat arquivado.", "info");
-                                                    if (activeConversationId === chat.id) {
-                                                        setActiveConversationId(null);
-                                                        navigate('/');
-                                                    }
-                                                }
+                                                showToast("Recurso 'Arquivar chat' em breve.", "info");
                                             }}
                                             className="w-full flex items-center gap-3 px-4 py-2 text-sm text-slate-700 dark:text-gray-200 hover:bg-slate-100 dark:hover:bg-white/5 transition-colors"
                                         >
