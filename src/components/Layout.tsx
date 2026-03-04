@@ -13,6 +13,7 @@ import { RenameChatModal } from './RenameChatModal';
 import { ShareChatModal } from './ShareChatModal';
 import { GroupChatModal } from './GroupChatModal';
 import { SearchModal } from './SearchModal';
+import { ArchivedChatsModal } from './ArchivedChatsModal';
 import { ExploreAssistantsModal } from './ExploreAssistantsModal';
 import { DeleteAssistantModal } from './DeleteAssistantModal';
 import { DeleteChatModal } from './DeleteChatModal';
@@ -74,6 +75,7 @@ const Layout: React.FC = () => {
 
   // Search Modal
   const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
+  const [isArchivedChatsModalOpen, setIsArchivedChatsModalOpen] = useState(false);
 
   // Assistant state
   const [assistants, setAssistants] = useState<any[]>([]);
@@ -404,6 +406,14 @@ const Layout: React.FC = () => {
               >
                 <FileText size={20} />
                 {!isSidebarCollapsed && <span>Arquivos</span>}
+              </button>
+              <button
+                onClick={() => setIsArchivedChatsModalOpen(true)}
+                className={`w-full flex items-center gap-3 h-8 px-3 rounded-md transition-all duration-200 text-sm font-medium text-slate-600 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-white/10 hover:text-slate-900 dark:hover:text-white`}
+                title="Chats Arquivados"
+              >
+                <Archive size={20} />
+                {!isSidebarCollapsed && <span>Chats Arquivados</span>}
               </button>
               <button
                 className={`w-full flex items-center gap-3 h-8 px-3 rounded-md transition-all duration-200 text-sm font-medium text-slate-600 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-white/10 hover:text-slate-900 dark:hover:text-white`}
@@ -820,6 +830,29 @@ const Layout: React.FC = () => {
           isOpen={isSearchModalOpen}
           onClose={() => setIsSearchModalOpen(false)}
           conversations={conversations}
+      />
+
+      <ArchivedChatsModal
+          isOpen={isArchivedChatsModalOpen}
+          onClose={() => setIsArchivedChatsModalOpen(false)}
+          onUnarchive={async (chatId) => {
+              // Reload conversation to the main list
+              const { data, error } = await supabase
+                  .schema('droweder_ia')
+                  .from('conversations')
+                  .select('*')
+                  .eq('id', chatId)
+                  .single();
+              if (data && !error) {
+                  setConversations(prev => [data, ...prev].sort((a, b) => {
+                      if (a.is_pinned === b.is_pinned) {
+                          return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+                      }
+                      return a.is_pinned ? -1 : 1;
+                  }));
+                  showToast("Chat desarquivado com sucesso.", "success");
+              }
+          }}
       />
 
       <ExploreAssistantsModal
