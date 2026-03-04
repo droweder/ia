@@ -1,16 +1,34 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Settings, X, Lightbulb, Bot, Briefcase, Code, GraduationCap, PenTool } from 'lucide-react';
 
 interface CreateAssistantModalProps {
   isOpen: boolean;
   onClose: () => void;
   onCreate: (name: string, description?: string, instructions?: string) => void;
+  assistantToEdit?: any;
 }
 
-export function CreateAssistantModal({ isOpen, onClose, onCreate }: CreateAssistantModalProps) {
+export function CreateAssistantModal({ isOpen, onClose, onCreate, assistantToEdit }: CreateAssistantModalProps) {
   const [assistantName, setAssistantName] = useState('');
   const [assistantDescription, setAssistantDescription] = useState('');
   const [assistantInstructions, setAssistantInstructions] = useState('');
+
+  useEffect(() => {
+    if (isOpen) {
+      // Use setTimeout to defer setState out of the immediate render cycle
+      setTimeout(() => {
+        if (assistantToEdit) {
+          setAssistantName(assistantToEdit.name || '');
+          setAssistantDescription(assistantToEdit.description || '');
+          setAssistantInstructions(assistantToEdit.instructions || '');
+        } else {
+          setAssistantName('');
+          setAssistantDescription('');
+          setAssistantInstructions('');
+        }
+      }, 0);
+    }
+  }, [isOpen, assistantToEdit]);
 
   if (!isOpen) return null;
 
@@ -34,7 +52,7 @@ export function CreateAssistantModal({ isOpen, onClose, onCreate }: CreateAssist
 
         {/* Header */}
         <div className="flex items-center justify-between p-6 pb-4">
-          <h2 className="text-xl font-semibold">Criar assistente</h2>
+          <h2 className="text-xl font-semibold">{assistantToEdit ? 'Editar assistente' : 'Criar assistente'}</h2>
           <div className="flex items-center gap-2">
             <button className="p-2 text-slate-500 hover:text-slate-800 dark:text-gray-400 dark:hover:text-white transition-colors rounded-lg hover:bg-slate-100 dark:hover:bg-white/10">
               <Settings size={20} />
@@ -135,7 +153,7 @@ export function CreateAssistantModal({ isOpen, onClose, onCreate }: CreateAssist
             disabled={!assistantName.trim()}
             className="px-6 py-2.5 mt-2 rounded-full bg-slate-900 dark:bg-white text-white dark:text-black font-semibold text-sm disabled:opacity-50 disabled:bg-slate-200 disabled:dark:bg-gray-600 disabled:text-slate-500 disabled:dark:text-gray-400 transition-all hover:opacity-90 active:scale-95"
           >
-            Criar assistente
+            {assistantToEdit ? 'Salvar Alterações' : 'Criar assistente'}
           </button>
         </div>
 

@@ -13,7 +13,9 @@ import { RenameChatModal } from './RenameChatModal';
 import { ShareChatModal } from './ShareChatModal';
 import { GroupChatModal } from './GroupChatModal';
 import { SearchModal } from './SearchModal';
+import { ArchivedChatsModal } from './ArchivedChatsModal';
 import { ExploreAssistantsModal } from './ExploreAssistantsModal';
+import { DeleteAssistantModal } from './DeleteAssistantModal';
 import { DeleteChatModal } from './DeleteChatModal';
 import { Toast } from './Toast';
 import type { ToastType } from './Toast';
@@ -73,11 +75,14 @@ const Layout: React.FC = () => {
 
   // Search Modal
   const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
+  const [isArchivedChatsModalOpen, setIsArchivedChatsModalOpen] = useState(false);
 
   // Assistant state
   const [assistants, setAssistants] = useState<any[]>([]);
   const [isCreateAssistantModalOpen, setIsCreateAssistantModalOpen] = useState(false);
   const [isExploreAssistantsModalOpen, setIsExploreAssistantsModalOpen] = useState(false);
+  const [assistantToEdit, setAssistantToEdit] = useState<any>(null);
+  const [assistantToDelete, setAssistantToDelete] = useState<any>(null);
 
   const loadAssistants = async () => {
     try {
@@ -93,18 +98,74 @@ const Layout: React.FC = () => {
   };
 
   const handleCreateAssistant = async (name: string, description?: string, instructions?: string) => {
-    try {
-      const { data, error } = await supabase.schema('droweder_ia').from('assistants').insert([{ name, description, instructions }]).select();
-      if (error) {
-        console.error('Error creating assistant:', error);
-        setToastMessage('Erro ao criar assistente: ' + error.message);
-      } else if (data) {
-        setAssistants([data[0], ...assistants]);
-        setToastMessage('Assistente criado com sucesso!');
+    if (assistantToEdit) {
+      try {
+        const { data, error } = await supabase
+          .schema('droweder_ia')
+          .from('assistants')
+          .update({ name, description, instructions })
+          .eq('id', assistantToEdit.id)
+          .select();
+
+        if (error) {
+          console.error('Error updating assistant:', error);
+          setToastMessage('Erro ao atualizar assistente: ' + error.message);
+        } else if (data) {
+          setAssistants(assistants.map(a => a.id === data[0].id ? data[0] : a));
+          setToastMessage('Assistente atualizado com sucesso!');
+        }
+      } catch (err: any) {
+        console.error('Exception updating assistant:', err);
+        setToastMessage('Erro ao atualizar assistente.');
+      } finally {
+        setAssistantToEdit(null);
       }
-    } catch (err: any) {
-      console.error('Exception creating assistant:', err);
-      setToastMessage('Erro ao criar assistente: ' + err.message);
+    } else {
+      try {
+        const { data, error } = await supabase
+          .schema('droweder_ia')
+          .from('assistants')
+          .insert([{ name, description, instructions, created_by: user?.id }])
+          .select();
+
+        if (error) {
+          console.error('Error creating assistant:', error);
+          setToastMessage('Erro ao criar assistente: ' + error.message);
+        } else if (data) {
+          setAssistants([data[0], ...assistants]);
+          setToastMessage('Assistente criado com sucesso!');
+        }
+      } catch (err: any) {
+        console.error('Exception creating assistant:', err);
+        setToastMessage('Erro ao criar assistente.');
+      }
+    }
+  };
+
+  const handleDeleteAssistant = async () => {
+    if (!assistantToDelete) return;
+    try {
+      const { error } = await supabase
+        .schema('droweder_ia')
+        .from('assistants')
+        .delete()
+        .eq('id', assistantToDelete.id);
+
+      if (error) {
+        console.error('Error deleting assistant:', error);
+        setToastMessage('Erro ao excluir assistente: ' + error.message);
+      } else {
+        setAssistants(assistants.filter(a => a.id !== assistantToDelete.id));
+        if (activeAssistantId === assistantToDelete.id) {
+            setActiveAssistantId(null);
+        }
+        setToastMessage('Assistente excluído com sucesso!');
+      }
+    } catch (err) {
+      console.error('Exception deleting assistant:', err);
+      setToastMessage('Erro ao excluir assistente.');
+    } finally {
+      setAssistantToDelete(null);
     }
   };
 
@@ -161,6 +222,8 @@ const Layout: React.FC = () => {
           .schema('droweder_ia')
           .from('conversations')
           .select('*')
+          .eq('is_archived', false)
+          .order('is_pinned', { ascending: false })
           .order('created_at', { ascending: false });
 
       if (convError) console.error('Error fetching conversations:', convError);
@@ -343,6 +406,14 @@ const Layout: React.FC = () => {
               >
                 <FileText size={20} />
                 {!isSidebarCollapsed && <span>Arquivos</span>}
+              </button>
+              <button
+                onClick={() => setIsArchivedChatsModalOpen(true)}
+                className={`w-full flex items-center gap-3 h-8 px-3 rounded-md transition-all duration-200 text-sm font-medium text-slate-600 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-white/10 hover:text-slate-900 dark:hover:text-white`}
+                title="Chats Arquivados"
+              >
+                <Archive size={20} />
+                {!isSidebarCollapsed && <span>Chats Arquivados</span>}
               </button>
               <button
                 className={`w-full flex items-center gap-3 h-8 px-3 rounded-md transition-all duration-200 text-sm font-medium text-slate-600 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-white/10 hover:text-slate-900 dark:hover:text-white`}
@@ -539,15 +610,29 @@ const Layout: React.FC = () => {
                                                 e.stopPropagation();
                                                 setOpenChatMenuId(null);
 
-                                                // Toggle pin status (requires boolean column 'is_pinned' on 'conversations')
                                                 const newPinnedStatus = !chat.is_pinned;
-                                                setConversations(prev => prev.map(c => c.id === chat.id ? { ...c, is_pinned: newPinnedStatus } : c));
+                                                setConversations(prev => {
+                                                    const updated = prev.map(c => c.id === chat.id ? { ...c, is_pinned: newPinnedStatus } : c);
+                                                    return updated.sort((a, b) => {
+                                                        if (a.is_pinned === b.is_pinned) {
+                                                            return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+                                                        }
+                                                        return a.is_pinned ? -1 : 1;
+                                                    });
+                                                });
 
                                                 const { error } = await supabase.schema('droweder_ia').from('conversations').update({ is_pinned: newPinnedStatus }).eq('id', chat.id);
 
                                                 if (error) {
-                                                    // Rollback
-                                                    setConversations(prev => prev.map(c => c.id === chat.id ? { ...c, is_pinned: !newPinnedStatus } : c));
+                                                    setConversations(prev => {
+                                                        const reverted = prev.map(c => c.id === chat.id ? { ...c, is_pinned: !newPinnedStatus } : c);
+                                                        return reverted.sort((a, b) => {
+                                                            if (a.is_pinned === b.is_pinned) {
+                                                                return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+                                                            }
+                                                            return a.is_pinned ? -1 : 1;
+                                                        });
+                                                    });
                                                     showToast("Erro ao fixar o chat.", "error");
                                                 } else {
                                                     showToast(newPinnedStatus ? "Chat fixado com sucesso." : "Chat desfixado com sucesso.", "success");
@@ -563,12 +648,10 @@ const Layout: React.FC = () => {
                                                 e.stopPropagation();
                                                 setOpenChatMenuId(null);
 
-                                                // Archive chat
                                                 setConversations(prev => prev.filter(c => c.id !== chat.id));
                                                 const { error } = await supabase.schema('droweder_ia').from('conversations').update({ is_archived: true }).eq('id', chat.id);
 
                                                 if (error) {
-                                                    // Rollback
                                                     setConversations(prev => [...prev, chat]);
                                                     showToast("Erro ao arquivar o chat.", "error");
                                                 } else {
@@ -663,10 +746,14 @@ const Layout: React.FC = () => {
 
       <CreateAssistantModal
         isOpen={isCreateAssistantModalOpen}
-        onClose={() => setIsCreateAssistantModalOpen(false)}
+        onClose={() => {
+          setIsCreateAssistantModalOpen(false);
+          setAssistantToEdit(null);
+        }}
         onCreate={(name, description, instructions) => {
           void handleCreateAssistant(name, description, instructions);
         }}
+        assistantToEdit={assistantToEdit}
       />
 
       <NoProjectsWarningModal
@@ -745,6 +832,29 @@ const Layout: React.FC = () => {
           conversations={conversations}
       />
 
+      <ArchivedChatsModal
+          isOpen={isArchivedChatsModalOpen}
+          onClose={() => setIsArchivedChatsModalOpen(false)}
+          onUnarchive={async (chatId) => {
+              // Reload conversation to the main list
+              const { data, error } = await supabase
+                  .schema('droweder_ia')
+                  .from('conversations')
+                  .select('*')
+                  .eq('id', chatId)
+                  .single();
+              if (data && !error) {
+                  setConversations(prev => [data, ...prev].sort((a, b) => {
+                      if (a.is_pinned === b.is_pinned) {
+                          return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+                      }
+                      return a.is_pinned ? -1 : 1;
+                  }));
+                  showToast("Chat desarquivado com sucesso.", "success");
+              }
+          }}
+      />
+
       <ExploreAssistantsModal
           isOpen={isExploreAssistantsModalOpen}
           onClose={() => setIsExploreAssistantsModalOpen(false)}
@@ -754,7 +864,27 @@ const Layout: React.FC = () => {
               setActiveAssistantId(assistantId);
               if (!isActive('/chat')) navigate('/chat');
           }}
+          onEditAssistant={(assistant) => {
+              setAssistantToEdit(assistant);
+              setIsCreateAssistantModalOpen(true);
+              setIsExploreAssistantsModalOpen(false);
+          }}
+          onDeleteAssistant={(assistantId) => {
+              const assistant = assistants.find(a => a.id === assistantId);
+              if (assistant) {
+                  setAssistantToDelete(assistant);
+              }
+          }}
       />
+
+      {assistantToDelete && (
+        <DeleteAssistantModal
+            isOpen={!!assistantToDelete}
+            onClose={() => setAssistantToDelete(null)}
+            onConfirm={handleDeleteAssistant}
+            assistantName={assistantToDelete.name}
+        />
+      )}
 
       {toastMessage && (
         <Toast

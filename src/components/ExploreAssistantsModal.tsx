@@ -1,15 +1,19 @@
 import { useState } from 'react';
-import { X, Search, Bot } from 'lucide-react';
+import { X, Search, Bot, Pencil, Trash2 } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
 
 interface ExploreAssistantsModalProps {
   isOpen: boolean;
   onClose: () => void;
   assistants: any[];
   onSelectAssistant: (assistantId: string) => void;
+  onEditAssistant?: (assistant: any) => void;
+  onDeleteAssistant?: (assistantId: string) => void;
 }
 
-export function ExploreAssistantsModal({ isOpen, onClose, assistants, onSelectAssistant }: ExploreAssistantsModalProps) {
+export function ExploreAssistantsModal({ isOpen, onClose, assistants, onSelectAssistant, onEditAssistant, onDeleteAssistant }: ExploreAssistantsModalProps) {
   const [query, setQuery] = useState('');
+  const { user } = useAuth();
 
   if (!isOpen) return null;
 
@@ -63,13 +67,43 @@ export function ExploreAssistantsModal({ isOpen, onClose, assistants, onSelectAs
                         key={assistant.id}
                         className="flex flex-col p-4 rounded-xl border border-slate-200 dark:border-white/10 bg-white/40 dark:bg-white/5 hover:border-[#7e639f]/50 dark:hover:border-[#7e639f]/50 hover:shadow-md transition-all group"
                     >
-                        <div className="flex items-center gap-3 mb-3">
-                            <div className="w-10 h-10 rounded-lg bg-[#7e639f]/10 text-[#7e639f] flex items-center justify-center shrink-0 group-hover:bg-[#7e639f] group-hover:text-white transition-colors">
-                                <Bot size={20} />
+                        <div className="flex items-center justify-between mb-3">
+                            <div className="flex items-center gap-3 overflow-hidden">
+                                <div className="w-10 h-10 rounded-lg bg-[#7e639f]/10 text-[#7e639f] flex items-center justify-center shrink-0 group-hover:bg-[#7e639f] group-hover:text-white transition-colors">
+                                    <Bot size={20} />
+                                </div>
+                                <h3 className="font-semibold text-slate-800 dark:text-white truncate" title={assistant.name}>
+                                    {assistant.name}
+                                </h3>
                             </div>
-                            <h3 className="font-semibold text-slate-800 dark:text-white truncate" title={assistant.name}>
-                                {assistant.name}
-                            </h3>
+                            {user && user.id === assistant.created_by && (
+                                <div className="flex items-center gap-1 shrink-0 ml-2">
+                                    {onEditAssistant && (
+                                        <button
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                onEditAssistant(assistant);
+                                            }}
+                                            className="p-1.5 text-slate-400 hover:text-blue-500 rounded-md hover:bg-blue-50 dark:hover:bg-blue-500/10 transition-colors"
+                                            title="Editar"
+                                        >
+                                            <Pencil size={16} />
+                                        </button>
+                                    )}
+                                    {onDeleteAssistant && (
+                                        <button
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                onDeleteAssistant(assistant.id);
+                                            }}
+                                            className="p-1.5 text-slate-400 hover:text-red-500 rounded-md hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors"
+                                            title="Excluir"
+                                        >
+                                            <Trash2 size={16} />
+                                        </button>
+                                    )}
+                                </div>
+                            )}
                         </div>
                         <p className="text-sm text-slate-600 dark:text-gray-400 line-clamp-3 mb-4 flex-1">
                             {assistant.description || 'Sem descrição fornecida.'}
