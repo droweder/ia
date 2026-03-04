@@ -35,8 +35,18 @@ CREATE TABLE IF NOT EXISTS droweder_ia.assistants (
     instructions TEXT,
     icon TEXT,
     category TEXT,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
+    created_by UUID
 );
+
+-- Adicionando coluna created_by na tabela assistants caso ela já exista
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns
+                   WHERE table_schema='droweder_ia' AND table_name='assistants' AND column_name='created_by') THEN
+        ALTER TABLE droweder_ia.assistants ADD COLUMN created_by UUID;
+    END IF;
+END $$;
 
 -- Tabela de Conversas
 CREATE TABLE IF NOT EXISTS droweder_ia.conversations (
@@ -172,6 +182,17 @@ DROP POLICY IF EXISTS "Users can create assistants" ON droweder_ia.assistants;
 CREATE POLICY "Users can create assistants" ON droweder_ia.assistants
     FOR INSERT
     WITH CHECK (true);
+
+DROP POLICY IF EXISTS "Users can update their own assistants" ON droweder_ia.assistants;
+CREATE POLICY "Users can update their own assistants" ON droweder_ia.assistants
+    FOR UPDATE
+    USING (created_by = auth.uid())
+    WITH CHECK (created_by = auth.uid());
+
+DROP POLICY IF EXISTS "Users can delete their own assistants" ON droweder_ia.assistants;
+CREATE POLICY "Users can delete their own assistants" ON droweder_ia.assistants
+    FOR DELETE
+    USING (created_by = auth.uid());
 
 -- Política para Conversations
 -- Usuários só podem acessar conversas da sua empresa
