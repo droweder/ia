@@ -76,7 +76,7 @@ const CodeBlock = ({ node, inline, className, children, ...props }: any) => {
             </div>
 
             {isExpanded && (
-                <div className="w-full overflow-x-auto p-4 text-sm scrollbar-thin scrollbar-thumb-blue-900 dark:scrollbar-thumb-blue-800 hover:scrollbar-thumb-blue-800 dark:hover:scrollbar-thumb-blue-700 scrollbar-track-transparent">
+                <div className="w-full overflow-x-auto p-4 pb-2 text-sm scrollbar-thin scrollbar-thumb-[#4b5563] hover:scrollbar-thumb-[#6b7280] scrollbar-track-transparent">
                     <SyntaxHighlighter
                         {...({ ...props, ref: undefined } as any)}
                         PreTag="div"
