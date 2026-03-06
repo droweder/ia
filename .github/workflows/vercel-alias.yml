@@ -15,7 +15,7 @@ jobs:
         run: npm install -g vercel
 
       - name: Debug - exibir URL do deploy
-        run: echo "Deploy URL: ${{ github.event.deployment_status.target_url }}"
+            run: echo 'Deploy URL: ${{ github.event.deployment_status.target_url }}'
 
       - name: Aplicar alias fixo ia-dev.droweder.com.br
         run: |
