@@ -25,6 +25,72 @@ interface Message {
     sql_query?: string; // New field for internal SQL logging (if we decide to show it later)
 }
 
+
+const CodeBlock = ({ node, inline, className, children, ...props }: any) => {
+    const match = /language-(\w+)/.exec(className || '');
+    const codeString = String(children).replace(/\n$/, '');
+
+    const [isCopied, setIsCopied] = useState(false);
+    const [isExpanded, setIsExpanded] = useState(match && match[1] !== 'sql'); // hide SQL by default
+
+    const handleCopy = () => {
+        navigator.clipboard.writeText(codeString).then(() => {
+            setIsCopied(true);
+            setTimeout(() => setIsCopied(false), 2000);
+        });
+    };
+
+    if (inline || !match) {
+        return (
+            <code {...props} className={`${className || ''} bg-slate-100 dark:bg-white/10 px-1.5 py-0.5 rounded-md font-mono text-sm text-pink-600 dark:text-pink-400`}>
+                {children}
+            </code>
+        );
+    }
+
+    const language = match[1];
+
+    return (
+        <div className="relative group/code mt-4 mb-4 rounded-xl overflow-hidden bg-[#1E1E1E] border border-gray-700/50 shadow-sm">
+            <div
+                className={`flex items-center justify-between px-4 py-2.5 bg-[#2D2D2D] text-xs font-medium text-gray-400 transition-colors ${language === 'sql' ? 'cursor-pointer hover:bg-[#3D3D3D]' : ''}`}
+                onClick={() => language === 'sql' && setIsExpanded(!isExpanded)}
+            >
+                <div className="flex items-center gap-2">
+                    {language === 'sql' && (
+                        <ChevronDown size={14} className={`transform transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`} />
+                    )}
+                    <span className="uppercase tracking-wider">{language === 'sql' ? 'SQL EXECUTADO PELA IA' : language}</span>
+                </div>
+
+                <div className="flex items-center gap-3" onClick={(e) => e.stopPropagation()}>
+                    <button
+                        onClick={handleCopy}
+                        className="flex items-center gap-1.5 hover:text-white transition-colors"
+                        title="Copiar código"
+                    >
+                        {isCopied ? <Check size={14} className="text-emerald-400" /> : <Copy size={14} />}
+                        <span className={isCopied ? "text-emerald-400" : ""}>{isCopied ? 'Copiado' : 'Copiar'}</span>
+                    </button>
+                </div>
+            </div>
+
+            {isExpanded && (
+                <div className="p-4 overflow-x-auto text-sm scrollbar-thin scrollbar-thumb-gray-600 hover:scrollbar-thumb-gray-500 scrollbar-track-transparent">
+                    <SyntaxHighlighter
+                        {...({ ...props, ref: undefined } as any)}
+                        PreTag="div"
+                        children={codeString}
+                        language={language}
+                        style={vscDarkPlus}
+                        customStyle={{ margin: 0, padding: 0, background: 'transparent' }}
+                    />
+                </div>
+            )}
+        </div>
+    );
+};
+
 const Chat: React.FC = () => {
   const { conversations, setConversations, activeConversationId, setActiveConversationId, activeAssistantId, setActiveAssistantId, assistants } = useOutletContext<LayoutContextType>();
   const [isRecording, setIsRecording] = useState(false);
@@ -98,16 +164,9 @@ const Chat: React.FC = () => {
       }
     }
   };
-  const [copiedBlocks, setCopiedBlocks] = useState<{ [key: string]: boolean }>({});
 
-  const handleCopyCode = (code: string, blockId: string) => {
-    navigator.clipboard.writeText(code).then(() => {
-      setCopiedBlocks((prev) => ({ ...prev, [blockId]: true }));
-      setTimeout(() => {
-        setCopiedBlocks((prev) => ({ ...prev, [blockId]: false }));
-      }, 2000);
-    });
-  };
+
+
 
   const [input, setInput] = useState('');
   const [showSql, setShowSql] = useState<string | null>(null);
@@ -362,7 +421,7 @@ let systemPrompt = `Você é o DRoweder IA, um assistente especialista em manufa
         3. Use a role 'ai_reader_role' (apenas leitura). Não use INSERT/UPDATE/DELETE.
         4. O sistema executará sua query e retornará o JSON dos resultados em uma mensagem interna.
         5. Quando receber os resultados do JSON (ou se a pergunta não exigir banco de dados), responda ao usuário final APENAS com a análise em linguagem natural e os dados formatados (tabelas markdown, listas).
-        6. NÃO exponha comandos SQL na resposta final, a menos que o usuário peça explicitamente "Mostre o SQL".
+        6. NÃO exponha comandos SQL na resposta final com textos longos ou não formatados. Se precisar justificar a consulta, e o usuário quiser ver o SQL, envolva-o em blocos de markdown padrão (\`\`\`sql) que agora são ocultos por padrão na interface.
         7. Seja conciso, profissional e use Português do Brasil.\n        8. VOCÊ TEM ACESSO À INTERNET em tempo real. Sempre que um usuário pedir informações de datas futuras (ex: 2025, 2026), notícias, ou dados não constantes no ERP, NÃO NEGUE O ACESSO; pesquise e responda com base nos resultados da web acoplados à sua requisição.
         8. O 'empresa_id' do usuário logado é: ${companyId}. Sempre filtre as tabelas por empresa_id = '${companyId}' quando aplicável.
         `;
@@ -576,42 +635,7 @@ let systemPrompt = `Você é o DRoweder IA, um assistente especialista em manufa
                                 <ReactMarkdown
                                     remarkPlugins={[remarkGfm]}
                                     components={{
-                                        code(props) {
-                                            const { children, className, ...rest } = props;
-                                            const match = /language-(\w+)/.exec(className || '');
-                                            const codeString = String(children).replace(/\n$/, '');
-                                            const blockId = `${msg.id}-${codeString.substring(0, 10)}`;
-
-                                            return match ? (
-                                                <div className="relative group/code mt-4 mb-4 rounded-md overflow-hidden bg-[#1E1E1E] border border-gray-700/50">
-                                                    <div className="flex items-center justify-between px-4 py-2 bg-[#2D2D2D] text-xs text-gray-400">
-                                                        <span>{match[1]}</span>
-                                                        <button
-                                                            onClick={() => handleCopyCode(codeString, blockId)}
-                                                            className="flex items-center gap-1 hover:text-white transition-colors"
-                                                            title="Copiar código"
-                                                        >
-                                                            {copiedBlocks[blockId] ? <Check size={14} className="text-green-400" /> : <Copy size={14} />}
-                                                            <span>{copiedBlocks[blockId] ? 'Copiado!' : 'Copiar'}</span>
-                                                        </button>
-                                                    </div>
-                                                    <div className="p-4 overflow-x-auto text-sm">
-                                                        <SyntaxHighlighter
-                                                            {...({ ...rest, ref: undefined } as any)}
-                                                            PreTag="div"
-                                                            children={codeString}
-                                                            language={match[1]}
-                                                            style={vscDarkPlus}
-                                                            customStyle={{ margin: 0, padding: 0, background: 'transparent' }}
-                                                        />
-                                                    </div>
-                                                </div>
-                                            ) : (
-                                                <code {...rest} className={`${className} bg-slate-100 dark:bg-white/10 px-1.5 py-0.5 rounded-md font-mono text-sm text-pink-600 dark:text-pink-400`}>
-                                                    {children}
-                                                </code>
-                                            );
-                                        }
+                                        code: CodeBlock
                                     }}
                                 >
                                     {msg.content}
