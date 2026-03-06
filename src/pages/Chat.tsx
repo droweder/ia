@@ -76,14 +76,16 @@ const CodeBlock = ({ node, inline, className, children, ...props }: any) => {
             </div>
 
             {isExpanded && (
-                <div className="p-4 overflow-x-auto text-sm scrollbar-thin scrollbar-thumb-gray-600 hover:scrollbar-thumb-gray-500 scrollbar-track-transparent">
+                <div className="p-4 text-sm w-full overflow-hidden">
                     <SyntaxHighlighter
                         {...({ ...props, ref: undefined } as any)}
                         PreTag="div"
                         children={codeString}
                         language={language}
                         style={vscDarkPlus}
-                        customStyle={{ margin: 0, padding: 0, background: 'transparent' }}
+                        customStyle={{ margin: 0, padding: 0, background: 'transparent', overflowX: 'auto' }}
+                        wrapLongLines={false}
+                        className="scrollbar-thin scrollbar-thumb-gray-600 hover:scrollbar-thumb-gray-500 scrollbar-track-transparent pb-2"
                     />
                 </div>
             )}
