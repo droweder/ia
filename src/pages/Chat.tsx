@@ -545,10 +545,10 @@ let systemPrompt = `Você é o DRoweder IA, um assistente especialista em manufa
   const activeAssistant = assistants.find(a => a.id === activeAssistantId);
 
   return (
-    <div className="flex flex-1 flex-col h-full bg-transparent overflow-hidden transition-colors duration-200">
+    <div className="flex flex-1 flex-col h-full min-h-0 bg-transparent overflow-hidden transition-colors duration-200">
 
       {/* Main Chat Area */}
-      <div className="flex-1 flex flex-col min-w-0 bg-transparent transition-colors duration-200">
+      <div className="flex-1 flex flex-col min-w-0 min-h-0 bg-transparent transition-colors duration-200">
         {/* Header - Simplified */}
         <div className="h-14 border-b border-slate-200 dark:border-white/10 flex justify-between items-center bg-white/40 dark:bg-white/5 backdrop-blur-md px-4 shadow-sm z-10">
             <div className="flex items-center gap-4">

@@ -502,7 +502,7 @@ const Layout: React.FC = () => {
                                             left: `${Math.min(chatMenuPosition.left - 240, window.innerWidth - 250)}px`,
                                             zIndex: 9999
                                         }}
-                                        className="w-60 bg-white dark:bg-[#111827] border border-slate-200 dark:border-white/10 rounded-xl shadow-xl py-2"
+                                        className="w-60 bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-white/10 rounded-xl shadow-xl py-2"
                                     >
                                         <button
                                             onClick={(e) => {
