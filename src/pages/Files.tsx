@@ -201,7 +201,7 @@ const Files: React.FC = () => {
     const filteredFiles = files.filter(f => f.name.toLowerCase().includes(searchTerm.toLowerCase()));
 
     return (
-        <div className="flex h-full w-full bg-slate-50 dark:bg-[#1e1f22]">
+        <div className="flex h-full w-full bg-transparent dark:bg-transparent">
             {/* Left Sidebar for Sectors */}
             <div className="w-64 border-r border-slate-200 dark:border-white/10 flex flex-col bg-white/40 dark:bg-white/5 backdrop-blur-xl">
                 <div className="p-4 border-b border-slate-200 dark:border-white/10">
@@ -218,7 +218,7 @@ const Files: React.FC = () => {
                             value={newSectorName}
                             onChange={(e) => setNewSectorName(e.target.value)}
                             placeholder="Novo setor..."
-                            className="flex-1 bg-white dark:bg-black/20 border border-slate-200 dark:border-white/10 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#7e639f]"
+                            className="flex-1 bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#7e639f]"
                         />
                         <button
                             type="submit"
@@ -277,7 +277,7 @@ const Files: React.FC = () => {
                                     placeholder="Buscar arquivo..."
                                     value={searchTerm}
                                     onChange={(e) => setSearchTerm(e.target.value)}
-                                    className="pl-9 pr-4 py-2 bg-white dark:bg-black/20 border border-slate-200 dark:border-white/10 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#7e639f] w-64"
+                                    className="pl-9 pr-4 py-2 bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#7e639f] w-64"
                                 />
                             </div>
 
@@ -344,7 +344,7 @@ const Files: React.FC = () => {
                                     className="bg-white/60 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl p-4 flex flex-col gap-3 group hover:border-[#7e639f]/50 transition-colors backdrop-blur-sm"
                                 >
                                     <div className="flex items-start justify-between">
-                                        <div className="w-10 h-10 bg-slate-100 dark:bg-black/20 rounded-lg flex items-center justify-center shrink-0">
+                                        <div className="w-10 h-10 bg-slate-100 dark:bg-white/5 rounded-lg flex items-center justify-center shrink-0">
                                             <FileIcon className="text-[#7e639f]" size={20} />
                                         </div>
                                         <button
