@@ -349,19 +349,22 @@ const Chat: React.FC = () => {
     // Only append to the currentHistory we passed in, avoiding race conditions if we trimmed history
     setMessages([...currentHistory, userMessage]);
 
-    // Construct message history for LLM context
+    // Text-to-SQL logic
     // We instruct the LLM to behave as a data analyst.
     // In a real implementation with Text-to-SQL, the Edge Function handles the "tool calling"
     // to query the database. Here, we simulate that the Edge Function does it.
 
-    let systemPrompt = `Você é o DRoweder IA, um assistente especialista em manufatura conectado ao ERP Planintex.
+let systemPrompt = `Você é o DRoweder IA, um assistente especialista em manufatura conectado ao ERP Planintex.
 
         INSTRUÇÕES BASE:
-        1. O usuário fará perguntas sobre dados (ordens, estoque, previsão).
-        2. Você NÃO DEVE responder com dados fictícios. Apenas com dados reais, se não os tiver, então deve avisar o usuário.
-        3. Responda ao usuário final APENAS com a análise em linguagem natural e os dados formatados (tabelas markdown, listas).
-        4. NÃO exponha comandos SQL na resposta final, a menos que o usuário peça explicitamente "Mostre o SQL".
-        5. Seja conciso, profissional e use Português do Brasil.
+        1. O usuário fará perguntas sobre dados do ERP (tabelas disponíveis: planintex.ordens, planintex.pedidos_venda, planintex.empresas, etc).
+        2. Se precisar consultar dados, VOCÊ DEVE responder EXCLUSIVAMENTE com uma query SQL válida no schema 'planintex', delimitada pelas tags <sql> e </sql>. Exemplo: <sql>SELECT count(*) FROM planintex.ordens;</sql>.
+        3. Use a role 'ai_reader_role' (apenas leitura). Não use INSERT/UPDATE/DELETE.
+        4. O sistema executará sua query e retornará o JSON dos resultados em uma mensagem interna.
+        5. Quando receber os resultados do JSON (ou se a pergunta não exigir banco de dados), responda ao usuário final APENAS com a análise em linguagem natural e os dados formatados (tabelas markdown, listas).
+        6. NÃO exponha comandos SQL na resposta final, a menos que o usuário peça explicitamente "Mostre o SQL".
+        7. Seja conciso, profissional e use Português do Brasil.
+        8. O 'empresa_id' do usuário logado é: ${companyId}. Sempre filtre as tabelas por empresa_id = '${companyId}' quando aplicável.
         `;
 
     // Inject active assistant instructions if present
@@ -379,7 +382,7 @@ const Chat: React.FC = () => {
     ];
 
     try {
-        const aiResponse = await chatWithOpenRouter(selectedModel, openRouterMessages);
+        let aiResponse = await chatWithOpenRouter(selectedModel, openRouterMessages);
 
         // Check for mock error response from openRouterClient when API key is missing
         if (aiResponse?.id === 'mock-id') {
@@ -389,7 +392,47 @@ const Chat: React.FC = () => {
         }
 
         const aiContent = aiResponse?.choices[0]?.message?.content || "Desculpe, não consegui processar sua solicitação no momento.";
-        const modelUsed = aiResponse?.model || selectedModel;
+        let modelUsed = aiResponse?.model || selectedModel;
+        let finalResponseContent = aiContent;
+
+        // VERIFY IF THE AI RETURNED SQL
+        const sqlMatch = aiContent.match(/<sql>([\s\S]*?)<\/sql>/i);
+        if (sqlMatch && sqlMatch[1]) {
+            const extractedSql = sqlMatch[1].trim();
+
+            // Log that we are executing SQL (optional UI feedback)
+            console.log("Executando SQL Gerado pela IA:", extractedSql);
+
+            // Execute the SQL via our custom RPC
+            const { data: sqlData, error: sqlError } = await supabase.rpc('execute_ai_sql', {
+                query: extractedSql
+            });
+
+            let queryResultStr = "";
+            if (sqlError) {
+                console.error("Erro ao executar SQL:", sqlError);
+                queryResultStr = `Erro ao executar a consulta: ${sqlError.message || JSON.stringify(sqlError)}`;
+            } else {
+                queryResultStr = JSON.stringify(sqlData, null, 2);
+            }
+
+            // Inform the AI about the result
+            const dbResultPrompt = `Resultado da query SQL:\n\`\`\`json\n${queryResultStr}\n\`\`\`\nPor favor, forneça a resposta final ao usuário em linguagem natural.`;
+
+            // Add AI's SQL message and the system's response to the context
+            openRouterMessages.push({ role: 'assistant', content: aiContent });
+            openRouterMessages.push({ role: 'user', content: dbResultPrompt });
+
+            // Request final answer
+            aiResponse = await chatWithOpenRouter(selectedModel, openRouterMessages);
+            if (aiResponse?.id === 'mock-id') {
+                setError(aiResponse.choices[0].message.content);
+                setLoading(false);
+                return false;
+            }
+            finalResponseContent = aiResponse?.choices[0]?.message?.content || "Desculpe, ocorreu um erro após a consulta aos dados.";
+            modelUsed = aiResponse?.model || selectedModel;
+        }
 
         // Save AI response
         const { data: aiMsg, error: aiError } = await supabase
@@ -398,7 +441,7 @@ const Chat: React.FC = () => {
             .insert({
                 conversation_id: conversationId,
                 role: 'assistant',
-                content: aiContent,
+                content: finalResponseContent,
                 model_used: modelUsed,
             })
             .select()
@@ -411,6 +454,12 @@ const Chat: React.FC = () => {
              // Show error in UI as fallback
              setError("Erro ao salvar resposta no histórico.");
         }
+
+        setLoading(false);
+        return true;
+
+
+
 
     } catch (error: any) {
         console.error("LLM Error:", error);

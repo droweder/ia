@@ -170,7 +170,7 @@ const Layout: React.FC = () => {
 
   useEffect(() => {
     void loadAssistants();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
   }, []);
 
   const [isRenameModalOpen, setIsRenameModalOpen] = useState(false);
