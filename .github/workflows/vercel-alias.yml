@@ -16,9 +16,8 @@ jobs:
           echo "Deploy URL: ${{ github.event.deployment_status.target_url }}"
 
       - name: Aplicar alias fixo ia-dev.droweder.com.br
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          PREVIEW_URL: ${{ github.event.deployment_status.target_url }}
         run: |
-          vercel alias set \
-            "${{ github.event.deployment_status.target_url }}" \
-            "ia-dev.droweder.com.br" \
-            --token=${{ secrets.VERCEL_TOKEN }} \
-            --scope=droweder
+          vercel alias set "$PREVIEW_URL" ia-dev.droweder.com.br --token="$VERCEL_TOKEN" --scope=droweder
