@@ -629,7 +629,7 @@ let systemPrompt = `Você é o DRoweder IA, um assistente especialista em manufa
                         <div className="text-sm font-semibold text-slate-800 dark:text-gray-200">
                             {msg.role === 'user' ? 'Você' : 'DRoweder IA'}
                         </div>
-                        <div className="prose prose-sm prose-slate dark:prose-invert max-w-none text-slate-700 dark:text-gray-300 leading-relaxed break-words">
+                        <div className="prose prose-sm prose-slate dark:prose-invert max-w-none text-slate-700 dark:text-gray-300 leading-relaxed break-words overflow-x-auto scrollbar-thin scrollbar-thumb-blue-900 dark:scrollbar-thumb-blue-800 hover:scrollbar-thumb-blue-800 dark:hover:scrollbar-thumb-blue-700">
                             {msg.role === 'user' ? (
                                 <div className="whitespace-pre-wrap">{msg.content}</div>
                             ) : (
