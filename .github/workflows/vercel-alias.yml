@@ -1,4 +1,4 @@
-name: Vercel Alias – ia-dev
+name: Vercel Alias - ia-dev
 
 on:
   deployment_status:
@@ -6,21 +6,19 @@ on:
 jobs:
   alias:
     # Roda apenas em deploys de Preview (nao Production) com status success
-    if: |
-      github.event.deployment_status.state == 'success' &&
-      github.event.deployment.environment == 'Preview'
+    if: github.event.deployment_status.state == 'success' && github.event.deployment.environment == 'Preview'
     runs-on: ubuntu-latest
     steps:
       - name: Instalar Vercel CLI
         run: npm install -g vercel
 
       - name: Debug - exibir URL do deploy
-        run: echo "Deploy URL: ${{ github.event.deployment_status.target_url }}"
+        run: |
+          echo "Deploy URL: ${{ github.event.deployment_status.target_url }}"
 
       - name: Aplicar alias fixo ia-dev.droweder.com.br
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          PREVIEW_URL: ${{ github.event.deployment_status.target_url }}
         run: |
-          vercel alias set \
-            "${{ github.event.deployment_status.target_url }}" \
-            "ia-dev.droweder.com.br" \
-            --token=${{ secrets.VERCEL_TOKEN }} \
-            --scope=droweder
+          vercel alias set "$PREVIEW_URL" ia-dev.droweder.com.br --token="$VERCEL_TOKEN" --scope=droweder
