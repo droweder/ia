@@ -20,6 +20,7 @@
 
   /* Dark Mode Aurora */
   .dark body {
+    color-scheme: dark;
     /* Aurora Gradient Background */
     background: radial-gradient(
       circle at 50% 50%,
@@ -42,19 +43,19 @@
     height: 6px;
   }
   ::-webkit-scrollbar-track {
-    background: transparent;
+    background-color: transparent;
   }
   ::-webkit-scrollbar-thumb {
-    background: rgba(148, 163, 184, 0.5); /* slate-400 */
+    background-color: rgba(148, 163, 184, 0.5); /* slate-400 */
     border-radius: 10px;
   }
   .dark ::-webkit-scrollbar-thumb {
-    background: #1e40af; /* blue-800 */
+    background-color: #1e3a8a; /* blue-900 */
   }
   ::-webkit-scrollbar-thumb:hover {
-    background: rgba(148, 163, 184, 0.8);
+    background-color: rgba(148, 163, 184, 0.8);
   }
   .dark ::-webkit-scrollbar-thumb:hover {
-    background: #1d4ed8; /* blue-700 */
+    background-color: #1e40af; /* blue-800 */
   }
 }

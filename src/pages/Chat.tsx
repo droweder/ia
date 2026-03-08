@@ -76,7 +76,7 @@ const CodeBlock = ({ node, inline, className, children, ...props }: any) => {
             </div>
 
             {isExpanded && (
-                <div className="w-full overflow-x-auto p-4 pb-2 text-sm scrollbar-thin scrollbar-thumb-blue-900 dark:scrollbar-thumb-blue-800 hover:scrollbar-thumb-blue-800 dark:hover:scrollbar-thumb-blue-700 scrollbar-track-transparent">
+                <div className="w-full overflow-x-auto p-4 pb-2 text-sm scrollbar-thin scrollbar-thumb-slate-300 dark:scrollbar-thumb-blue-800 hover:scrollbar-thumb-slate-400 dark:hover:scrollbar-thumb-blue-700 scrollbar-track-transparent">
                     <SyntaxHighlighter
                         {...({ ...props, ref: undefined } as any)}
                         PreTag="div"
@@ -199,7 +199,7 @@ const Chat: React.FC = () => {
   const models = [
     { id: 'google/gemini-2.0-pro-exp-02-05:free', name: 'Gemini 2.0 Pro (Web Search)' },
     { id: 'google/gemini-2.0-flash-lite-001', name: 'Gemini 2.0 Flash Lite' },
-    { id: 'perplexity/llama-3.1-sonar-huge-128k-online', name: 'Perplexity Sonar Online' },
+    { id: 'perplexity/sonar-pro-search', name: 'Perplexity Sonar Online' },
     { id: 'google/gemma-3-27b-it:free', name: 'Gemma 3 27B (Free)' },
     { id: 'meta-llama/llama-3.3-70b-instruct:free', name: 'Llama 3.3 70B (Free)' },
   ];
@@ -575,7 +575,7 @@ let systemPrompt = `Você é o DRoweder IA, um assistente especialista em manufa
         </div>
 
         {/* Messages */}
-        <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-6 bg-transparent scrollbar-thin scrollbar-thumb-blue-900 dark:scrollbar-thumb-blue-800 hover:scrollbar-thumb-blue-800 dark:hover:scrollbar-thumb-blue-700">
+        <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-6 bg-transparent scrollbar-thin scrollbar-thumb-slate-300 dark:scrollbar-thumb-blue-800 hover:scrollbar-thumb-slate-400 dark:hover:scrollbar-thumb-blue-700 scrollbar-track-transparent ">
             {messages.length === 0 && !loading && (
                 <div className="flex flex-col items-center justify-center h-full text-slate-500 dark:text-gray-300 space-y-6">
                     <div className="w-16 h-16 bg-white/60 dark:bg-white/10 backdrop-blur-md rounded-full flex items-center justify-center shadow-sm border border-slate-200 dark:border-white/20">
@@ -629,7 +629,7 @@ let systemPrompt = `Você é o DRoweder IA, um assistente especialista em manufa
                         <div className="text-sm font-semibold text-slate-800 dark:text-gray-200">
                             {msg.role === 'user' ? 'Você' : 'DRoweder IA'}
                         </div>
-                        <div className="prose prose-sm prose-slate dark:prose-invert max-w-none text-slate-700 dark:text-gray-300 leading-relaxed break-words overflow-x-auto scrollbar-thin scrollbar-thumb-blue-900 dark:scrollbar-thumb-blue-800 hover:scrollbar-thumb-blue-800 dark:hover:scrollbar-thumb-blue-700">
+                        <div className="prose prose-sm prose-slate dark:prose-invert max-w-none text-slate-700 dark:text-gray-300 leading-relaxed break-words overflow-x-auto scrollbar-thin scrollbar-thumb-slate-300 dark:scrollbar-thumb-blue-800 hover:scrollbar-thumb-slate-400 dark:hover:scrollbar-thumb-blue-700 scrollbar-track-transparent ">
                             {msg.role === 'user' ? (
                                 <div className="whitespace-pre-wrap">{msg.content}</div>
                             ) : (

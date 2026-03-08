@@ -1,40 +1,20 @@
-import sys
+import re
 
-with open('src/index.css', 'r') as f:
+file_path = "src/index.css"
+
+with open(file_path, "r") as f:
     content = f.read()
 
-scrollbar_css = """
-  /* Global Scrollbar Styling */
-  ::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
-  }
-  ::-webkit-scrollbar-track {
-    background: transparent;
-  }
-  ::-webkit-scrollbar-thumb {
-    background: rgba(148, 163, 184, 0.5); /* slate-400 */
-    border-radius: 10px;
-  }
-  .dark ::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.2);
-  }
-  ::-webkit-scrollbar-thumb:hover {
-    background: rgba(148, 163, 184, 0.8);
-  }
-  .dark ::-webkit-scrollbar-thumb:hover {
-    background: rgba(255, 255, 255, 0.4);
-  }
-}
-"""
+# I will modify `src/index.css` global scrollbar styles from `background:` to `background-color:`
+# because `background` overrides `background-color` and kills tailwind-scrollbar's `--scrollbar-thumb` override!
+# When `tailwind-scrollbar` tries to change the color with `background-color: var(--scrollbar-thumb)`,
+# it gets ignored because `background` from index.css has the same specificity and overwrites it.
 
-new_content = content.replace('}\n}\n', '}\n' + scrollbar_css + '\n')
-if new_content == content:
-    # Try different pattern
-    new_content = content.replace('color: white;\n  }', 'color: white;\n  }\n' + scrollbar_css)
+content = content.replace("background: transparent;", "background-color: transparent;")
+content = content.replace("background: rgba(148, 163, 184, 0.5);", "background-color: rgba(148, 163, 184, 0.5);")
+content = content.replace("background: #1e40af;", "background-color: #1e40af;")
+content = content.replace("background: rgba(148, 163, 184, 0.8);", "background-color: rgba(148, 163, 184, 0.8);")
+content = content.replace("background: #1d4ed8;", "background-color: #1d4ed8;")
 
-
-with open('src/index.css', 'w') as f:
-    f.write(new_content)
-
-print("Patched index.css")
+with open(file_path, "w") as f:
+    f.write(content)

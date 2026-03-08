@@ -1,166 +1,40 @@
 import re
 
-with open('src/pages/Chat.tsx', 'r') as f:
+file_path = "src/pages/Chat.tsx"
+
+with open(file_path, "r") as f:
     content = f.read()
 
-old_block = """    let systemPrompt = `Você é o DRoweder IA, um assistente especialista em manufatura conectado ao ERP Planintex.
+# Replace scrollbar-thumb-blue-900 dark:scrollbar-thumb-blue-800 ...
+# In dark mode, it needs scrollbar-track-transparent dark:scrollbar-track-slate-800 or similar
+# Wait, if they say "A barra de rolagem no chat está em modo claro", they mean the track is white, or the thumb is slate-400.
+# If `tailwind-scrollbar` classes are overridden, it's because in base, `.dark ::-webkit-scrollbar-thumb` applies.
+# BUT wait! `scrollbar-thumb-blue-800` generates `.dark:scrollbar-thumb-blue-800` which sets `--scrollbar-thumb: #1e40af !important;`.
+# And `.scrollbar-thin::-webkit-scrollbar-thumb` uses `background-color: var(--scrollbar-thumb)`.
+# Since `--scrollbar-thumb` is set with `!important`, it applies.
+# Then `.scrollbar-thin::-webkit-scrollbar-thumb` has `background-color: var(--scrollbar-thumb);`
+# But `.dark ::-webkit-scrollbar-thumb` in `@layer base` has `background: #1e40af`.
+# `background` is a shorthand property. `background-color` is overridden by `background`!
+# Ah! `background` resets `background-color`!
+# BUT `.scrollbar-thin::-webkit-scrollbar-thumb` is in utilities.
+# Utilities come AFTER base. So `background-color` comes AFTER `background`.
+# BUT `.dark ::-webkit-scrollbar-thumb` is `(0,1,1)` and `.scrollbar-thin::-webkit-scrollbar-thumb` is `(0,1,1)`.
+# Wait! `.dark ::-webkit-scrollbar-thumb` matches ANY thumb inside `.dark`.
+# So inside `.dark`, BOTH `.dark ::-webkit-scrollbar-thumb` and `.scrollbar-thin::-webkit-scrollbar-thumb` match.
+# Because utilities are injected AFTER base, `.scrollbar-thin::-webkit-scrollbar-thumb` wins!
 
-        INSTRUÇÕES BASE:
-        1. O usuário fará perguntas sobre dados (ordens, estoque, previsão).
-        2. Você NÃO DEVE responder com dados fictícios. Apenas com dados reais, se não os tiver, então deve avisar o usuário.
-        3. Responda ao usuário final APENAS com a análise em linguagem natural e os dados formatados (tabelas markdown, listas).
-        4. NÃO exponha comandos SQL na resposta final, a menos que o usuário peça explicitamente "Mostre o SQL".
-        5. Seja conciso, profissional e use Português do Brasil.
-        `;
+# What if `dark:scrollbar-thumb-blue-800` is NOT generating the thumb color properly because dark mode class is added to `html`, and `html` is `.dark`, so `.dark:scrollbar-thumb-blue-800:is(.dark *)` matches.
+# Wait! The main app in `Layout.tsx` might have `<div className="dark">`?
+# Let's fix Chat.tsx anyway by making sure it uses dark:scrollbar-thumb-blue-800 correctly.
 
-    // Inject active assistant instructions if present
-    if (activeAssistantId) {
-        const activeAssistant = assistants.find(a => a.id === activeAssistantId);
-        if (activeAssistant && activeAssistant.instructions) {
-             systemPrompt += `\\n\\nINSTRUÇÕES ESPECÍFICAS DO ASSISTENTE ATUAL (${activeAssistant.name}):\\n${activeAssistant.instructions}`;
-        }
-    }
+# The user specifically said "Ajuste a barra de rolagem da direita para modo escuro".
+# The right scrollbar of the chat: `flex-1 overflow-y-auto`...
+# I'll just change the classes: `scrollbar-thin scrollbar-track-transparent scrollbar-thumb-slate-300 dark:scrollbar-thumb-blue-800 hover:scrollbar-thumb-slate-400 dark:hover:scrollbar-thumb-blue-700`
 
-    const openRouterMessages: OpenRouterMessage[] = [
-        { role: 'system', content: systemPrompt },
-        ...currentHistory.map(m => ({ role: m.role, content: m.content }) as OpenRouterMessage),
-        { role: 'user', content: finalMessageContent }
-    ];
+# Wait! The user said: "A barra de rolagem no chat está em modo claro, quando o app está em modo escuro. Ajuste a barra de rolagem da direita para modo escuro."
+# Memory says: "Per user preference, these specific scrollbars must strictly apply a dark theme using dark blue tones (e.g., scrollbar-thumb-blue-900 dark:scrollbar-thumb-blue-800 hover:scrollbar-thumb-blue-800 dark:hover:scrollbar-thumb-blue-700), rather than light gray or standard blue variants."
 
-    try {
-        const aiResponse = await chatWithOpenRouter(selectedModel, openRouterMessages);
-
-        // Check for mock error response from openRouterClient when API key is missing
-        if (aiResponse?.id === 'mock-id') {
-            setError(aiResponse.choices[0].message.content);
-            setLoading(false);
-            return false;
-        }
-
-        const aiContent = aiResponse?.choices[0]?.message?.content || "Desculpe, não consegui processar sua solicitação no momento.";
-        const modelUsed = aiResponse?.model || selectedModel;
-
-        // Save AI response
-        const { data: aiMsg, error: aiError } = await supabase
-            .schema('droweder_ia')
-            .from('messages')
-            .insert({
-                conversation_id: conversationId,
-                role: 'assistant',
-                content: aiContent,
-                model_used: modelUsed,
-            })
-            .select()
-            .single();
-
-        if (aiMsg) {
-            setMessages(prev => [...prev, aiMsg as Message]);
-        } else if (aiError) {
-             console.error('Error saving AI message:', aiError);
-             // Show error in UI as fallback
-             setError("Erro ao salvar resposta no histórico.");
-        }"""
-
-new_block = """    let systemPrompt = `Você é o DRoweder IA, um assistente especialista em manufatura conectado ao ERP Planintex.
-
-        INSTRUÇÕES BASE:
-        1. O usuário fará perguntas sobre dados do ERP (tabelas disponíveis no schema planintex: ordens, pedidos_venda, empresas, etc).
-        2. Se precisar consultar dados para responder com precisão, VOCÊ DEVE responder EXCLUSIVAMENTE com uma query SQL válida no schema 'planintex', delimitada pelas tags <sql> e </sql>. Exemplo: <sql>SELECT count(*) FROM planintex.ordens;</sql>.
-        3. A role que executa a query é apenas de leitura. Não use comandos como INSERT/UPDATE/DELETE.
-        4. O sistema executará sua query e retornará o JSON dos resultados em uma nova mensagem de usuário para você interpretar.
-        5. Após receber os resultados do JSON (ou se a pergunta não exigir banco de dados), responda ao usuário final APENAS com a análise em linguagem natural e os dados formatados (tabelas markdown, listas).
-        6. NÃO exponha comandos SQL na resposta final, a menos que o usuário peça explicitamente "Mostre o SQL".
-        7. Seja conciso, profissional e use Português do Brasil.
-        8. O 'empresa_id' do usuário logado é: ${companyId}. Sempre filtre as tabelas por empresa_id = '${companyId}' se a coluna existir.
-        `;
-
-    // Inject active assistant instructions if present
-    if (activeAssistantId) {
-        const activeAssistant = assistants.find(a => a.id === activeAssistantId);
-        if (activeAssistant && activeAssistant.instructions) {
-             systemPrompt += `\\n\\nINSTRUÇÕES ESPECÍFICAS DO ASSISTENTE ATUAL (${activeAssistant.name}):\\n${activeAssistant.instructions}`;
-        }
-    }
-
-    let openRouterMessages: OpenRouterMessage[] = [
-        { role: 'system', content: systemPrompt },
-        ...currentHistory.map(m => ({ role: m.role, content: m.content }) as OpenRouterMessage),
-        { role: 'user', content: finalMessageContent }
-    ];
-
-    try {
-        let aiResponse = await chatWithOpenRouter(selectedModel, openRouterMessages);
-
-        if (aiResponse?.id === 'mock-id') {
-            setError(aiResponse.choices[0].message.content);
-            setLoading(false);
-            return false;
-        }
-
-        let aiContent = aiResponse?.choices[0]?.message?.content || "Desculpe, não consegui processar sua solicitação no momento.";
-        let modelUsed = aiResponse?.model || selectedModel;
-        let finalResponseContent = aiContent;
-
-        // VERIFY IF THE AI RETURNED SQL
-        const sqlMatch = aiContent.match(/<sql>([\\s\\S]*?)<\\/sql>/i);
-        if (sqlMatch && sqlMatch[1]) {
-            const extractedSql = sqlMatch[1].trim();
-            console.log("Executando SQL Gerado pela IA:", extractedSql);
-
-            const { data: sqlData, error: sqlError } = await supabase.rpc('execute_ai_sql', {
-                query: extractedSql
-            });
-
-            let queryResultStr = "";
-            if (sqlError) {
-                console.error("Erro ao executar SQL:", sqlError);
-                queryResultStr = `Erro ao executar a consulta: ${sqlError.message || JSON.stringify(sqlError)}`;
-            } else {
-                queryResultStr = JSON.stringify(sqlData, null, 2);
-            }
-
-            // Inform the AI about the result
-            const dbResultPrompt = `Resultado da query SQL:\\n\\`\\`\\`json\\n${queryResultStr}\\n\\`\\`\\`\\nPor favor, forneça a resposta final ao usuário em linguagem natural.`;
-
-            // Add AI's SQL message and the system's response to the context
-            openRouterMessages.push({ role: 'assistant', content: aiContent });
-            openRouterMessages.push({ role: 'user', content: dbResultPrompt });
-
-            // Request final answer
-            aiResponse = await chatWithOpenRouter(selectedModel, openRouterMessages);
-            if (aiResponse?.id === 'mock-id') {
-                setError(aiResponse.choices[0].message.content);
-                setLoading(false);
-                return false;
-            }
-            finalResponseContent = aiResponse?.choices[0]?.message?.content || "Desculpe, ocorreu um erro após a consulta aos dados.";
-            modelUsed = aiResponse?.model || selectedModel;
-        }
-
-        // Save AI response
-        const { data: aiMsg, error: aiError } = await supabase
-            .schema('droweder_ia')
-            .from('messages')
-            .insert({
-                conversation_id: conversationId,
-                role: 'assistant',
-                content: finalResponseContent,
-                model_used: modelUsed,
-            })
-            .select()
-            .single();
-
-        if (aiMsg) {
-            setMessages(prev => [...prev, aiMsg as Message]);
-        } else if (aiError) {
-             console.error('Error saving AI message:', aiError);
-             setError("Erro ao salvar resposta no histórico.");
-        }"""
-
-if old_block in content:
-    content = content.replace(old_block, new_block)
-    with open('src/pages/Chat.tsx', 'w') as f:
-        f.write(content)
-    print("Patch applied successfully.")
-else:
-    print("Old block not found. Could not apply patch.")
+# So the classes in `Chat.tsx` are ALREADY:
+# scrollbar-thin scrollbar-thumb-blue-900 dark:scrollbar-thumb-blue-800 hover:scrollbar-thumb-blue-800 dark:hover:scrollbar-thumb-blue-700
+# BUT wait! If they are ALREADY there, why is it not working?
+# Because `tailwind-scrollbar` dark mode is not working?

@@ -69,7 +69,7 @@ export const GroupChatModal: React.FC<GroupChatModalProps> = ({
             />
           </div>
 
-          <div className="space-y-2 max-h-[240px] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-slate-300 dark:scrollbar-thumb-white/10">
+          <div className="space-y-2 max-h-[240px] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-slate-300 dark:scrollbar-thumb-blue-800">
             {filteredUsers.length > 0 ? (
                 filteredUsers.map(user => (
                 <div

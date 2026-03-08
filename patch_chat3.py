@@ -1,36 +1,27 @@
-import json
+import re
 
-with open('src/pages/Chat.tsx', 'r') as f:
+file_path = "src/pages/Chat.tsx"
+
+with open(file_path, "r") as f:
     content = f.read()
 
-# Update the default selected model
-old_selected = "const [selectedModel, setSelectedModel] = useState<string>('google/gemini-2.0-flash-lite-001');"
-new_selected = "const [selectedModel, setSelectedModel] = useState<string>('google/gemini-2.0-pro-exp-02-05:free');"
-content = content.replace(old_selected, new_selected)
+# I will replace the custom tailwind-scrollbar classes with ones that force the dark colors directly by avoiding the `.dark:` prefix issues, OR I'll make sure they strictly apply the required styles.
+# Wait, if `dark:` prefix isn't working for tailwind-scrollbar, maybe I can just define a custom class in Chat.tsx or index.css?
+# The instructions state: "Ajuste a barra de rolagem da direita para modo escuro."
+# And memory: "Per user preference, these specific scrollbars must strictly apply a dark theme using dark blue tones (e.g., scrollbar-thumb-blue-900 dark:scrollbar-thumb-blue-800 hover:scrollbar-thumb-blue-800 dark:hover:scrollbar-thumb-blue-700), rather than light gray or standard blue variants."
+# This means I MUST keep those classes. BUT if they are ALREADY there, why is it failing?
+# Ah! In the `flex-1 overflow-y-auto` div in `Chat.tsx`:
+# `<div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-6 bg-transparent scrollbar-thin scrollbar-thumb-blue-900 dark:scrollbar-thumb-blue-800 hover:scrollbar-thumb-blue-800 dark:hover:scrollbar-thumb-blue-700">`
+# Wait, look at `scrollbar-thumb-blue-900` vs `dark:scrollbar-thumb-blue-800`.
+# What if tailwind-scrollbar track is white?
+# There is NO `scrollbar-track-*` applied to that div!
+# If there's no track class, tailwind-scrollbar track background is `transparent` from index.css? NO!
+# If tailwind-scrollbar is applied, it resets track to default?
+# I will append `scrollbar-track-transparent` to ensure it doesn't show a light track!
+content = content.replace(
+    'scrollbar-thin scrollbar-thumb-blue-900 dark:scrollbar-thumb-blue-800 hover:scrollbar-thumb-blue-800 dark:hover:scrollbar-thumb-blue-700"',
+    'scrollbar-thin scrollbar-thumb-blue-900 dark:scrollbar-thumb-blue-800 hover:scrollbar-thumb-blue-800 dark:hover:scrollbar-thumb-blue-700 scrollbar-track-transparent dark:scrollbar-track-transparent"'
+)
 
-# Update the models array
-old_models = """  const models = [
-    { id: 'google/gemini-2.0-flash-lite-001', name: 'Gemini 2.0 Flash Lite' },
-    { id: 'google/gemma-3-27b-it:free', name: 'Gemma 3 27B (Free)' },
-    { id: 'meta-llama/llama-3.3-70b-instruct:free', name: 'Llama 3.3 70B (Free)' },
-    { id: 'mistralai/mistral-small-3.1-24b-instruct:free', name: 'Mistral Small 3.1 24B (Free)' },
-    { id: 'qwen/qwen3-coder:free', name: 'Qwen 3 Coder (Free)' },
-  ];"""
-new_models = """  const models = [
-    { id: 'google/gemini-2.0-pro-exp-02-05:free', name: 'Gemini 2.0 Pro (Web Search)' },
-    { id: 'google/gemini-2.0-flash-lite-001', name: 'Gemini 2.0 Flash Lite' },
-    { id: 'perplexity/llama-3.1-sonar-huge-128k-online', name: 'Perplexity Sonar Online' },
-    { id: 'google/gemma-3-27b-it:free', name: 'Gemma 3 27B (Free)' },
-    { id: 'meta-llama/llama-3.3-70b-instruct:free', name: 'Llama 3.3 70B (Free)' },
-  ];"""
-content = content.replace(old_models, new_models)
-
-# Add explicit instruction in system prompt that it has web search capabilities
-old_prompt_instruction = "7. Seja conciso, profissional e use Português do Brasil."
-new_prompt_instruction = "7. Seja conciso, profissional e use Português do Brasil.\\n        8. VOCÊ TEM ACESSO À INTERNET em tempo real. Sempre que um usuário pedir informações de datas futuras (ex: 2025, 2026), notícias, ou dados não constantes no ERP, NÃO NEGUE O ACESSO; pesquise e responda com base nos resultados da web acoplados à sua requisição."
-content = content.replace(old_prompt_instruction, new_prompt_instruction)
-
-with open('src/pages/Chat.tsx', 'w') as f:
+with open(file_path, "w") as f:
     f.write(content)
-
-print("Patch applied.")

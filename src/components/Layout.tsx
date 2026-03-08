@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { createPortal } from 'react-dom';
-import { Sun, Moon, LogOut, ChevronDown, Plus, PanelLeft, Search, FileText, Bot, FolderKanban, MoreVertical, Share, UserPlus, Pencil, Folder, Pin, Archive, Trash2, ChevronRight } from 'lucide-react';
+import { Sun, Moon, LogOut, ChevronDown, Plus, PanelLeft, Search, FileText, Bot, MoreVertical, Share, UserPlus, Pencil, Folder, Pin, Archive, Trash2, ChevronRight } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
 import { supabase } from '../lib/supabaseClient';
@@ -17,6 +17,8 @@ import { ArchivedChatsModal } from './ArchivedChatsModal';
 import { ExploreAssistantsModal } from './ExploreAssistantsModal';
 import { DeleteAssistantModal } from './DeleteAssistantModal';
 import { DeleteChatModal } from './DeleteChatModal';
+import { RenameProjectModal } from './RenameProjectModal';
+import { DeleteProjectModal } from './DeleteProjectModal';
 import { Toast } from './Toast';
 import type { ToastType } from './Toast';
 
@@ -42,6 +44,10 @@ const Layout: React.FC = () => {
   const [openChatMenuId, setOpenChatMenuId] = useState<string | null>(null);
   const [chatMenuPosition, setChatMenuPosition] = useState({ top: 0, left: 0 });
   const chatMenuRef = useRef<HTMLDivElement>(null);
+
+  const [openProjectMenuId, setOpenProjectMenuId] = useState<string | null>(null);
+  const [projectMenuPosition, setProjectMenuPosition] = useState({ top: 0, left: 0 });
+  const projectMenuRef = useRef<HTMLDivElement>(null);
   const userMenuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -54,20 +60,27 @@ const Layout: React.FC = () => {
       if (openChatMenuId && chatMenuRef.current && !chatMenuRef.current.contains(e.target as Node)) {
         setOpenChatMenuId(null);
       }
+      // Close project menu if clicking outside
+      if (openProjectMenuId && projectMenuRef.current && !projectMenuRef.current.contains(e.target as Node)) {
+        setOpenProjectMenuId(null);
+      }
     };
     document.addEventListener('click', handleGlobalClick);
     return () => document.removeEventListener('click', handleGlobalClick);
-  }, [openChatMenuId, showUserMenu]);
+  }, [openChatMenuId, openProjectMenuId, showUserMenu]);
 
   useEffect(() => {
     const handleScroll = () => {
         if (openChatMenuId) {
             setOpenChatMenuId(null);
         }
+        if (openProjectMenuId) {
+            setOpenProjectMenuId(null);
+        }
     };
     window.addEventListener('scroll', handleScroll, true);
     return () => window.removeEventListener('scroll', handleScroll, true);
-  }, [openChatMenuId]);
+  }, [openChatMenuId, openProjectMenuId]);
 
   // Project state
   const [projects, setProjects] = useState<any[]>([]);
@@ -75,6 +88,13 @@ const Layout: React.FC = () => {
   const [isNoProjectsWarningOpen, setIsNoProjectsWarningOpen] = useState(false);
   const [isSelectProjectModalOpen, setIsSelectProjectModalOpen] = useState(false);
   const [chatToTransferId, setChatToTransferId] = useState<string | null>(null);
+
+  const [isRenameProjectModalOpen, setIsRenameProjectModalOpen] = useState(false);
+  const [projectToRenameId, setProjectToRenameId] = useState<string | null>(null);
+  const [projectToRenameCurrentName, setProjectToRenameCurrentName] = useState("");
+
+  const [isDeleteProjectModalOpen, setIsDeleteProjectModalOpen] = useState(false);
+  const [projectToDeleteId, setProjectToDeleteId] = useState<string | null>(null);
 
   // Search Modal
   const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
@@ -255,14 +275,17 @@ const Layout: React.FC = () => {
   }, [user]);
 
   const handleCreateProject = async (name: string, category?: string) => {
-    if (!user || !companyId) return;
+    if (!user || !companyId) {
+        showToast("Erro: Usuário ou empresa não identificados.", "error");
+        return;
+    }
 
     try {
         const newProject = {
            created_by: user.id,
            company_id: companyId,
            name: name,
-           description: category || 'General Project',
+           description: category || '',
         };
 
         const { data, error } = await supabase
@@ -272,13 +295,15 @@ const Layout: React.FC = () => {
            .select();
 
         if (error) {
-           console.warn("Failed to create project in DB:", error.message);
-           setProjects(prev => [{id: Date.now(), ...newProject}, ...prev]);
+           console.error("Failed to create project in DB:", error);
+           showToast(`Erro ao criar projeto: ${error.message}`, "error");
         } else if (data) {
            setProjects(prev => [...data, ...prev]);
+           showToast("Projeto criado com sucesso!", "success");
         }
-    } catch (e) {
+    } catch (e: any) {
          console.error("Exception creating project", e);
+         showToast(`Erro inesperado: ${e.message}`, "error");
     }
   };
 
@@ -289,6 +314,39 @@ const Layout: React.FC = () => {
       } else {
           setChatToTransferId(chatId);
           setIsSelectProjectModalOpen(true);
+      }
+  };
+
+  const handleRenameProject = async (newName: string) => {
+      if (!projectToRenameId) return;
+      const { error } = await supabase
+          .schema('droweder_ia')
+          .from('projects')
+          .update({ name: newName })
+          .eq('id', projectToRenameId);
+
+      if (error) {
+          showToast(`Erro ao renomear projeto: ${error.message}`, "error");
+      } else {
+          setProjects(prev => prev.map(p => p.id === projectToRenameId ? { ...p, name: newName } : p));
+          showToast("Projeto renomeado com sucesso", "success");
+      }
+  };
+
+  const handleDeleteProject = async () => {
+      if (!projectToDeleteId) return;
+
+      const { error } = await supabase
+          .schema('droweder_ia')
+          .from('projects')
+          .delete()
+          .eq('id', projectToDeleteId);
+
+      if (error) {
+          showToast(`Erro ao excluir projeto: ${error.message}`, "error");
+      } else {
+          setProjects(prev => prev.filter(p => p.id !== projectToDeleteId));
+          showToast("Projeto excluído com sucesso", "success");
       }
   };
 
@@ -446,9 +504,81 @@ const Layout: React.FC = () => {
                         <button
                            onClick={() => setIsCreateProjectModalOpen(true)}
                            className="w-full flex items-center gap-3 h-8 px-3 rounded-md transition-all duration-200 text-sm font-medium text-slate-600 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-white/10 hover:text-slate-900 dark:hover:text-white">
-                            <FolderKanban size={20} />
+                            <Plus size={20} />
                             <span>Novo Projeto</span>
                         </button>
+                        {projects.map((project) => (
+                           <div key={project.id} className="relative group flex items-center">
+                             <button
+                               onClick={() => {/* Implement project navigation later if needed, or filter chats */}}
+                               className="w-full flex items-center gap-3 h-8 px-3 rounded-md transition-all duration-200 text-sm font-medium text-slate-600 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-white/10 hover:text-slate-900 dark:hover:text-white"
+                             >
+                               <Folder size={16} className="text-slate-400 group-hover:text-blue-500 transition-colors shrink-0" />
+                               <span className="truncate flex-1 text-left pr-6">{project.name}</span>
+                             </button>
+                             <button
+                                 onClick={(e) => {
+                                     e.stopPropagation();
+                                     if (openProjectMenuId === project.id) {
+                                         setOpenProjectMenuId(null);
+                                     } else {
+                                         const rect = e.currentTarget.getBoundingClientRect();
+                                         setProjectMenuPosition({
+                                             top: rect.bottom,
+                                             left: rect.right
+                                         });
+                                         setOpenProjectMenuId(project.id);
+                                     }
+                                 }}
+                                 className="absolute right-2 opacity-0 group-hover:opacity-100 p-1 hover:bg-slate-300 dark:hover:bg-white/20 rounded text-slate-500 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white transition-all"
+                             >
+                                 <MoreVertical size={14} />
+                             </button>
+                             {openProjectMenuId === project.id && createPortal(
+                                 <div
+                                     ref={projectMenuRef}
+                                     style={{
+                                         position: 'fixed',
+                                         top: `${projectMenuPosition.top + 4}px`,
+                                         left: `${projectMenuPosition.left}px`,
+                                         transform: 'translateX(-100%)',
+                                         zIndex: 9999
+                                     }}
+                                     className="w-48 bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-white/10 rounded-xl shadow-xl py-2 animate-in fade-in slide-in-from-top-2 duration-200"
+                                 >
+                                     <button
+                                         onClick={(e) => {
+                                             e.stopPropagation();
+                                             setOpenProjectMenuId(null);
+                                             setProjectToRenameId(project.id);
+                                             setProjectToRenameCurrentName(project.name || 'Projeto');
+                                             setIsRenameProjectModalOpen(true);
+                                     }}
+                                         className="w-full flex items-center gap-3 px-4 py-2 text-sm text-slate-700 dark:text-gray-200 hover:bg-slate-100 dark:hover:bg-white/5 transition-colors"
+                                     >
+                                         <Pencil size={16} />
+                                         Renomear
+                                     </button>
+
+                                     <div className="h-px bg-slate-200 dark:bg-white/10 my-1 mx-4"></div>
+
+                                     <button
+                                         onClick={(e) => {
+                                             e.stopPropagation();
+                                             setProjectToDeleteId(project.id);
+                                             setIsDeleteProjectModalOpen(true);
+                                             setOpenProjectMenuId(null);
+                                         }}
+                                         className="w-full flex items-center gap-3 px-4 py-2 text-sm text-red-600 dark:text-[#f87171] hover:bg-slate-100 dark:hover:bg-white/5 transition-colors"
+                                     >
+                                         <Trash2 size={16} />
+                                         Excluir
+                                     </button>
+                                 </div>,
+                                 document.body
+                             )}
+                           </div>
+                        ))}
                      </div>
                  )}
               </div>
@@ -776,6 +906,25 @@ const Layout: React.FC = () => {
                 setChatToDeleteId(null);
             }
         }}
+      />
+
+      <RenameProjectModal
+        isOpen={isRenameProjectModalOpen}
+        onClose={() => {
+            setIsRenameProjectModalOpen(false);
+            setProjectToRenameId(null);
+        }}
+        currentName={projectToRenameCurrentName}
+        onRename={handleRenameProject}
+      />
+
+      <DeleteProjectModal
+        isOpen={isDeleteProjectModalOpen}
+        onClose={() => {
+            setIsDeleteProjectModalOpen(false);
+            setProjectToDeleteId(null);
+        }}
+        onConfirm={handleDeleteProject}
       />
 
       <SearchModal

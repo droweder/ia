@@ -1,26 +1,15 @@
-import json
+import re
 
-with open('src/lib/openRouterClient.ts', 'r') as f:
+file_path = "src/pages/Chat.tsx"
+
+with open(file_path, "r") as f:
     content = f.read()
 
-# Locate the requestBody assignment
-old_body = """    const requestBody = {
-      model: model,
-      messages: messages,
-    };"""
+# Replace the invalid model ID with the new one
+content = content.replace(
+    "{ id: 'perplexity/llama-3.1-sonar-huge-128k-online', name: 'Perplexity Sonar Online' },",
+    "{ id: 'perplexity/sonar-pro-search', name: 'Perplexity Sonar Online' },"
+)
 
-new_body = """    const requestBody = {
-      model: model,
-      messages: messages,
-      plugins: [
-        {
-          id: "web",
-          max_results: 5
-        }
-      ]
-    };"""
-
-content = content.replace(old_body, new_body)
-
-with open('src/lib/openRouterClient.ts', 'w') as f:
+with open(file_path, "w") as f:
     f.write(content)
