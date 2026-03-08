@@ -255,14 +255,17 @@ const Layout: React.FC = () => {
   }, [user]);
 
   const handleCreateProject = async (name: string, category?: string) => {
-    if (!user || !companyId) return;
+    if (!user || !companyId) {
+        showToast("Erro: Usuário ou empresa não identificados.", "error");
+        return;
+    }
 
     try {
         const newProject = {
            created_by: user.id,
            company_id: companyId,
            name: name,
-           description: category || 'General Project',
+           description: category || '',
         };
 
         const { data, error } = await supabase
@@ -272,13 +275,15 @@ const Layout: React.FC = () => {
            .select();
 
         if (error) {
-           console.warn("Failed to create project in DB:", error.message);
-           setProjects(prev => [{id: Date.now(), ...newProject}, ...prev]);
+           console.error("Failed to create project in DB:", error);
+           showToast(`Erro ao criar projeto: ${error.message}`, "error");
         } else if (data) {
            setProjects(prev => [...data, ...prev]);
+           showToast("Projeto criado com sucesso!", "success");
         }
-    } catch (e) {
+    } catch (e: any) {
          console.error("Exception creating project", e);
+         showToast(`Erro inesperado: ${e.message}`, "error");
     }
   };
 

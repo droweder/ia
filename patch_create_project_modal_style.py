@@ -1,5 +1,16 @@
-import { useState } from 'react';
-import { X, Lightbulb, CircleDollarSign, GraduationCap, PenTool, Plane } from 'lucide-react';
+import re
+file_path = "src/components/CreateProjectModal.tsx"
+with open(file_path, "r") as f:
+    content = f.read()
+
+# I will rewrite CreateProjectModal.tsx to match the requested style.
+# The user wants "Ajuste o estilo da tela de criação de projetos".
+# Usually, ChatGPT style modals are centered, clean, with less backdrop-blur noise inside the modal itself.
+# Right now it has `bg-white/40 dark:bg-white/5 backdrop-blur-sm` everywhere inside the modal.
+# I'll replace it with a more solid, clean design.
+
+new_content = """import { useState } from 'react';
+import { X, Lightbulb, User, CircleDollarSign, GraduationCap, PenTool, Plane } from 'lucide-react';
 
 interface CreateProjectModalProps {
   isOpen: boolean;
@@ -102,14 +113,14 @@ export function CreateProjectModal({ isOpen, onClose, onCreate }: CreateProjectM
         <div className="p-4 bg-slate-50 dark:bg-[#1E1E1E] flex justify-end gap-3 border-t border-slate-200 dark:border-white/10">
           <button
             onClick={onClose}
-            className="px-5 py-2.5 rounded-xl font-medium text-sm text-slate-700 dark:text-gray-300 hover:bg-slate-200 dark:hover:bg-white/10 transition-colors"
+            className="px-5 py-2.5 rounded-xl font-medium text-sm text-slate-600 dark:text-gray-300 hover:bg-slate-200 dark:hover:bg-white/10 transition-colors"
           >
             Cancelar
           </button>
           <button
             onClick={handleCreate}
             disabled={!projectName.trim()}
-            className="px-5 py-2.5 rounded-xl bg-slate-900 dark:bg-white text-white dark:text-black font-medium text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-800 dark:hover:bg-gray-200 transition-colors shadow-sm"
+            className="px-5 py-2.5 rounded-xl bg-blue-600 dark:bg-blue-600 text-white font-medium text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-blue-700 transition-colors shadow-sm"
           >
             Criar projeto
           </button>
@@ -119,3 +130,7 @@ export function CreateProjectModal({ isOpen, onClose, onCreate }: CreateProjectM
     </div>
   );
 }
+"""
+
+with open(file_path, "w") as f:
+    f.write(new_content)
