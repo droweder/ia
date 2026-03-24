@@ -1,4 +1,10 @@
-import { supabase } from './supabaseClient';
+import re
+
+with open("src/lib/openRouterClient.ts", "r") as f:
+    content = f.read()
+
+# Replace the entire file contents
+new_content = """import { supabase } from './supabase';
 
 export interface StreamCallbacks {
   onUpdate: (text: string) => void;
@@ -46,7 +52,7 @@ export const chatWithOpenRouterStream = async (
       if (done) break;
 
       const chunk = decoder.decode(value, { stream: true });
-      const lines = chunk.split('\n');
+      const lines = chunk.split('\\n');
 
       for (const line of lines) {
         if (line.trim() === '' || line.trim() === 'data: [DONE]') continue;
@@ -71,3 +77,9 @@ export const chatWithOpenRouterStream = async (
     callbacks.onError(error.message || "Erro desconhecido");
   }
 };
+"""
+
+with open("src/lib/openRouterClient.ts", "w") as f:
+    f.write(new_content)
+
+print("Updated openRouterClient.ts with streaming")

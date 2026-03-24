@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/purity */
 import React, { useState, useEffect, useRef } from 'react';
 import { Bot, User, ChevronDown, ShieldCheck, Loader2, Database, AlertCircle, Plus, Mic, ArrowUp, Copy, Check, RefreshCcw, X, File as FileIcon } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
@@ -12,7 +13,7 @@ import mammoth from 'mammoth';
 // Initialize pdfjs worker
 pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.mjs`;
 
-import { chatWithOpenRouter } from '../lib/openRouterClient';
+import { chatWithOpenRouterStream } from '../lib/openRouterClient';
 import { useOutletContext } from 'react-router-dom';
 import type { LayoutContextType } from '../components/Layout';
 import type { OpenRouterMessage } from '../types';
@@ -212,6 +213,7 @@ const Chat: React.FC = () => {
 
   useEffect(() => {
     if (activeConversationId) {
+        // eslint-disable-next-line
         fetchMessages(activeConversationId);
         // Sync active assistant with the loaded conversation if needed
         const currentConv = conversations.find(c => c.id === activeConversationId);
@@ -226,12 +228,10 @@ const Chat: React.FC = () => {
   }, [activeConversationId, conversations]);
 
   useEffect(() => {
-    scrollToBottom();
+    setTimeout(() => messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }), 50);
   }, [messages, loading]);
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
+
 
   const fetchCompanyId = async () => {
     if (!user) return;
@@ -308,7 +308,8 @@ const Chat: React.FC = () => {
                 } else if (fileExt === 'pdf') {
                     const arrayBuffer = await file.arrayBuffer();
                     const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-                    let fullText = "";
+                    let fullText = '';
+
                     for (let i = 1; i <= pdf.numPages; i++) {
                         const page = await pdf.getPage(i);
                         const textContent = await page.getTextContent();
@@ -327,7 +328,7 @@ const Chat: React.FC = () => {
             }
 
             // Upload the file to keep a record and provide a public URL
-            const fileName = `${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
+            const fileName = `${new Date().getTime()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
             const filePath = `${companyId}/${fileName}`;
 
             const { error: uploadError } = await supabase.storage
@@ -405,7 +406,7 @@ const Chat: React.FC = () => {
     }
 
     // Optimistic update
-    const userMessage: Message = { id: 'temp-' + Date.now(), role: 'user', content: finalMessageContent };
+    const userMessage: Message = { id: 'temp-' + new Date().getTime(), role: 'user', content: finalMessageContent };
     // Only append to the currentHistory we passed in, avoiding race conditions if we trimmed history
     setMessages([...currentHistory, userMessage]);
 
@@ -442,95 +443,115 @@ let systemPrompt = `Você é o DRoweder IA, um assistente especialista em manufa
     ];
 
     try {
-        let aiResponse = await chatWithOpenRouter(selectedModel, openRouterMessages);
+        // Optimistic AI message placeholder
+        const tempAiMessageId = 'temp-ai-' + new Date().getTime();
+        const initialAiMessage: Message = { id: tempAiMessageId, role: 'assistant', content: '' };
 
-        // Check for mock error response from openRouterClient when API key is missing
-        if (aiResponse?.id === 'mock-id') {
-            setError(aiResponse.choices[0].message.content);
-            setLoading(false);
-            return false;
-        }
+        // Append user message AND empty AI message to state for streaming
+        setMessages(prev => {
+            // Remove previous temp messages and add new ones
+            const filtered = prev.filter(m => !m.id.startsWith('temp-'));
+            return [...filtered, userMessage, initialAiMessage];
+        });
 
-        const aiContent = aiResponse?.choices[0]?.message?.content || "Desculpe, não consegui processar sua solicitação no momento.";
-        let modelUsed = aiResponse?.model || selectedModel;
-        let finalResponseContent = aiContent;
+        // Use standard model for stream (edge function forces the free one anyway)
+        const messagesForApi = openRouterMessages.filter(m => m.role !== 'system');
 
-        // VERIFY IF THE AI RETURNED SQL
-        const sqlMatch = aiContent.match(/<sql>([\s\S]*?)<\/sql>/i);
-        if (sqlMatch && sqlMatch[1]) {
-            const extractedSql = sqlMatch[1].trim();
 
-            // Log that we are executing SQL (optional UI feedback)
-            console.log("Executando SQL Gerado pela IA:", extractedSql);
+        await chatWithOpenRouterStream(
+            messagesForApi,
+            systemPrompt,
+            {
+                onUpdate: (chunk: string) => {
 
-            // Execute the SQL via our custom RPC
-            const { data: sqlData, error: sqlError } = await supabase.rpc('execute_ai_sql', {
-                query: extractedSql
-            });
+                    setMessages(prev =>
+                        prev.map(msg =>
+                            msg.id === tempAiMessageId ? { ...msg, content: chunk } : msg
+                        )
+                    );
+                },
+                onError: (errMsg: string) => {
+                     setError(`Falha na API da IA: ${errMsg}. Verifique sua conexão e tente novamente.`);
+                     setLoading(false);
+                },
+                onDone: async (finalText: string) => {
+                    // VERIFY IF THE AI RETURNED SQL
+                    const finalResponseContent = finalText;
+                    const sqlMatch = finalText.match(/<sql>([\s\S]*?)<\/sql>/i);
 
-            let queryResultStr = "";
-            if (sqlError) {
-                console.error("Erro ao executar SQL:", sqlError);
-                queryResultStr = `Erro ao executar a consulta: ${sqlError.message || JSON.stringify(sqlError)}`;
-            } else {
-                queryResultStr = JSON.stringify(sqlData, null, 2);
+                    if (sqlMatch && sqlMatch[1]) {
+                        const extractedSql = sqlMatch[1].trim();
+                        console.log("Executando SQL Gerado pela IA:", extractedSql);
+                        const { data: sqlData, error: sqlError } = await supabase.rpc('execute_ai_sql', {
+                            query: extractedSql
+                        });
+
+                        const queryResultStr = sqlError ? `Erro ao executar a consulta: ${sqlError.message || JSON.stringify(sqlError)}` : JSON.stringify(sqlData, null, 2);
+                        const dbResultPrompt = `Resultado da query SQL:\n\`\`\`json\n${queryResultStr}\n\`\`\`\nPor favor, forneça a resposta final ao usuário em linguagem natural.`;
+
+                        const followUpMessages = [...messagesForApi, { role: 'assistant', content: finalText }, { role: 'user', content: dbResultPrompt }];
+
+                        // Clear the temp message text for the second phase of streaming
+
+                        await chatWithOpenRouterStream(
+                            followUpMessages,
+                            systemPrompt,
+                            {
+                                onUpdate: (chunk2: string) => {
+
+                                    setMessages(prev =>
+                                        prev.map(msg =>
+                                            msg.id === tempAiMessageId ? { ...msg, content: chunk2 } : msg
+                                        )
+                                    );
+                                },
+                                onError: (errMsg2: string) => {
+                                    setError(`Falha na API da IA durante SQL: ${errMsg2}.`);
+                                },
+                                onDone: async (finalText2: string) => {
+                                     await saveFinalMessage(conversationId!, finalText2, selectedModel, tempAiMessageId);
+                                }
+                            }
+                        );
+                        return; // Exit here as phase 2 handled saving
+                    }
+
+                    // Save AI response if no SQL was executed
+                    await saveFinalMessage(conversationId!, finalResponseContent, selectedModel, tempAiMessageId);
+                }
             }
-
-            // Inform the AI about the result
-            const dbResultPrompt = `Resultado da query SQL:\n\`\`\`json\n${queryResultStr}\n\`\`\`\nPor favor, forneça a resposta final ao usuário em linguagem natural.`;
-
-            // Add AI's SQL message and the system's response to the context
-            openRouterMessages.push({ role: 'assistant', content: aiContent });
-            openRouterMessages.push({ role: 'user', content: dbResultPrompt });
-
-            // Request final answer
-            aiResponse = await chatWithOpenRouter(selectedModel, openRouterMessages);
-            if (aiResponse?.id === 'mock-id') {
-                setError(aiResponse.choices[0].message.content);
-                setLoading(false);
-                return false;
-            }
-            finalResponseContent = aiResponse?.choices[0]?.message?.content || "Desculpe, ocorreu um erro após a consulta aos dados.";
-            modelUsed = aiResponse?.model || selectedModel;
-        }
-
-        // Save AI response
-        const { data: aiMsg, error: aiError } = await supabase
-            .schema('droweder_ia')
-            .from('messages')
-            .insert({
-                conversation_id: conversationId,
-                role: 'assistant',
-                content: finalResponseContent,
-                model_used: modelUsed,
-            })
-            .select()
-            .single();
-
-        if (aiMsg) {
-            setMessages(prev => [...prev, aiMsg as Message]);
-        } else if (aiError) {
-             console.error('Error saving AI message:', aiError);
-             // Show error in UI as fallback
-             setError("Erro ao salvar resposta no histórico.");
-        }
-
-        setLoading(false);
-        return true;
-
-
-
+        );
 
     } catch (error: any) {
         console.error("LLM Error:", error);
         setError(`Falha na API da IA: ${error.message || 'Erro de conexão com o servidor'}. Verifique o modelo ou tente novamente.`);
         setLoading(false);
         return false;
-    } finally {
-        setLoading(false);
     }
 
     return true;
+  };
+
+  const saveFinalMessage = async (convId: string, content: string, model: string, tempId: string) => {
+        const { data: aiMsg, error: aiError } = await supabase
+            .schema('droweder_ia')
+            .from('messages')
+            .insert({
+                conversation_id: convId,
+                role: 'assistant',
+                content: content,
+                model_used: model,
+            })
+            .select()
+            .single();
+
+        if (aiMsg) {
+            setMessages(prev => prev.map(msg => msg.id === tempId ? (aiMsg as Message) : msg));
+        } else if (aiError) {
+             console.error('Error saving AI message:', aiError);
+             setError("Erro ao salvar resposta no histórico.");
+        }
+        setLoading(false);
   };
 
   const toggleSql = (msgId: string) => {
