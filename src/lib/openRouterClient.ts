@@ -9,6 +9,7 @@ export interface StreamCallbacks {
 export const chatWithOpenRouterStream = async (
   messages: any[],
   systemPrompt: string | undefined,
+  model: string,
   callbacks: StreamCallbacks
 ) => {
   try {
@@ -24,7 +25,8 @@ export const chatWithOpenRouterStream = async (
       },
       body: JSON.stringify({
         messages,
-        systemPrompt
+        systemPrompt,
+        model
       }),
     });
 

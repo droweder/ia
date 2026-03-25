@@ -461,6 +461,7 @@ let systemPrompt = `Você é o DRoweder IA, um assistente especialista em manufa
         await chatWithOpenRouterStream(
             messagesForApi,
             systemPrompt,
+            selectedModel,
             {
                 onUpdate: (chunk: string) => {
 
@@ -496,6 +497,7 @@ let systemPrompt = `Você é o DRoweder IA, um assistente especialista em manufa
                         await chatWithOpenRouterStream(
                             followUpMessages,
                             systemPrompt,
+                            selectedModel,
                             {
                                 onUpdate: (chunk2: string) => {
 
