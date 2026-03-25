@@ -53,24 +53,30 @@ Deno.serve(async (req: Request) => {
     }
     payloadMessages.push(...messages);
 
-    const targetModel = model || 'google/gemini-2.0-flash-exp:free';
-    console.log("Sending request to OpenRouter", { model: targetModel, messageCount: payloadMessages.length });
+
+    console.log("Sending request to OpenRouter (Auto Fallback)", { messageCount: payloadMessages.length });
+
+    // Configuração de Fallback: OpenRouter tentará os modelos nesta ordem.
+    // Garantindo uso apenas de modelos gratuitos de alta performance.
+    const fallbackModels = [
+      'google/gemini-2.0-pro-exp-02-05:free',
+      'google/gemini-2.0-flash-lite-001',
+      'google/gemma-3-27b-it:free',
+      'meta-llama/llama-3.3-70b-instruct:free'
+    ];
 
     const requestBody: any = {
-      model: targetModel,
+      models: fallbackModels,
       messages: payloadMessages,
       stream: true,
-    };
-
-    // Add web search plugin for models that support it
-    if (targetModel.includes('google/') || targetModel.includes('perplexity/')) {
-       requestBody.plugins = [
+      // O Gemini exige plugins para web search
+      plugins: [
         {
           id: "web",
           max_results: 5
         }
-      ];
-    }
+      ]
+    };
 
     const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
       method: 'POST',

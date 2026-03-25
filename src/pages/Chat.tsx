@@ -195,15 +195,7 @@ const Chat: React.FC = () => {
   // Hidden feature flag for SQL debug (can be enabled via query param or user role later)
   const SHOW_SQL_DEBUG = false;
 
-  const [selectedModel, setSelectedModel] = useState<string>('google/gemini-2.0-pro-exp-02-05:free');
 
-  const models = [
-    { id: 'google/gemini-2.0-pro-exp-02-05:free', name: 'Gemini 2.0 Pro (Web Search)' },
-    { id: 'google/gemini-2.0-flash-lite-001', name: 'Gemini 2.0 Flash Lite' },
-    { id: 'perplexity/sonar-pro-search', name: 'Perplexity Sonar Online' },
-    { id: 'google/gemma-3-27b-it:free', name: 'Gemma 3 27B (Free)' },
-    { id: 'meta-llama/llama-3.3-70b-instruct:free', name: 'Llama 3.3 70B (Free)' },
-  ];
 
   useEffect(() => {
     if (user) {
@@ -461,7 +453,7 @@ let systemPrompt = `Você é o DRoweder IA, um assistente especialista em manufa
         await chatWithOpenRouterStream(
             messagesForApi,
             systemPrompt,
-            selectedModel,
+            'auto',
             {
                 onUpdate: (chunk: string) => {
 
@@ -497,7 +489,7 @@ let systemPrompt = `Você é o DRoweder IA, um assistente especialista em manufa
                         await chatWithOpenRouterStream(
                             followUpMessages,
                             systemPrompt,
-                            selectedModel,
+                            'auto',
                             {
                                 onUpdate: (chunk2: string) => {
 
@@ -511,7 +503,7 @@ let systemPrompt = `Você é o DRoweder IA, um assistente especialista em manufa
                                     setError(`Falha na API da IA durante SQL: ${errMsg2}.`);
                                 },
                                 onDone: async (finalText2: string) => {
-                                     await saveFinalMessage(conversationId!, finalText2, selectedModel, tempAiMessageId);
+                                     await saveFinalMessage(conversationId!, finalText2, 'auto', tempAiMessageId);
                                 }
                             }
                         );
@@ -519,7 +511,7 @@ let systemPrompt = `Você é o DRoweder IA, um assistente especialista em manufa
                     }
 
                     // Save AI response if no SQL was executed
-                    await saveFinalMessage(conversationId!, finalResponseContent, selectedModel, tempAiMessageId);
+                    await saveFinalMessage(conversationId!, finalResponseContent, 'auto', tempAiMessageId);
                 }
             }
         );
@@ -575,18 +567,9 @@ let systemPrompt = `Você é o DRoweder IA, um assistente especialista em manufa
         {/* Header - Simplified */}
         <div className="h-14 border-b border-slate-200 dark:border-white/10 flex justify-between items-center bg-white/40 dark:bg-white/5 backdrop-blur-md px-4 shadow-sm z-10">
             <div className="flex items-center gap-4">
-                 {/* Model Selector */}
-                <div className="relative group">
-                    <select
-                        value={selectedModel}
-                        onChange={(e) => setSelectedModel(e.target.value)}
-                        className="appearance-none bg-transparent font-medium text-slate-700 dark:text-gray-200 text-sm hover:bg-slate-200 dark:hover:bg-white/10 rounded-lg py-1.5 pl-2 pr-8 focus:outline-none cursor-pointer transition-colors"
-                    >
-                        {models.map(model => (
-                            <option key={model.id} value={model.id} className="bg-white dark:bg-slate-800 text-slate-900 dark:text-gray-200">{model.name}</option>
-                        ))}
-                    </select>
-                    <ChevronDown size={14} className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 dark:text-gray-400 pointer-events-none" />
+                <div className="font-medium text-slate-700 dark:text-gray-200 text-sm py-1.5 pl-2 flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span>
+                    Mia AI
                 </div>
             </div>
 
