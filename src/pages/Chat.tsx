@@ -94,6 +94,8 @@ const CodeBlock = ({ node, inline, className, children, ...props }: any) => {
 };
 
 const Chat: React.FC = () => {
+  const [input, setInput] = useState("");
+
   const { conversations, setConversations, activeConversationId, setActiveConversationId, activeAssistantId, setActiveAssistantId, assistants } = useOutletContext<LayoutContextType>();
   const [isRecording, setIsRecording] = useState(false);
   const recognitionRef = useRef<any>(null);
@@ -170,10 +172,9 @@ const Chat: React.FC = () => {
 
 
 
-  const [input, setInput] = useState('');
+
   const [showSql, setShowSql] = useState<string | null>(null);
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [loading, setLoading] = useState(false);
+    const [messages, setMessages] = useState<Message[]>([]);const [loading, setLoading] = useState(false);
   const [companyId, setCompanyId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [attachments, setAttachments] = useState<File[]>([]);
@@ -194,14 +195,6 @@ const Chat: React.FC = () => {
 
   // Hidden feature flag for SQL debug (can be enabled via query param or user role later)
   const SHOW_SQL_DEBUG = false;
-
-
-
-  useEffect(() => {
-    if (user) {
-        fetchCompanyId();
-    }
-  }, [user]);
 
   useEffect(() => {
     if (activeConversationId) {
@@ -247,6 +240,12 @@ const Chat: React.FC = () => {
         console.error("Unexpected error fetching company:", err);
     }
   };
+
+useEffect(() => {
+    if (user) {
+        fetchCompanyId();
+    }
+  }, [user]);
 
   const fetchMessages = async (conversationId: string) => {
     const { data, error } = await supabase

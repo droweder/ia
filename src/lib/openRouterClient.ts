@@ -32,7 +32,7 @@ export const chatWithOpenRouterStream = async (
 
     if (!response.ok) {
       let errText = "Erro desconhecido ao contatar IA";
-      try { errText = await response.text(); } catch(e) {}
+      try { errText = await response.text(); } catch (e) { console.error('Error reading response text', e); }
       throw new Error(`Erro na API (${response.status}): ${errText}`);
     }
 

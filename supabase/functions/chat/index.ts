@@ -58,24 +58,16 @@ Deno.serve(async (req: Request) => {
 
     // Configuração de Fallback: OpenRouter tentará os modelos nesta ordem.
     // Garantindo uso apenas de modelos gratuitos de alta performance.
-    const fallbackModels = [
+        const fallbackModels = [
       'google/gemini-2.0-pro-exp-02-05:free',
       'google/gemini-2.0-flash-lite-001',
-      'google/gemma-3-27b-it:free',
-      'meta-llama/llama-3.3-70b-instruct:free'
+      'google/gemma-3-27b-it:free'
     ];
 
-    const requestBody: any = {
+        const requestBody: any = {
       models: fallbackModels,
       messages: payloadMessages,
-      stream: true,
-      // O Gemini exige plugins para web search
-      plugins: [
-        {
-          id: "web",
-          max_results: 5
-        }
-      ]
+      stream: true
     };
 
     const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
@@ -100,7 +92,7 @@ Deno.serve(async (req: Request) => {
             if (errJson.error && errJson.error.message) {
                 errMsg = `OpenRouter: ${errJson.error.message}`;
             }
-        } catch(e) {}
+        } catch (e) { console.error('Error parsing error JSON', e); }
 
         throw new Error(errMsg);
     }
