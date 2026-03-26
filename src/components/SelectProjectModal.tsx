@@ -47,14 +47,14 @@ export function SelectProjectModal({ isOpen, onClose, projects, onSelectProject 
             <select
               value={selectedProjectId}
               onChange={(e) => setSelectedProjectId(e.target.value)}
-              className="w-full rounded-xl border border-slate-200 bg-transparent px-4 py-2 text-slate-800 focus:border-blue-500 focus:outline-none dark:border-white/10 dark:text-white"
+              className="w-full rounded-xl border border-slate-200 bg-white/40 dark:bg-black/20 px-4 py-3 text-sm text-slate-800 focus:border-blue-500 focus:outline-none dark:border-white/10 dark:text-white shadow-sm"
               required
             >
-              <option value="" disabled className="dark:bg-[#111111]">
+              <option value="" disabled className="bg-white dark:bg-slate-800 text-slate-800 dark:text-gray-200">
                 Escolha um projeto...
               </option>
               {projects.map((project) => (
-                <option key={project.id} value={project.id} className="dark:bg-[#111111]">
+                <option key={project.id} value={project.id} className="bg-white dark:bg-slate-800 text-slate-800 dark:text-gray-200">
                   {project.name}
                 </option>
               ))}

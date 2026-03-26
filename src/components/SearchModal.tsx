@@ -27,7 +27,7 @@ export function SearchModal({ isOpen, onClose, conversations }: SearchModalProps
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-start justify-center pt-[15vh] bg-slate-900/50 dark:bg-slate-900/50 backdrop-blur-sm p-4">
+    <div className="fixed inset-0 z-50 flex items-start justify-center pt-[15vh] bg-slate-900/50 dark:bg-black/60 backdrop-blur-sm p-4">
       <div className="bg-white/90 dark:bg-slate-800/90 backdrop-blur-xl border border-slate-200 dark:border-white/10 text-slate-800 dark:text-gray-200 w-full max-w-[600px] rounded-2xl shadow-2xl flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200">
 
         {/* Header / Input */}
@@ -64,10 +64,10 @@ export function SearchModal({ isOpen, onClose, conversations }: SearchModalProps
                             navigate(`/chat/${chat.id}`);
                             onClose();
                         }}
-                        className="flex items-center justify-between p-3 rounded-xl hover:bg-slate-100 dark:hover:bg-white/5 transition-colors text-left group"
+                        className="flex items-center justify-between p-3 rounded-xl hover:bg-slate-100 dark:hover:bg-white/10 transition-colors text-left group"
                     >
                         <div className="flex items-center gap-3 min-w-0">
-                            <div className="w-10 h-10 rounded-full bg-slate-100 dark:bg-white/5 flex items-center justify-center text-slate-500 dark:text-gray-400 shrink-0">
+                            <div className="w-10 h-10 rounded-full bg-slate-100 dark:bg-black/20 border border-slate-200 dark:border-white/10 flex items-center justify-center text-slate-500 dark:text-gray-400 shrink-0">
                                 <MessageSquare size={18} />
                             </div>
                             <div className="flex flex-col min-w-0">
