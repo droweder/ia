@@ -1,83 +1,79 @@
-import type { OpenRouterMessage, OpenRouterResponse } from '../types';
+import { supabase } from './supabaseClient';
 
-const OPENROUTER_API_KEY = import.meta.env.VITE_OPENROUTER_API_KEY;
+export interface StreamCallbacks {
+  onUpdate: (text: string) => void;
+  onError: (error: string) => void;
+  onDone: (finalText: string) => void;
+}
 
-export const chatWithOpenRouter = async (
+export const chatWithOpenRouterStream = async (
+  messages: any[],
+  systemPrompt: string | undefined,
   model: string,
-  messages: OpenRouterMessage[]
-): Promise<OpenRouterResponse | null> => {
-  if (!OPENROUTER_API_KEY) {
-    console.error('OpenRouter API Key is missing');
-    // Return a mock response if API key is missing to prevent UI crash
-    return {
-      id: 'mock-id',
-      choices: [{
-        message: {
-          role: 'assistant',
-          content: '⚠️ Chave da API do OpenRouter não configurada. Configure a variável de ambiente VITE_OPENROUTER_API_KEY.'
-        }
-      }]
-    } as any;
-  }
-
+  callbacks: StreamCallbacks
+) => {
   try {
-    const requestBody = {
-      model: model,
-      messages: messages,
-      plugins: [
-        {
-          id: "web",
-          max_results: 5
-        }
-      ]
-    };
-    console.log("OpenRouter API Request:", JSON.stringify(requestBody, null, 2));
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session?.access_token) throw new Error("Não autenticado");
 
-    const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-      method: "POST",
+    // Call our secure edge function
+    const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/chat`, {
+      method: 'POST',
       headers: {
-        "Authorization": `Bearer ${OPENROUTER_API_KEY}`,
-        "HTTP-Referer": "https://droweder-ai.com", // Site URL
-        "X-Title": "DRoweder AI", // Site Title
-        "Content-Type": "application/json"
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${session.access_token}`
       },
-      body: JSON.stringify(requestBody)
+      body: JSON.stringify({
+        messages,
+        systemPrompt,
+        model
+      }),
     });
 
     if (!response.ok) {
-        let errorMessage = response.statusText;
-        try {
-            const errorData = await response.json();
-            console.error("OpenRouter API Error JSON:", errorData);
-            if (errorData.error && errorData.error.message) {
-                errorMessage = errorData.error.message;
-            }
-        } catch (e) {
-            console.error("OpenRouter API Error Text:", await response.text());
-        }
-
-        // Se for erro de autenticação (401), retornar uma mensagem amigável
-        if (response.status === 401) {
-             return {
-                id: 'error-id',
-                choices: [{
-                  message: {
-                    role: 'assistant',
-                    content: '⚠️ Erro de Autenticação na API do OpenRouter (401). Verifique se a sua chave API é válida.'
-                  }
-                }]
-             } as any;
-        }
-        throw new Error(`OpenRouter API Error: ${errorMessage}`);
+      let errText = "Erro desconhecido ao contatar IA";
+      try { errText = await response.text(); } catch (e) { console.error('Error reading response text', e); }
+      throw new Error(`Erro na API (${response.status}): ${errText}`);
     }
 
-    const responseData = await response.json();
-    console.log("OpenRouter API Response:", JSON.stringify(responseData, null, 2));
-    return responseData;
+    if (!response.body) throw new Error("Nenhum corpo de resposta retornado pela IA");
+
+    // Read the Server-Sent Events stream
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+    let accumulatedText = "";
+    let buffer = "";
+
+    while (true) {
+      const { value, done } = await reader.read();
+      if (done) break;
+
+      buffer += decoder.decode(value, { stream: true });
+      const lines = buffer.split('\n');
+
+      // Keep the last incomplete line in the buffer
+      buffer = lines.pop() || "";
+
+      for (const line of lines) {
+        if (line.trim() === '' || line.trim() === 'data: [DONE]') continue;
+        if (line.startsWith('data: ')) {
+          try {
+            const data = JSON.parse(line.substring(6));
+            if (data.choices && data.choices[0] && data.choices[0].delta && data.choices[0].delta.content) {
+                accumulatedText += data.choices[0].delta.content;
+                callbacks.onUpdate(accumulatedText);
+            }
+          } catch (e) {
+            console.error("Error parsing stream chunk:", e, "Line was:", line);
+          }
+        }
+      }
+    }
+
+    callbacks.onDone(accumulatedText);
+
   } catch (error: any) {
-    console.error("Failed to fetch from OpenRouter:", error);
-    // Lançar o erro para ser tratado no componente (Chat.tsx),
-    // permitindo exibir no log ou banner do app em vez de inserir como mensagem
-    throw error;
+    console.error("Streaming error:", error);
+    callbacks.onError(error.message || "Erro desconhecido");
   }
 };

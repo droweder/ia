@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { Mail, Lock, ShieldCheck, Loader2, AlertCircle } from 'lucide-react';
+import { Mail, Lock, ShieldCheck, Loader2, AlertCircle, Eye, EyeOff } from 'lucide-react';
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const { signIn } = useAuth();
@@ -25,7 +26,6 @@ const Login: React.FC = () => {
       await signIn(email, password);
       navigate('/chat');
     } catch (err: any) {
-      console.error(err);
       if (err.message === "Invalid login credentials") {
           setError("E-mail ou senha incorretos.");
       } else {
@@ -44,8 +44,7 @@ const Login: React.FC = () => {
           <div className="absolute -top-[20%] -left-[10%] w-[50%] h-[50%] bg-red-600/20 blur-[120px] rounded-full mix-blend-screen animate-pulse duration-[10000ms]" />
           <div className="absolute top-[30%] -right-[20%] w-[60%] h-[60%] bg-blue-600/20 blur-[120px] rounded-full mix-blend-screen animate-pulse duration-[7000ms]" />
           <div className="absolute -bottom-[20%] left-[20%] w-[50%] h-[50%] bg-yellow-500/20 blur-[120px] rounded-full mix-blend-screen animate-pulse duration-[10000ms]" />
-          {/* subtle noise overlay */}
-          <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 mix-blend-overlay"></div>
+
       </div>
 
       <div className="relative z-10 sm:mx-auto sm:w-full sm:max-w-md">
@@ -96,14 +95,28 @@ const Login: React.FC = () => {
                 <input
                   id="password"
                   name="password"
-                  type="password"
+                  type={showPassword ? 'text' : 'password'}
                   autoComplete="current-password"
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 sm:text-sm border-white/10 rounded-md py-2.5 border bg-white/5 text-white placeholder-gray-400 backdrop-blur-sm transition-all"
+                  className="focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 pr-10 sm:text-sm border-white/10 rounded-md py-2.5 border bg-white/5 text-white placeholder-gray-400 backdrop-blur-sm transition-all"
                   placeholder="••••••••"
                 />
+                <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="text-gray-400 hover:text-gray-300 focus:outline-none"
+                    aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
+                  >
+                    {showPassword ? (
+                      <EyeOff className="h-5 w-5" aria-hidden="true" />
+                    ) : (
+                      <Eye className="h-5 w-5" aria-hidden="true" />
+                    )}
+                  </button>
+                </div>
               </div>
             </div>
 

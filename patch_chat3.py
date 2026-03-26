@@ -1,27 +1,53 @@
 import re
 
-file_path = "src/pages/Chat.tsx"
-
-with open(file_path, "r") as f:
+with open('src/pages/Chat.tsx', 'r') as f:
     content = f.read()
 
-# I will replace the custom tailwind-scrollbar classes with ones that force the dark colors directly by avoiding the `.dark:` prefix issues, OR I'll make sure they strictly apply the required styles.
-# Wait, if `dark:` prefix isn't working for tailwind-scrollbar, maybe I can just define a custom class in Chat.tsx or index.css?
-# The instructions state: "Ajuste a barra de rolagem da direita para modo escuro."
-# And memory: "Per user preference, these specific scrollbars must strictly apply a dark theme using dark blue tones (e.g., scrollbar-thumb-blue-900 dark:scrollbar-thumb-blue-800 hover:scrollbar-thumb-blue-800 dark:hover:scrollbar-thumb-blue-700), rather than light gray or standard blue variants."
-# This means I MUST keep those classes. BUT if they are ALREADY there, why is it failing?
-# Ah! In the `flex-1 overflow-y-auto` div in `Chat.tsx`:
-# `<div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-6 bg-transparent scrollbar-thin scrollbar-thumb-blue-900 dark:scrollbar-thumb-blue-800 hover:scrollbar-thumb-blue-800 dark:hover:scrollbar-thumb-blue-700">`
-# Wait, look at `scrollbar-thumb-blue-900` vs `dark:scrollbar-thumb-blue-800`.
-# What if tailwind-scrollbar track is white?
-# There is NO `scrollbar-track-*` applied to that div!
-# If there's no track class, tailwind-scrollbar track background is `transparent` from index.css? NO!
-# If tailwind-scrollbar is applied, it resets track to default?
-# I will append `scrollbar-track-transparent` to ensure it doesn't show a light track!
-content = content.replace(
-    'scrollbar-thin scrollbar-thumb-blue-900 dark:scrollbar-thumb-blue-800 hover:scrollbar-thumb-blue-800 dark:hover:scrollbar-thumb-blue-700"',
-    'scrollbar-thin scrollbar-thumb-blue-900 dark:scrollbar-thumb-blue-800 hover:scrollbar-thumb-blue-800 dark:hover:scrollbar-thumb-blue-700 scrollbar-track-transparent dark:scrollbar-track-transparent"'
-)
+# Add the speech recognition setup below state declarations
+state_declarations = r"const \[messages, setMessages\] = useState<Message\[\]>\(\[\]\);"
 
-with open(file_path, "w") as f:
+new_setup_block = """  const [messages, setMessages] = useState<Message[]>([]);
+
+  // === Speech Recognition Setup ===
+  const [isRecording, setIsRecording] = useState(false);
+  const recognitionRef = useRef<any>(null);
+
+  useEffect(() => {
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (SpeechRecognition) {
+      const recognition = new SpeechRecognition();
+      recognition.continuous = true;
+      recognition.interimResults = false;
+      recognition.lang = 'pt-BR';
+
+      recognition.onstart = () => setIsRecording(true);
+
+      recognition.onresult = (event: any) => {
+        const transcript = event.results[event.results.length - 1][0].transcript;
+        setInput((prev) => prev + (prev ? ' ' : '') + transcript);
+      };
+
+      recognition.onerror = (event: any) => {
+        console.error("Speech recognition error", event.error);
+        setIsRecording(false);
+      };
+
+      recognition.onend = () => {
+         setIsRecording(false);
+      };
+
+      recognitionRef.current = recognition;
+    }
+
+    return () => {
+        if (recognitionRef.current) {
+            recognitionRef.current.stop();
+        }
+    }
+  }, []); // Note: setInput from useState is stable
+"""
+
+content = re.sub(state_declarations, new_setup_block, content, count=1)
+
+with open('src/pages/Chat.tsx', 'w') as f:
     f.write(content)
