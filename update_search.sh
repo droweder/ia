@@ -1,0 +1,6 @@
+#!/bin/bash
+sed -i -e "s/className=\"bg-white dark:bg-slate-800\/90 text-slate-800 dark:text-gray-200 w-full max-w-\[600px\] rounded-2xl shadow-2xl flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200\"/className=\"bg-white\/90 dark:bg-slate-800\/90 backdrop-blur-xl border border-slate-200 dark:border-white\/10 text-slate-800 dark:text-gray-200 w-full max-w-[600px] rounded-2xl shadow-2xl flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200\"/g" src/components/SearchModal.tsx
+
+sed -i -e "s/className=\"flex-1 bg-transparent text-slate-800 dark:text-gray-200 text-lg focus:outline-none placeholder-slate-400 dark:placeholder-gray-500\"/className=\"flex-1 bg-transparent text-slate-800 dark:text-gray-200 text-lg focus:outline-none placeholder-slate-400 dark:placeholder-gray-400\"/g" src/components/SearchModal.tsx
+
+sed -i -e "s/className=\"w-full flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-700\/30 border border-slate-200 dark:border-white\/5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-700\/50 transition-colors group\"/className=\"w-full flex items-center justify-between p-4 bg-slate-50 dark:bg-black\/20 border border-slate-200 dark:border-white\/5 rounded-xl hover:bg-slate-100 dark:hover:bg-white\/10 transition-colors group\"/g" src/components/SearchModal.tsx
