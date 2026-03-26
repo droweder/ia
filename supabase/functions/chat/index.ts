@@ -58,14 +58,10 @@ Deno.serve(async (req: Request) => {
 
     // Configuração de Fallback: OpenRouter tentará os modelos nesta ordem.
     // Garantindo uso apenas de modelos gratuitos de alta performance.
-            const fallbackModels = [
-      'meta-llama/llama-3.3-70b-instruct:free',
-      'mistralai/mistral-small-3.1-24b-instruct:free',
-      'openrouter/free'
-    ];
+            const fallbackModels = 'meta-llama/llama-3.3-70b-instruct:free,mistralai/mistral-small-3.1-24b-instruct:free,openrouter/free';
 
         const requestBody: any = {
-      models: fallbackModels,
+      model: fallbackModels,
       messages: payloadMessages,
       stream: true
     };
