@@ -58,10 +58,10 @@ Deno.serve(async (req: Request) => {
 
     // Configuração de Fallback: OpenRouter tentará os modelos nesta ordem.
     // Garantindo uso apenas de modelos gratuitos de alta performance.
-        const fallbackModels = [
-      'google/gemma-3-27b-it:free',
-      'google/gemma-3-12b-it:free',
-      'google/gemma-3-4b-it:free'
+            const fallbackModels = [
+      'meta-llama/llama-3.3-70b-instruct:free',
+      'mistralai/mistral-small-3.1-24b-instruct:free',
+      'openrouter/free'
     ];
 
         const requestBody: any = {
