@@ -56,12 +56,20 @@ Deno.serve(async (req: Request) => {
 
     console.log("Sending request to OpenRouter (Auto Fallback)", { messageCount: payloadMessages.length });
 
-    // Configuração de Fallback: OpenRouter tentará os modelos nesta ordem.
-    // Garantindo uso apenas de modelos gratuitos de alta performance.
-            const fallbackModels = 'meta-llama/llama-3.3-70b-instruct:free,mistralai/mistral-small-3.1-24b-instruct:free,openrouter/free';
+    // Allow frontend to specify model, otherwise fallback to free tier string format to fix OpenRouter 400 bad request
+    const fallbackModels = 'meta-llama/llama-3.3-70b-instruct:free,mistralai/mistral-small-3.1-24b-instruct:free,openrouter/free';
 
-        const requestBody: any = {
-      model: fallbackModels,
+    // Auto paid uses auto routing for the best model on OpenRouter, free uses fallback string
+    let resolvedModel = fallbackModels;
+
+    if (model === 'auto') {
+        resolvedModel = 'openrouter/auto';
+    } else if (model && model !== 'free' && model !== '') {
+        resolvedModel = model;
+    }
+
+    const requestBody: any = {
+      model: resolvedModel,
       messages: payloadMessages,
       stream: true
     };

@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/purity */
 import React, { useState, useEffect, useRef } from 'react';
-import { Bot, User, ChevronDown, ShieldCheck, Loader2, Database, AlertCircle, Plus, Mic, ArrowUp, Copy, Check, RefreshCcw, X, File as FileIcon } from 'lucide-react';
+import { Bot, User, ChevronDown, Loader2, Database, AlertCircle, Plus, Mic, ArrowUp, Copy, Check, RefreshCcw, X, File as FileIcon, Sparkles } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
@@ -93,8 +93,31 @@ const CodeBlock = ({ node, inline, className, children, ...props }: any) => {
     );
 };
 
+
+const MODELS = [
+  { id: 'free', name: 'Automático (Gratuito)', description: 'Modelos rápidos e gratuitos', isPaid: false },
+  { id: 'auto', name: 'Automático (Pago)', description: 'O melhor modelo disponível pago', isPaid: true },
+  { id: 'openai/gpt-4o', name: 'GPT-4o (Pago)', description: 'Mais inteligente, OpenAI', isPaid: true },
+  { id: 'anthropic/claude-3.5-sonnet', name: 'Claude 3.5 Sonnet (Pago)', description: 'Excelente para código, Anthropic', isPaid: true }
+];
+
 const Chat: React.FC = () => {
   const [input, setInput] = useState("");
+  const [selectedModelId, setSelectedModelId] = useState('free');
+  const [showModelMenu, setShowModelMenu] = useState(false);
+  const modelMenuRef = useRef<HTMLDivElement>(null);
+
+  // Close menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (modelMenuRef.current && !modelMenuRef.current.contains(event.target as Node)) {
+        setShowModelMenu(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
 
   const { conversations, setConversations, activeConversationId, setActiveConversationId, activeAssistantId, setActiveAssistantId, assistants } = useOutletContext<LayoutContextType>();
   const [isRecording, setIsRecording] = useState(false);
@@ -452,7 +475,7 @@ let systemPrompt = `Você é o DRoweder IA, um assistente especialista em manufa
         await chatWithOpenRouterStream(
             messagesForApi,
             systemPrompt,
-            'auto',
+            selectedModelId === 'free' ? '' : selectedModelId,
             {
                 onUpdate: (chunk: string) => {
 
@@ -502,7 +525,7 @@ let systemPrompt = `Você é o DRoweder IA, um assistente especialista em manufa
                                     setError(`Falha na API da IA durante SQL: ${errMsg2}.`);
                                 },
                                 onDone: async (finalText2: string) => {
-                                     await saveFinalMessage(conversationId!, finalText2, 'auto', tempAiMessageId);
+                                     await saveFinalMessage(conversationId!, finalText2, selectedModelId, tempAiMessageId);
                                 }
                             }
                         );
@@ -510,7 +533,7 @@ let systemPrompt = `Você é o DRoweder IA, um assistente especialista em manufa
                     }
 
                     // Save AI response if no SQL was executed
-                    await saveFinalMessage(conversationId!, finalResponseContent, 'auto', tempAiMessageId);
+                    await saveFinalMessage(conversationId!, finalResponseContent, selectedModelId, tempAiMessageId);
                 }
             }
         );
@@ -563,22 +586,6 @@ let systemPrompt = `Você é o DRoweder IA, um assistente especialista em manufa
 
       {/* Main Chat Area */}
       <div className="flex-1 flex flex-col min-w-0 min-h-0 bg-transparent transition-colors duration-200">
-        {/* Header - Simplified */}
-        <div className="h-14 border-b border-slate-200 dark:border-white/10 flex justify-between items-center bg-white/40 dark:bg-white/5 backdrop-blur-md px-4 shadow-sm z-10">
-            <div className="flex items-center gap-4">
-                <div className="font-medium text-slate-700 dark:text-gray-200 text-sm py-1.5 pl-2 flex items-center gap-2">
-                    <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span>
-                    Mia AI
-                </div>
-            </div>
-
-            {/* Connection Badge */}
-            <div className="flex items-center gap-2 text-xs font-medium text-slate-600 dark:text-gray-300 bg-slate-200/50 dark:bg-white/10 px-3 py-1.5 rounded-full">
-                <ShieldCheck size={14} className="text-emerald-500 dark:text-emerald-400" />
-                <span className="hidden sm:inline">Planintex Conectado</span>
-            </div>
-        </div>
-
         {/* Messages */}
         <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-6 bg-transparent scrollbar-thin scrollbar-thumb-slate-300 dark:scrollbar-thumb-blue-800 hover:scrollbar-thumb-slate-400 dark:hover:scrollbar-thumb-blue-700 scrollbar-track-transparent ">
             {messages.length === 0 && !loading && (
@@ -738,10 +745,11 @@ let systemPrompt = `Você é o DRoweder IA, um assistente especialista em manufa
                     )}
 
                     <div className="relative flex items-end">
-                        <div className="flex items-center justify-center p-2 pl-3 pb-[10px]">
+                        <div className="flex items-center justify-center p-2 pl-3 pb-[10px] gap-1 relative" ref={modelMenuRef}>
                             <button
                                 onClick={() => fileInputRef.current?.click()}
                                 className="w-8 h-8 rounded-full flex items-center justify-center text-slate-500 hover:text-slate-800 dark:text-gray-400 dark:hover:text-gray-200 transition-colors border border-transparent hover:bg-black/5 dark:hover:bg-white/10"
+                                title="Anexar arquivo"
                             >
                                 <Plus size={20} strokeWidth={2.5} />
                             </button>
@@ -752,6 +760,51 @@ let systemPrompt = `Você é o DRoweder IA, um assistente especialista em manufa
                                 multiple
                                 className="hidden"
                             />
+
+                            <button
+                                onClick={() => setShowModelMenu(!showModelMenu)}
+                                className="w-8 h-8 rounded-full flex items-center justify-center text-slate-500 hover:text-slate-800 dark:text-gray-400 dark:hover:text-gray-200 transition-colors border border-transparent hover:bg-black/5 dark:hover:bg-white/10"
+                                title="Selecionar Modelo IA"
+                            >
+                                <Sparkles size={18} strokeWidth={2} className={selectedModelId !== 'free' ? 'text-purple-500 dark:text-purple-400' : ''} />
+                            </button>
+
+                            {/* Dropdown de Modelos */}
+                            {showModelMenu && (
+                                <div className="absolute bottom-full left-0 mb-2 w-64 bg-white dark:bg-[#1E1E1E] border border-slate-200 dark:border-white/10 rounded-xl shadow-lg overflow-hidden z-50 animate-in fade-in slide-in-from-bottom-2 duration-200">
+                                    <div className="p-2 border-b border-slate-100 dark:border-white/5">
+                                        <p className="text-xs font-semibold text-slate-500 dark:text-gray-400 uppercase tracking-wider pl-2">Selecione o Modelo</p>
+                                    </div>
+                                    <div className="p-1 max-h-60 overflow-y-auto scrollbar-thin scrollbar-thumb-slate-300 dark:scrollbar-thumb-blue-800 hover:scrollbar-thumb-slate-400 dark:hover:scrollbar-thumb-blue-700">
+                                        {MODELS.map(modelOption => (
+                                            <button
+                                                key={modelOption.id}
+                                                onClick={() => {
+                                                    setSelectedModelId(modelOption.id);
+                                                    setShowModelMenu(false);
+                                                }}
+                                                className={`w-full flex flex-col text-left px-3 py-2 rounded-lg transition-colors ${
+                                                    selectedModelId === modelOption.id
+                                                        ? 'bg-purple-50 dark:bg-purple-500/10 border border-purple-100 dark:border-purple-500/20'
+                                                        : 'hover:bg-slate-50 dark:hover:bg-white/5 border border-transparent'
+                                                }`}
+                                            >
+                                                <div className="flex items-center justify-between w-full">
+                                                    <span className={`text-sm font-medium ${selectedModelId === modelOption.id ? 'text-purple-700 dark:text-purple-400' : 'text-slate-700 dark:text-gray-200'}`}>
+                                                        {modelOption.name}
+                                                    </span>
+                                                    {modelOption.isPaid ? (
+                                                        <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">PAGO</span>
+                                                    ) : (
+                                                        <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">GRÁTIS</span>
+                                                    )}
+                                                </div>
+                                                <span className="text-xs text-slate-500 dark:text-gray-400 mt-0.5">{modelOption.description}</span>
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     <textarea
                         value={input}
