@@ -38,7 +38,7 @@ export const ShareChatModal: React.FC<ShareChatModalProps> = ({
           <h2 className="text-xl font-semibold text-slate-800 dark:text-white">Compartilhar Chat</h2>
           <button
             onClick={onClose}
-            className="p-2 text-slate-400 hover:text-slate-600 dark:hover:text-gray-300 rounded-full hover:bg-slate-100 dark:hover:bg-white/5 transition-colors"
+            className="p-2 text-slate-400 hover:text-slate-600 dark:text-gray-500 dark:hover:text-white rounded-lg hover:bg-slate-100 dark:hover:bg-white/5 transition-colors"
           >
             <X size={20} />
           </button>
@@ -54,11 +54,11 @@ export const ShareChatModal: React.FC<ShareChatModalProps> = ({
               type="text"
               readOnly
               value={shareUrl}
-              className="flex-1 px-4 py-3 bg-slate-50 dark:bg-[#2b2d31] border border-slate-200 dark:border-white/10 rounded-xl outline-none text-slate-900 dark:text-white text-sm"
+              className="flex-1 px-4 py-3 bg-white/40 dark:bg-white/5 backdrop-blur-sm border border-slate-200 dark:border-white/10 rounded-xl outline-none text-slate-900 dark:text-white text-sm focus:border-blue-500 dark:focus:border-blue-400 transition-colors shadow-sm"
             />
             <button
               onClick={handleCopy}
-              className="flex items-center justify-center p-3 bg-slate-100 dark:bg-white/5 hover:bg-slate-200 dark:hover:bg-white/10 text-slate-700 dark:text-gray-200 rounded-xl transition-colors"
+              className="flex items-center justify-center p-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl transition-all shadow-md active:scale-95 disabled:opacity-50"
               title="Copiar link"
             >
               {copied ? <Check size={20} className="text-emerald-500" /> : <Copy size={20} />}
@@ -69,7 +69,7 @@ export const ShareChatModal: React.FC<ShareChatModalProps> = ({
         <div className="p-6 border-t border-slate-100 dark:border-white/5 flex justify-end">
              <button
               onClick={onClose}
-              className="px-5 py-2.5 text-sm font-medium text-slate-600 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-white/5 rounded-xl transition-colors"
+              className="px-6 py-2.5 mt-2 rounded-full bg-slate-900 dark:bg-white text-white dark:text-black font-semibold text-sm transition-all hover:opacity-90 active:scale-95"
             >
               Fechar
             </button>

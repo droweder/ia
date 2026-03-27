@@ -29,13 +29,13 @@ export function SelectProjectModal({ isOpen, onClose, projects, onSelectProject 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 dark:bg-black/60 backdrop-blur-sm p-4">
       <div className="w-full max-w-md rounded-2xl bg-white/90 dark:bg-slate-800/90 backdrop-blur-xl p-6 shadow-xl border border-slate-200 dark:border-white/10 animate-in fade-in zoom-in-95 duration-200">
-        <div className="mb-4 flex items-center justify-between">
+        <div className="mb-6 flex items-center justify-between">
           <h2 className="text-xl font-semibold text-slate-800 dark:text-white">Transferir para Projeto</h2>
           <button
             onClick={onClose}
-            className="rounded-full p-2 text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-white/10"
+            className="rounded-lg p-2 text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:text-white dark:hover:bg-white/5 transition-colors"
           >
-            <X className="h-5 w-5" />
+            <X size={20} />
           </button>
         </div>
 
@@ -47,7 +47,7 @@ export function SelectProjectModal({ isOpen, onClose, projects, onSelectProject 
             <select
               value={selectedProjectId}
               onChange={(e) => setSelectedProjectId(e.target.value)}
-              className="w-full rounded-xl border border-slate-200 bg-white/40 dark:bg-black/20 px-4 py-3 text-sm text-slate-800 focus:border-blue-500 focus:outline-none dark:border-white/10 dark:text-white shadow-sm"
+              className="w-full rounded-xl border border-slate-200 bg-white/40 dark:bg-white/5 backdrop-blur-sm px-4 py-3 text-sm text-slate-800 focus:border-blue-500 dark:focus:border-blue-400 focus:outline-none dark:border-white/10 dark:text-white shadow-sm transition-colors"
               required
             >
               <option value="" disabled className="bg-white dark:bg-slate-800 text-slate-800 dark:text-gray-200">
@@ -65,14 +65,14 @@ export function SelectProjectModal({ isOpen, onClose, projects, onSelectProject 
             <button
               type="button"
               onClick={onClose}
-              className="rounded-xl px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-white/10"
+              className="rounded-full px-5 py-2.5 text-sm font-medium text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-white/5 transition-colors"
             >
               Cancelar
             </button>
             <button
               type="submit"
               disabled={!selectedProjectId}
-              className="rounded-xl bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="rounded-full bg-slate-900 dark:bg-white px-6 py-2.5 text-sm font-semibold text-white dark:text-black hover:opacity-90 disabled:opacity-50 disabled:bg-slate-200 disabled:dark:bg-gray-600 disabled:text-slate-500 disabled:dark:text-gray-400 disabled:cursor-not-allowed transition-all active:scale-95 shadow-md"
             >
               Transferir
             </button>

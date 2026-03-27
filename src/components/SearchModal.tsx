@@ -32,7 +32,7 @@ export function SearchModal({ isOpen, onClose, conversations }: SearchModalProps
 
         {/* Header / Input */}
         <div className="flex items-center gap-3 p-4 border-b border-slate-200 dark:border-white/10">
-          <Search size={20} className="text-slate-500 dark:text-gray-400 shrink-0 ml-2" />
+          <Search size={20} className="text-blue-500 dark:text-blue-400 shrink-0 ml-2 drop-shadow-[0_0_8px_rgba(59,130,246,0.3)]" />
           <input
             type="text"
             value={query}
@@ -43,7 +43,7 @@ export function SearchModal({ isOpen, onClose, conversations }: SearchModalProps
           />
           <button
             onClick={onClose}
-            className="p-1.5 text-slate-400 hover:text-slate-600 dark:text-gray-500 dark:hover:text-gray-300 rounded-md transition-colors"
+            className="p-1.5 text-slate-400 hover:text-slate-600 dark:text-gray-500 dark:hover:text-white rounded-md hover:bg-slate-100 dark:hover:bg-white/10 transition-colors"
           >
             <X size={20} />
           </button>
@@ -64,11 +64,11 @@ export function SearchModal({ isOpen, onClose, conversations }: SearchModalProps
                             navigate(`/chat/${chat.id}`);
                             onClose();
                         }}
-                        className="flex items-center justify-between p-3 rounded-xl hover:bg-slate-100 dark:hover:bg-white/10 transition-colors text-left group"
+                        className="flex items-center justify-between p-3 rounded-xl hover:bg-slate-50 dark:hover:bg-white/5 bg-white/40 dark:bg-white/5 backdrop-blur-sm border border-transparent dark:hover:border-white/10 transition-colors text-left group"
                     >
                         <div className="flex items-center gap-3 min-w-0">
-                            <div className="w-10 h-10 rounded-full bg-slate-100 dark:bg-black/20 border border-slate-200 dark:border-white/10 flex items-center justify-center text-slate-500 dark:text-gray-400 shrink-0">
-                                <MessageSquare size={18} />
+                            <div className="w-10 h-10 rounded-full bg-blue-50 dark:bg-blue-500/10 border border-blue-100 dark:border-blue-500/20 flex items-center justify-center text-blue-500 shrink-0 group-hover:scale-105 transition-transform">
+                                <MessageSquare size={18} className="drop-shadow-[0_0_8px_rgba(59,130,246,0.3)]" />
                             </div>
                             <div className="flex flex-col min-w-0">
                                 <span className="text-sm font-medium text-slate-800 dark:text-white truncate">

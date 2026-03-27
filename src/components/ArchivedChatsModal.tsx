@@ -82,10 +82,10 @@ export function ArchivedChatsModal({ isOpen, onClose, onUnarchive }: ArchivedCha
         {/* Header */}
         <div className="flex items-center justify-between p-6 pb-4 border-b border-slate-200 dark:border-white/10 shrink-0">
           <h2 className="text-xl font-semibold flex items-center gap-2">
-            <Archive size={24} className="text-blue-500" />
+            <Archive size={24} className="text-blue-500 dark:text-blue-400 drop-shadow-[0_0_8px_rgba(59,130,246,0.3)]" />
             Chats Arquivados
           </h2>
-          <button onClick={onClose} className="p-2 text-slate-500 hover:text-slate-800 dark:text-gray-400 dark:hover:text-white transition-colors rounded-lg hover:bg-slate-100 dark:hover:bg-white/10">
+          <button onClick={onClose} className="p-2 text-slate-500 hover:text-slate-800 dark:text-gray-400 dark:hover:text-white transition-colors rounded-lg hover:bg-slate-100 dark:hover:bg-white/5">
             <X size={20} />
           </button>
         </div>
@@ -103,7 +103,7 @@ export function ArchivedChatsModal({ isOpen, onClose, onUnarchive }: ArchivedCha
             </div>
           ) : (
             archivedChats.map(chat => (
-              <div key={chat.id} className="flex items-center justify-between p-4 rounded-xl border border-slate-200 dark:border-white/10 bg-white/40 dark:bg-white/5 hover:bg-slate-50 dark:hover:bg-white/10 transition-colors group">
+              <div key={chat.id} className="flex items-center justify-between p-4 rounded-xl border border-transparent dark:border-white/5 bg-white/40 dark:bg-white/5 hover:bg-slate-50 dark:hover:bg-white/10 backdrop-blur-sm transition-colors group">
                 <div className="flex flex-col truncate pr-4">
                    <h3 className="font-medium text-slate-800 dark:text-white truncate">{chat.title}</h3>
                    <span className="text-xs text-slate-500">{new Date(chat.updated_at).toLocaleDateString()}</span>
