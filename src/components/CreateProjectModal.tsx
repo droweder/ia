@@ -63,25 +63,25 @@ export function CreateProjectModal({ isOpen, onClose, onCreate }: CreateProjectM
             <div className="flex flex-wrap gap-2">
               <button
                   onClick={() => handleSuggestionClick('Investimentos')}
-                  className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-white/10 hover:bg-slate-50 dark:hover:bg-white/10 bg-white dark:bg-transparent transition-colors text-sm text-slate-600 dark:text-gray-300 shadow-sm">
+                  className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-white/10 hover:bg-slate-50 dark:hover:bg-white/10 bg-white/90 dark:bg-slate-800/90 backdrop-blur-xl transition-colors text-sm text-slate-600 dark:text-gray-300 shadow-sm">
                 <CircleDollarSign size={14} className="text-emerald-500" />
                 Investimentos
               </button>
               <button
                    onClick={() => handleSuggestionClick('Dever de casa')}
-                   className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-white/10 hover:bg-slate-50 dark:hover:bg-white/10 bg-white dark:bg-transparent transition-colors text-sm text-slate-600 dark:text-gray-300 shadow-sm">
+                   className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-white/10 hover:bg-slate-50 dark:hover:bg-white/10 bg-white/90 dark:bg-slate-800/90 backdrop-blur-xl transition-colors text-sm text-slate-600 dark:text-gray-300 shadow-sm">
                 <GraduationCap size={14} className="text-blue-500" />
                 Dever de casa
               </button>
               <button
                   onClick={() => handleSuggestionClick('Escrita')}
-                  className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-white/10 hover:bg-slate-50 dark:hover:bg-white/10 bg-white dark:bg-transparent transition-colors text-sm text-slate-600 dark:text-gray-300 shadow-sm">
+                  className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-white/10 hover:bg-slate-50 dark:hover:bg-white/10 bg-white/90 dark:bg-slate-800/90 backdrop-blur-xl transition-colors text-sm text-slate-600 dark:text-gray-300 shadow-sm">
                 <PenTool size={14} className="text-blue-500" />
                 Escrita
               </button>
               <button
                   onClick={() => handleSuggestionClick('Viagem')}
-                  className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-white/10 hover:bg-slate-50 dark:hover:bg-white/10 bg-white dark:bg-transparent transition-colors text-sm text-slate-600 dark:text-gray-300 shadow-sm">
+                  className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-white/10 hover:bg-slate-50 dark:hover:bg-white/10 bg-white/90 dark:bg-slate-800/90 backdrop-blur-xl transition-colors text-sm text-slate-600 dark:text-gray-300 shadow-sm">
                 <Plane size={14} className="text-amber-500" />
                 Viagem
               </button>

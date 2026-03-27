@@ -44,7 +44,7 @@ export const GroupChatModal: React.FC<GroupChatModalProps> = ({
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
       <div
-        className="bg-white dark:bg-[#1a1b1e] w-full max-w-md rounded-2xl shadow-2xl border border-slate-200 dark:border-white/10 overflow-hidden transform transition-all scale-100 animate-in zoom-in-95 duration-200"
+        className="bg-white/90 dark:bg-slate-800/90 backdrop-blur-xl w-full max-w-md rounded-2xl shadow-2xl border border-slate-200 dark:border-white/10 overflow-hidden transform transition-all scale-100 animate-in zoom-in-95 duration-200"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between p-6 border-b border-slate-100 dark:border-white/5">
@@ -115,7 +115,7 @@ export const GroupChatModal: React.FC<GroupChatModalProps> = ({
                 <button
                 type="submit"
                 disabled={selectedUsers.length === 0}
-                className="flex items-center justify-center px-4 py-2 bg-[#7e639f] hover:bg-[#6b538c] text-white text-sm font-medium rounded-xl transition-all shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex items-center justify-center px-4 py-2 bg-blue-600 dark:bg-blue-500 hover:bg-[#6b538c] text-white text-sm font-medium rounded-xl transition-all shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                 Iniciar Grupo
                 </button>

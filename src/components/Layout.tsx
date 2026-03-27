@@ -376,7 +376,7 @@ const Layout: React.FC = () => {
   const companyName = user?.user_metadata?.company_name || 'Minha Empresa'; // In a real app, fetch from relation
 
   return (
-    <div className="flex h-screen font-sans text-slate-800 dark:text-gray-100 transition-colors duration-200 bg-transparent selection:bg-[#7e639f]/30">
+    <div className="flex h-screen font-sans text-slate-800 dark:text-gray-100 transition-colors duration-200 bg-transparent selection:bg-blue-600 dark:bg-blue-500/30">
       {/* Sidebar - Multiplier AI Style */}
       <aside
       onMouseEnter={() => setIsSidebarHovered(true)}
@@ -507,7 +507,7 @@ const Layout: React.FC = () => {
                                             left: `${Math.min(chatMenuPosition.left - 240, window.innerWidth - 250)}px`,
                                             zIndex: 9999
                                         }}
-                                        className="w-60 bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-white/10 rounded-xl shadow-xl py-2"
+                                        className="w-60 bg-white/90 dark:bg-slate-800/90 backdrop-blur-xl border border-slate-200 dark:border-white/10 rounded-xl shadow-xl py-2"
                                     >
                                         <button
                                             onClick={(e) => {
@@ -656,7 +656,7 @@ const Layout: React.FC = () => {
                 onClick={() => setShowUserMenu(!showUserMenu)}
                 className={`w-full flex items-center ${!isEffectivelyExpanded ? 'justify-center' : 'gap-3'} hover:bg-slate-100 dark:hover:bg-white/10 p-2 rounded-md transition-colors text-left group`}
              >
-                <div className="w-8 h-8 bg-[#7e639f] rounded flex items-center justify-center text-xs text-white font-medium uppercase flex-shrink-0">
+                <div className="w-8 h-8 bg-blue-600 dark:bg-blue-500 rounded flex items-center justify-center text-xs text-white font-medium uppercase flex-shrink-0">
                     {displayName.substring(0, 2)}
                 </div>
                 {isEffectivelyExpanded && (

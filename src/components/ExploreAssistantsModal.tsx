@@ -26,7 +26,7 @@ export function ExploreAssistantsModal({ isOpen, onClose, assistants, onSelectAs
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 dark:bg-slate-800/90 dark:backdrop-blur-xl/50 backdrop-blur-sm p-4">
-      <div className="bg-white dark:bg-slate-800/90 text-slate-800 dark:text-gray-200 w-full max-w-[800px] h-[80vh] rounded-2xl shadow-2xl flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+      <div className="bg-white/90 dark:bg-slate-800/90 backdrop-blur-xl border border-slate-200 dark:border-white/10 text-slate-800 dark:text-gray-200 w-full max-w-[800px] h-[80vh] rounded-2xl shadow-2xl flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200">
 
         {/* Header */}
         <div className="flex items-center justify-between p-6 pb-4 border-b border-slate-200 dark:border-white/10 shrink-0">
@@ -48,7 +48,7 @@ export function ExploreAssistantsModal({ isOpen, onClose, assistants, onSelectAs
                     value={query}
                     onChange={(e) => setQuery(e.target.value)}
                     placeholder="Buscar assistentes..."
-                    className="w-full bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl py-3 pl-11 pr-4 text-slate-800 dark:text-white placeholder-slate-500 dark:placeholder-gray-500 focus:outline-none focus:border-[#7e639f] dark:focus:border-[#7e639f] transition-colors"
+                    className="w-full bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl py-3 pl-11 pr-4 text-slate-800 dark:text-white placeholder-slate-500 dark:placeholder-gray-500 focus:outline-none focus:border-blue-500 dark:focus:border-[#3b82f6] transition-colors"
                 />
            </div>
         </div>
@@ -65,11 +65,11 @@ export function ExploreAssistantsModal({ isOpen, onClose, assistants, onSelectAs
                  {results.map((assistant) => (
                     <div
                         key={assistant.id}
-                        className="flex flex-col p-4 rounded-xl border border-slate-200 dark:border-white/10 bg-white/40 dark:bg-white/5 hover:border-[#7e639f]/50 dark:hover:border-[#7e639f]/50 hover:shadow-md transition-all group"
+                        className="flex flex-col p-4 rounded-xl border border-slate-200 dark:border-white/10 bg-white/40 dark:bg-white/5 hover:border-blue-500/50 dark:hover:border-[#3b82f6]/50 hover:shadow-md transition-all group"
                     >
                         <div className="flex items-center justify-between mb-3">
                             <div className="flex items-center gap-3 overflow-hidden">
-                                <div className="w-10 h-10 rounded-lg bg-[#7e639f]/10 text-blue-500 flex items-center justify-center shrink-0 group-hover:bg-[#7e639f] group-hover:text-white transition-colors">
+                                <div className="w-10 h-10 rounded-lg bg-blue-600 dark:bg-blue-500/10 text-blue-500 flex items-center justify-center shrink-0 group-hover:bg-blue-600 dark:bg-blue-500 group-hover:text-white transition-colors">
                                     <Bot size={20} />
                                 </div>
                                 <h3 className="font-semibold text-slate-800 dark:text-white truncate" title={assistant.name}>
@@ -109,7 +109,7 @@ export function ExploreAssistantsModal({ isOpen, onClose, assistants, onSelectAs
                             {assistant.description || 'Sem descrição fornecida.'}
                         </p>
                         <button
-                            className="w-full py-2 px-4 rounded-lg bg-[#7e639f]/10 dark:bg-[#7e639f]/20 text-blue-500 dark:text-[#a881d8] font-medium text-sm hover:bg-[#7e639f] hover:text-white dark:hover:bg-[#7e639f] dark:hover:text-white transition-colors"
+                            className="w-full py-2 px-4 rounded-lg bg-blue-600 dark:bg-blue-500/10 dark:bg-blue-600 dark:bg-blue-500/20 text-blue-500 dark:text-[#a881d8] font-medium text-sm hover:bg-blue-600 dark:bg-blue-500 hover:text-white dark:hover:bg-blue-600 dark:bg-blue-500 dark:hover:text-white transition-colors"
                             onClick={() => {
                                 onSelectAssistant(assistant.id);
                                 onClose();
