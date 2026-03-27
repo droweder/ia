@@ -25,13 +25,13 @@ export function ExploreAssistantsModal({ isOpen, onClose, assistants, onSelectAs
   );
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 dark:bg-slate-900/50 backdrop-blur-sm p-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 dark:bg-slate-800/90 dark:backdrop-blur-xl/50 backdrop-blur-sm p-4">
       <div className="bg-white dark:bg-slate-800/90 text-slate-800 dark:text-gray-200 w-full max-w-[800px] h-[80vh] rounded-2xl shadow-2xl flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200">
 
         {/* Header */}
         <div className="flex items-center justify-between p-6 pb-4 border-b border-slate-200 dark:border-white/10 shrink-0">
           <h2 className="text-xl font-semibold flex items-center gap-2">
-            <Bot size={24} className="text-[#7e639f]" />
+            <Bot size={24} className="text-blue-500" />
             Explorar Assistentes
           </h2>
           <button onClick={onClose} className="p-2 text-slate-500 hover:text-slate-800 dark:text-gray-400 dark:hover:text-white transition-colors rounded-lg hover:bg-slate-100 dark:hover:bg-white/10">
@@ -69,7 +69,7 @@ export function ExploreAssistantsModal({ isOpen, onClose, assistants, onSelectAs
                     >
                         <div className="flex items-center justify-between mb-3">
                             <div className="flex items-center gap-3 overflow-hidden">
-                                <div className="w-10 h-10 rounded-lg bg-[#7e639f]/10 text-[#7e639f] flex items-center justify-center shrink-0 group-hover:bg-[#7e639f] group-hover:text-white transition-colors">
+                                <div className="w-10 h-10 rounded-lg bg-[#7e639f]/10 text-blue-500 flex items-center justify-center shrink-0 group-hover:bg-[#7e639f] group-hover:text-white transition-colors">
                                     <Bot size={20} />
                                 </div>
                                 <h3 className="font-semibold text-slate-800 dark:text-white truncate" title={assistant.name}>
@@ -109,7 +109,7 @@ export function ExploreAssistantsModal({ isOpen, onClose, assistants, onSelectAs
                             {assistant.description || 'Sem descrição fornecida.'}
                         </p>
                         <button
-                            className="w-full py-2 px-4 rounded-lg bg-[#7e639f]/10 dark:bg-[#7e639f]/20 text-[#7e639f] dark:text-[#a881d8] font-medium text-sm hover:bg-[#7e639f] hover:text-white dark:hover:bg-[#7e639f] dark:hover:text-white transition-colors"
+                            className="w-full py-2 px-4 rounded-lg bg-[#7e639f]/10 dark:bg-[#7e639f]/20 text-blue-500 dark:text-[#a881d8] font-medium text-sm hover:bg-[#7e639f] hover:text-white dark:hover:bg-[#7e639f] dark:hover:text-white transition-colors"
                             onClick={() => {
                                 onSelectAssistant(assistant.id);
                                 onClose();

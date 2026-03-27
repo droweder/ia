@@ -65,7 +65,7 @@ Deno.serve(async (req: Request) => {
     ];
 
         const requestBody: any = {
-      models: fallbackModels,
+      model: fallbackModels.join(','),
       messages: payloadMessages,
       stream: true
     };

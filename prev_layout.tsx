@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { createPortal } from 'react-dom';
-import { Sun, Moon, LogOut, ChevronDown, Plus, Sidebar, Search, FileText, Bot, MoreVertical, Share, UserPlus, Pencil, Folder, Pin, Archive, Trash2, ChevronRight } from 'lucide-react';
+import { Sun, Moon, LogOut, ChevronDown, Plus, PanelLeft, Search, FileText, Bot, MoreVertical, Share, UserPlus, Pencil, Folder, Pin, Archive, Trash2, ChevronRight } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
 import { supabase } from '../lib/supabaseClient';
@@ -17,8 +17,8 @@ import { ArchivedChatsModal } from './ArchivedChatsModal';
 import { ExploreAssistantsModal } from './ExploreAssistantsModal';
 import { DeleteAssistantModal } from './DeleteAssistantModal';
 import { DeleteChatModal } from './DeleteChatModal';
-
-
+import { RenameProjectModal } from './RenameProjectModal';
+import { DeleteProjectModal } from './DeleteProjectModal';
 import { Toast } from './Toast';
 import type { ToastType } from './Toast';
 
@@ -38,17 +38,15 @@ const Layout: React.FC = () => {
   const { user, signOut } = useAuth();
   const { theme, toggleTheme } = useTheme();
   const [showUserMenu, setShowUserMenu] = useState(false);
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(true);
-  const [isSidebarHovered, setIsSidebarHovered] = useState(false);
-  const isEffectivelyExpanded = !isSidebarCollapsed || isSidebarHovered;
-
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [isProjectsOpen, setIsProjectsOpen] = useState(true);
   const [isRecentChatsOpen, setIsRecentChatsOpen] = useState(true);
   const [openChatMenuId, setOpenChatMenuId] = useState<string | null>(null);
   const [chatMenuPosition, setChatMenuPosition] = useState({ top: 0, left: 0 });
   const chatMenuRef = useRef<HTMLDivElement>(null);
 
   const [openProjectMenuId, setOpenProjectMenuId] = useState<string | null>(null);
-
+  const [projectMenuPosition, setProjectMenuPosition] = useState({ top: 0, left: 0 });
   const projectMenuRef = useRef<HTMLDivElement>(null);
   const userMenuRef = useRef<HTMLDivElement>(null);
 
@@ -91,12 +89,12 @@ const Layout: React.FC = () => {
   const [isSelectProjectModalOpen, setIsSelectProjectModalOpen] = useState(false);
   const [chatToTransferId, setChatToTransferId] = useState<string | null>(null);
 
+  const [isRenameProjectModalOpen, setIsRenameProjectModalOpen] = useState(false);
+  const [projectToRenameId, setProjectToRenameId] = useState<string | null>(null);
+  const [projectToRenameCurrentName, setProjectToRenameCurrentName] = useState("");
 
-
-
-
-
-
+  const [isDeleteProjectModalOpen, setIsDeleteProjectModalOpen] = useState(false);
+  const [projectToDeleteId, setProjectToDeleteId] = useState<string | null>(null);
 
   // Search Modal
   const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
@@ -319,6 +317,39 @@ const Layout: React.FC = () => {
       }
   };
 
+  const handleRenameProject = async (newName: string) => {
+      if (!projectToRenameId) return;
+      const { error } = await supabase
+          .schema('droweder_ia')
+          .from('projects')
+          .update({ name: newName })
+          .eq('id', projectToRenameId);
+
+      if (error) {
+          showToast(`Erro ao renomear projeto: ${error.message}`, "error");
+      } else {
+          setProjects(prev => prev.map(p => p.id === projectToRenameId ? { ...p, name: newName } : p));
+          showToast("Projeto renomeado com sucesso", "success");
+      }
+  };
+
+  const handleDeleteProject = async () => {
+      if (!projectToDeleteId) return;
+
+      const { error } = await supabase
+          .schema('droweder_ia')
+          .from('projects')
+          .delete()
+          .eq('id', projectToDeleteId);
+
+      if (error) {
+          showToast(`Erro ao excluir projeto: ${error.message}`, "error");
+      } else {
+          setProjects(prev => prev.filter(p => p.id !== projectToDeleteId));
+          showToast("Projeto excluído com sucesso", "success");
+      }
+  };
+
   const executeTransferChat = async (projectId: string) => {
       if (!chatToTransferId) return;
 
@@ -378,40 +409,49 @@ const Layout: React.FC = () => {
   return (
     <div className="flex h-screen font-sans text-slate-800 dark:text-gray-100 transition-colors duration-200 bg-transparent selection:bg-[#7e639f]/30">
       {/* Sidebar - Multiplier AI Style */}
-      <aside
-      onMouseEnter={() => setIsSidebarHovered(true)}
-      onMouseLeave={() => setIsSidebarHovered(false)}
-      className={`${!isEffectivelyExpanded ? 'w-20' : 'w-72'} border-r border-slate-200 dark:border-white/10 bg-white/40 dark:bg-white/5 backdrop-blur-xl hidden md:flex flex-col z-10 transition-all duration-300 shrink-0`}>
+      <aside className={`${isSidebarCollapsed ? 'w-20' : 'w-72'} border-r border-slate-200 dark:border-white/10 bg-white/40 dark:bg-white/5 backdrop-blur-xl hidden md:flex flex-col z-10 transition-all duration-300`}>
 
         {/* Header da Sidebar */}
-        <div className={`h-12 flex items-center px-4 border-b border-slate-200 dark:border-white/10 ${!isEffectivelyExpanded ? 'justify-center' : 'justify-between'}`}>
-             {isEffectivelyExpanded && (
+        <div className={`h-12 flex items-center px-4 border-b border-slate-200 dark:border-white/10 ${isSidebarCollapsed ? 'justify-center' : 'justify-between'}`}>
+             {!isSidebarCollapsed && (
                 <>
                   <div className="flex items-center">
                       <img src="https://phofwpyxbeulodrzfdjq.supabase.co/storage/v1/object/public/imagens_app/logo_droweder_IA.png" alt="DRoweder IA" className="h-6 object-contain" />
                   </div>
+                  <button
+                      onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+                      className="p-1.5 text-slate-500 hover:bg-slate-200 dark:text-gray-400 dark:hover:bg-white/10 rounded-md transition-colors"
+                  >
+                      <PanelLeft size={18} />
+                  </button>
                 </>
              )}
-             <button
-                onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
-                className="p-1.5 rounded-lg text-slate-500 hover:bg-slate-100 dark:text-gray-400 dark:hover:bg-white/10 transition-colors"
-                title={isSidebarCollapsed ? "Fixar Sidebar" : "Desafixar Sidebar"}
-             >
-                <Sidebar size={18} className={!isEffectivelyExpanded ? "rotate-180" : ""} />
-             </button>
+             {isSidebarCollapsed && (
+                 <button
+                    onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+                    className="relative flex items-center justify-center group w-8 h-8 rounded-md hover:bg-slate-200 dark:hover:bg-white/10 transition-colors"
+                 >
+                     <img
+                        src="https://phofwpyxbeulodrzfdjq.supabase.co/storage/v1/object/public/imagens_app/favicom_droweder.png"
+                        alt="DRoweder IA"
+                        className="w-6 h-6 object-contain transition-opacity duration-200 group-hover:opacity-0"
+                     />
+                     <PanelLeft size={18} className="absolute inset-0 m-auto text-slate-500 dark:text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
+                 </button>
+             )}
         </div>
 
         {/* Menu Principal */}
-        <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-slate-300 dark:scrollbar-thumb-blue-800 hover:scrollbar-thumb-slate-400 dark:hover:scrollbar-thumb-blue-700">
+        <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-6 scrollbar-thin scrollbar-thumb-slate-300 dark:scrollbar-thumb-blue-800 hover:scrollbar-thumb-slate-400 dark:hover:scrollbar-thumb-blue-700 scrollbar-track-transparent">
 
-          {/* Menu Principal */}
-          <div className="p-3 space-y-1">
+          <div className="space-y-1">
               <button
                 onClick={handleNewChat}
-                className="w-full flex items-center gap-3 h-10 px-3 mb-2 rounded-xl bg-blue-600 dark:bg-blue-600 hover:bg-blue-700 text-white shadow-sm transition-all text-sm font-medium"
+                className={`w-full flex items-center gap-3 h-8 px-3 rounded-md transition-all duration-200 text-sm font-medium ${isActive('/chat') && !activeConversationId ? 'bg-slate-200 dark:bg-white/10 text-slate-900 dark:text-white border-r-2 border-slate-400 dark:border-white/50' : 'text-slate-600 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-white/10 hover:text-slate-900 dark:hover:text-white'}`}
+                title="Novo Chat"
               >
-                <Plus size={20} />
-                {isEffectivelyExpanded && <span>Novo Chat</span>}
+                <Plus size={20} className={isActive('/chat') && !activeConversationId ? 'text-slate-900 dark:text-white' : ''} />
+                {!isSidebarCollapsed && <span>Novo Chat</span>}
               </button>
               <button
                 onClick={() => setIsSearchModalOpen(true)}
@@ -419,7 +459,7 @@ const Layout: React.FC = () => {
                 title="Buscar em chats"
               >
                 <Search size={20} />
-                {isEffectivelyExpanded && <span>Buscar em chats</span>}
+                {!isSidebarCollapsed && <span>Buscar em chats</span>}
               </button>
               <button
                 onClick={() => navigate('/files')}
@@ -427,7 +467,7 @@ const Layout: React.FC = () => {
                 title="Arquivos"
               >
                 <FileText size={20} className={isActive('/files') ? 'text-slate-900 dark:text-white' : ''} />
-                {isEffectivelyExpanded && <span>Arquivos</span>}
+                {!isSidebarCollapsed && <span>Arquivos</span>}
               </button>
               <button
                 onClick={() => navigate('/projects')}
@@ -435,7 +475,7 @@ const Layout: React.FC = () => {
                 title="Projetos"
               >
                 <Folder size={20} className={isActive('/projects') ? 'text-slate-900 dark:text-white' : ''} />
-                {isEffectivelyExpanded && <span>Projetos</span>}
+                {!isSidebarCollapsed && <span>Projetos</span>}
               </button>
               <button
                 onClick={() => setIsExploreAssistantsModalOpen(true)}
@@ -443,7 +483,7 @@ const Layout: React.FC = () => {
                 title="Assistentes"
               >
                 <Bot size={20} />
-                {isEffectivelyExpanded && <span>Assistentes</span>}
+                {!isSidebarCollapsed && <span>Assistentes</span>}
               </button>
               <button
                 onClick={() => setIsArchivedChatsModalOpen(true)}
@@ -451,13 +491,106 @@ const Layout: React.FC = () => {
                 title="Chats Arquivados"
               >
                 <Archive size={20} />
-                {isEffectivelyExpanded && <span>Chats Arquivados</span>}
+                {!isSidebarCollapsed && <span>Chats Arquivados</span>}
               </button>
           </div>
 
           {/* Collapsible Sections */}
-          {isEffectivelyExpanded && (
+          {!isSidebarCollapsed && (
             <>
+              {/* Projetos */}
+              <div className="pt-2">
+                 <button
+                    onClick={() => setIsProjectsOpen(!isProjectsOpen)}
+                    className="w-full flex items-center justify-between px-3 py-2 text-xs font-semibold text-slate-500 dark:text-gray-400 uppercase tracking-wider hover:text-slate-800 dark:hover:text-gray-200 transition-colors group"
+                 >
+                    PROJETOS
+                    <ChevronDown size={14} className={`transition-transform duration-200 opacity-0 group-hover:opacity-100 ${isProjectsOpen ? '' : '-rotate-90'}`} />
+                 </button>
+                 {isProjectsOpen && (
+                     <div className="mt-1 space-y-1">
+                        <button
+                           onClick={() => setIsCreateProjectModalOpen(true)}
+                           className="w-full flex items-center gap-3 h-8 px-3 rounded-md transition-all duration-200 text-sm font-medium text-slate-600 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-white/10 hover:text-slate-900 dark:hover:text-white">
+                            <Plus size={20} />
+                            <span>Novo Projeto</span>
+                        </button>
+                        {projects.map((project) => (
+                           <div key={project.id} className="relative group flex items-center">
+                             <button
+                               onClick={() => {/* Implement project navigation later if needed, or filter chats */}}
+                               className="w-full flex items-center gap-3 h-8 px-3 rounded-md transition-all duration-200 text-sm font-medium text-slate-600 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-white/10 hover:text-slate-900 dark:hover:text-white"
+                             >
+                               <Folder size={16} className="text-slate-400 group-hover:text-blue-500 transition-colors shrink-0" />
+                               <span className="truncate flex-1 text-left pr-6">{project.name}</span>
+                             </button>
+                             <button
+                                 onClick={(e) => {
+                                     e.stopPropagation();
+                                     if (openProjectMenuId === project.id) {
+                                         setOpenProjectMenuId(null);
+                                     } else {
+                                         const rect = e.currentTarget.getBoundingClientRect();
+                                         setProjectMenuPosition({
+                                             top: rect.bottom,
+                                             left: rect.right
+                                         });
+                                         setOpenProjectMenuId(project.id);
+                                     }
+                                 }}
+                                 className="absolute right-2 opacity-0 group-hover:opacity-100 p-1 hover:bg-slate-300 dark:hover:bg-white/20 rounded text-slate-500 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white transition-all"
+                             >
+                                 <MoreVertical size={14} />
+                             </button>
+                             {openProjectMenuId === project.id && createPortal(
+                                 <div
+                                     ref={projectMenuRef}
+                                     style={{
+                                         position: 'fixed',
+                                         top: `${projectMenuPosition.top + 4}px`,
+                                         left: `${projectMenuPosition.left}px`,
+                                         transform: 'translateX(-100%)',
+                                         zIndex: 9999
+                                     }}
+                                     className="w-48 bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-white/10 rounded-xl shadow-xl py-2 animate-in fade-in slide-in-from-top-2 duration-200"
+                                 >
+                                     <button
+                                         onClick={(e) => {
+                                             e.stopPropagation();
+                                             setOpenProjectMenuId(null);
+                                             setProjectToRenameId(project.id);
+                                             setProjectToRenameCurrentName(project.name || 'Projeto');
+                                             setIsRenameProjectModalOpen(true);
+                                     }}
+                                         className="w-full flex items-center gap-3 px-4 py-2 text-sm text-slate-700 dark:text-gray-200 hover:bg-slate-100 dark:hover:bg-white/5 transition-colors"
+                                     >
+                                         <Pencil size={16} />
+                                         Renomear
+                                     </button>
+
+                                     <div className="h-px bg-slate-200 dark:bg-white/10 my-1 mx-4"></div>
+
+                                     <button
+                                         onClick={(e) => {
+                                             e.stopPropagation();
+                                             setProjectToDeleteId(project.id);
+                                             setIsDeleteProjectModalOpen(true);
+                                             setOpenProjectMenuId(null);
+                                         }}
+                                         className="w-full flex items-center gap-3 px-4 py-2 text-sm text-red-600 dark:text-[#f87171] hover:bg-slate-100 dark:hover:bg-white/5 transition-colors"
+                                     >
+                                         <Trash2 size={16} />
+                                         Excluir
+                                     </button>
+                                 </div>,
+                                 document.body
+                             )}
+                           </div>
+                        ))}
+                     </div>
+                 )}
+              </div>
+
               {/* Conversas Recentes */}
               <div className="pt-2">
                  <button
@@ -647,19 +780,19 @@ const Layout: React.FC = () => {
             </>
           )}
 
-        </div>
+        </nav>
 
         {/* User Menu (Bottom) */}
         <div className="p-3 border-t border-slate-200 dark:border-white/10">
           <div className="relative" ref={userMenuRef}>
              <button
                 onClick={() => setShowUserMenu(!showUserMenu)}
-                className={`w-full flex items-center ${!isEffectivelyExpanded ? 'justify-center' : 'gap-3'} hover:bg-slate-100 dark:hover:bg-white/10 p-2 rounded-md transition-colors text-left group`}
+                className={`w-full flex items-center ${isSidebarCollapsed ? 'justify-center' : 'gap-3'} hover:bg-slate-100 dark:hover:bg-white/10 p-2 rounded-md transition-colors text-left group`}
              >
                 <div className="w-8 h-8 bg-[#7e639f] rounded flex items-center justify-center text-xs text-white font-medium uppercase flex-shrink-0">
                     {displayName.substring(0, 2)}
                 </div>
-                {isEffectivelyExpanded && (
+                {!isSidebarCollapsed && (
                     <>
                         <div className="flex-1 min-w-0">
                             <p className="text-sm font-medium text-slate-700 dark:text-gray-200 truncate group-hover:text-slate-900 dark:group-hover:text-white">{displayName}</p>
@@ -783,9 +916,24 @@ const Layout: React.FC = () => {
         }}
       />
 
+      <RenameProjectModal
+        isOpen={isRenameProjectModalOpen}
+        onClose={() => {
+            setIsRenameProjectModalOpen(false);
+            setProjectToRenameId(null);
+        }}
+        currentName={projectToRenameCurrentName}
+        onRename={handleRenameProject}
+      />
 
-
-
+      <DeleteProjectModal
+        isOpen={isDeleteProjectModalOpen}
+        onClose={() => {
+            setIsDeleteProjectModalOpen(false);
+            setProjectToDeleteId(null);
+        }}
+        onConfirm={handleDeleteProject}
+      />
 
       <SearchModal
           isOpen={isSearchModalOpen}

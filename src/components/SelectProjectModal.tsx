@@ -27,8 +27,8 @@ export function SelectProjectModal({ isOpen, onClose, projects, onSelectProject 
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 dark:bg-black/60 backdrop-blur-sm p-4">
-      <div className="w-full max-w-md rounded-2xl bg-white/90 dark:bg-slate-800/90 backdrop-blur-xl p-6 shadow-xl border border-slate-200 dark:border-white/10 animate-in fade-in zoom-in-95 duration-200">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+      <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl dark:bg-[#111111] border border-white/10">
         <div className="mb-4 flex items-center justify-between">
           <h2 className="text-xl font-semibold text-slate-800 dark:text-white">Transferir para Projeto</h2>
           <button
@@ -47,14 +47,14 @@ export function SelectProjectModal({ isOpen, onClose, projects, onSelectProject 
             <select
               value={selectedProjectId}
               onChange={(e) => setSelectedProjectId(e.target.value)}
-              className="w-full rounded-xl border border-slate-200 bg-white/40 dark:bg-black/20 px-4 py-3 text-sm text-slate-800 focus:border-blue-500 focus:outline-none dark:border-white/10 dark:text-white shadow-sm"
+              className="w-full rounded-xl border border-slate-200 bg-transparent px-4 py-2 text-slate-800 focus:border-blue-500 focus:outline-none dark:border-white/10 dark:text-white"
               required
             >
-              <option value="" disabled className="bg-white dark:bg-slate-800 text-slate-800 dark:text-gray-200">
+              <option value="" disabled className="dark:bg-[#111111]">
                 Escolha um projeto...
               </option>
               {projects.map((project) => (
-                <option key={project.id} value={project.id} className="bg-white dark:bg-slate-800 text-slate-800 dark:text-gray-200">
+                <option key={project.id} value={project.id} className="dark:bg-[#111111]">
                   {project.name}
                 </option>
               ))}
