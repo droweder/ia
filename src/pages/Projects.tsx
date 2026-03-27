@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useOutletContext } from 'react-router-dom';
 import { supabase } from '../lib/supabaseClient';
 import { useAuth } from '../contexts/AuthContext';
 import { Folder, Plus, MoreVertical, Pencil, Trash2, Calendar, MessageSquare, ChevronLeft, Clock } from 'lucide-react';
@@ -22,6 +22,7 @@ export default function Projects() {
 
   // Selected project state
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
+  const { setActiveConversationId } = useOutletContext<any>();
   const [activeProject, setActiveProject] = useState<any>(null);
   const [projectConversations, setProjectConversations] = useState<any[]>([]);
   const [isChatsLoading, setIsChatsLoading] = useState(false);
