@@ -18,7 +18,7 @@ function App() {
           <Routes>
             <Route path="/login" element={<Login />} />
 
-            <Route element={<PrivateRoute />}>
+            <Route>
               <Route path="/" element={<Layout />}>
                 <Route index element={<Navigate to="/chat" replace />} />
                 <Route path="chat" element={<Chat />} />

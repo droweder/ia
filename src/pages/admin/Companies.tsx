@@ -68,20 +68,20 @@ const Companies: React.FC = () => {
   };
 
   if (loading) {
-      return <div className="p-8 flex items-center justify-center h-full dark:bg-gray-900"><Loader2 className="animate-spin text-indigo-600" /></div>;
+      return <div className="p-8 flex items-center justify-center h-full bg-transparent"><Loader2 className="animate-spin text-indigo-600" /></div>;
   }
 
   if (!isAuthorized) {
       return (
-          <div className="flex flex-col items-center justify-center h-full dark:bg-gray-900 text-gray-600 dark:text-gray-400 p-8 text-center space-y-4">
+          <div className="flex flex-col items-center justify-center h-full bg-transparent text-slate-600 dark:text-slate-400 p-8 text-center space-y-4">
               <div className="w-16 h-16 bg-red-100 dark:bg-red-900/20 rounded-full flex items-center justify-center text-red-600 dark:text-red-400">
                   <AlertTriangle size={32} />
               </div>
-              <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">Acesso Negado</h2>
+              <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100">Acesso Negado</h2>
               <p className="max-w-md">Você não tem permissão para acessar o painel de Gestão de Empresas. Esta área é restrita a administradores.</p>
               <button
                 onClick={() => navigate('/chat')}
-                className="mt-4 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-medium transition-colors"
+                className="mt-4 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition-colors"
               >
                   Voltar para o Chat
               </button>
@@ -90,32 +90,32 @@ const Companies: React.FC = () => {
   }
 
   return (
-    <div className="p-8 max-w-6xl mx-auto space-y-8 h-full overflow-y-auto bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
+    <div className="p-8 max-w-6xl mx-auto space-y-8 h-full overflow-y-auto bg-transparent transition-colors duration-200 scrollbar-thin scrollbar-thumb-slate-300 dark:scrollbar-thumb-blue-800">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 tracking-tight">Gestão de Inquilinos (Tenants)</h1>
-          <p className="text-gray-500 dark:text-gray-400 mt-1">Super-Admin: Controle central das empresas conectadas.</p>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100 tracking-tight">Gestão de Inquilinos (Tenants)</h1>
+          <p className="text-slate-500 dark:text-slate-400 mt-1">Super-Admin: Controle central das empresas conectadas.</p>
         </div>
-        <button className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2.5 rounded-lg text-sm font-medium transition-colors shadow-sm flex items-center gap-2">
+        <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 rounded-lg text-sm font-medium transition-colors shadow-sm flex items-center gap-2">
           <Plus size={18} />
           Nova Empresa
         </button>
       </div>
 
-      <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden">
-        <div className="px-6 py-4 border-b border-gray-100 dark:border-gray-700 flex items-center gap-4 bg-gray-50/50 dark:bg-gray-800/50">
+      <div className="bg-white/40 dark:bg-slate-800/40 backdrop-blur-xl rounded-xl border border-slate-200 dark:border-white/10 shadow-sm overflow-hidden">
+        <div className="px-6 py-4 border-b border-slate-200 dark:border-white/10 flex items-center gap-4 bg-white/50 dark:bg-slate-900/50">
             <div className="relative flex-1 max-w-md">
-                <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
                 <input
                     type="text"
                     placeholder="Buscar empresas..."
-                    className="w-full pl-10 pr-4 py-2 border border-gray-200 dark:border-gray-600 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 bg-white dark:bg-gray-700 dark:text-gray-200 dark:placeholder-gray-500"
+                    className="w-full pl-10 pr-4 py-2 border border-slate-200 dark:border-white/10 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 bg-white/50 dark:bg-slate-800/50 dark:text-slate-200 dark:placeholder-slate-400 backdrop-blur-sm"
                 />
             </div>
         </div>
         <div className="overflow-x-auto">
             <table className="w-full text-sm text-left">
-                <thead className="bg-gray-50 dark:bg-gray-900/50 text-gray-500 dark:text-gray-400 font-medium border-b border-gray-100 dark:border-gray-700">
+                <thead className="bg-white/50 dark:bg-slate-900/50 text-slate-500 dark:text-slate-400 font-medium border-b border-slate-200 dark:border-white/10">
                     <tr>
                         <th className="px-6 py-3 font-semibold uppercase text-xs tracking-wider">Empresa</th>
                         <th className="px-6 py-3 font-semibold uppercase text-xs tracking-wider">CNPJ</th>
@@ -123,28 +123,28 @@ const Companies: React.FC = () => {
                         <th className="px-6 py-3 text-center font-semibold uppercase text-xs tracking-wider">Ações</th>
                     </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
+                <tbody className="divide-y divide-slate-200 dark:divide-white/10">
                     {companies.length === 0 ? (
                          <tr>
-                            <td colSpan={4} className="px-6 py-8 text-center text-gray-500 dark:text-gray-400">Nenhuma empresa encontrada ou acesso negado.</td>
+                            <td colSpan={4} className="px-6 py-8 text-center text-slate-500 dark:text-slate-400">Nenhuma empresa encontrada ou acesso negado.</td>
                         </tr>
                     ) : (
                         companies.map((company) => (
-                            <tr key={company.id} className="hover:bg-gray-50 dark:hover:bg-gray-750 transition-colors group">
-                                <td className="px-6 py-4 font-medium text-gray-900 dark:text-gray-100 flex items-center gap-3">
-                                    <div className="w-8 h-8 rounded-lg bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-gray-500 dark:text-gray-400 border border-gray-200 dark:border-gray-600">
+                            <tr key={company.id} className="hover:bg-white/60 dark:hover:bg-slate-800/60 transition-colors group">
+                                <td className="px-6 py-4 font-medium text-slate-900 dark:text-slate-100 flex items-center gap-3">
+                                    <div className="w-8 h-8 rounded-lg bg-white/60 dark:bg-slate-800/60 flex items-center justify-center text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-white/10">
                                         <Building2 size={16} />
                                     </div>
                                     {company.name}
                                 </td>
-                                <td className="px-6 py-4 text-gray-600 dark:text-gray-400 font-mono text-xs">
+                                <td className="px-6 py-4 text-slate-600 dark:text-slate-400 font-mono text-xs">
                                     {company.cnpj || 'N/A'}
                                 </td>
-                                <td className="px-6 py-4 text-gray-600 dark:text-gray-400 text-xs">
+                                <td className="px-6 py-4 text-slate-600 dark:text-slate-400 text-xs">
                                     {new Date(company.created_at).toLocaleDateString()}
                                 </td>
                                 <td className="px-6 py-4 text-center">
-                                    <button className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors">
+                                    <button className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 p-1 hover:bg-white/80 dark:hover:bg-slate-700/80 rounded-lg transition-colors">
                                         <MoreHorizontal size={18} />
                                     </button>
                                 </td>

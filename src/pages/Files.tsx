@@ -218,7 +218,7 @@ const Files: React.FC = () => {
                             value={newSectorName}
                             onChange={(e) => setNewSectorName(e.target.value)}
                             placeholder="Novo setor..."
-                            className="flex-1 bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#7e639f]"
+                            className="flex-1 bg-white/50 dark:bg-white/5 backdrop-blur-sm border border-slate-200 dark:border-white/10 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#7e639f]"
                         />
                         <button
                             type="submit"
@@ -277,7 +277,7 @@ const Files: React.FC = () => {
                                     placeholder="Buscar arquivo..."
                                     value={searchTerm}
                                     onChange={(e) => setSearchTerm(e.target.value)}
-                                    className="pl-9 pr-4 py-2 bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#7e639f] w-64"
+                                    className="pl-9 pr-4 py-2 bg-white/50 dark:bg-white/5 backdrop-blur-sm border border-slate-200 dark:border-white/10 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#7e639f] w-64"
                                 />
                             </div>
 
