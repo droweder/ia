@@ -1,30 +1,28 @@
 const fs = require('fs');
-let content = fs.readFileSync('src/components/Layout.tsx', 'utf8');
+let layout = fs.readFileSync('src/components/Layout.tsx', 'utf8');
 
-// The file got messed up due to overlapping replacements in bash.
-// I will just wipe out the duplicated projects buttons and fix the Arquivos button
+// Still missing an end tag. Let's just restore from git, apply the fix cleanly through string replacement of just the exact block.
+const { execSync } = require('child_process');
+execSync('git checkout src/components/Layout.tsx');
 
-content = content.replace(
-`                <FileText size={20} className={isActive('/files') ? 'text-slate-900 dark:text-white' : ''} />
+layout = fs.readFileSync('src/components/Layout.tsx', 'utf8');
+
+// I just need to add the project navigation button without messing up anything else.
+const target = `              <button
+                onClick={() => navigate('/files')}
+                className={\`w-full flex items-center gap-3 h-8 px-3 rounded-md transition-all duration-200 text-sm font-medium \${isActive('/files') ? 'bg-slate-200 dark:bg-white/10 text-slate-900 dark:text-white border-r-2 border-slate-400 dark:border-white/50' : 'text-slate-600 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-white/10 hover:text-slate-900 dark:hover:text-white'}\`}
+                title="Arquivos"
+              >
+                <FileText size={20} className={isActive('/files') ? 'text-slate-900 dark:text-white' : ''} />
                 {!isSidebarCollapsed && <span>Arquivos</span>}
-              <button
-                onClick={() => navigate('/projects')}
-                className={\`w-full flex items-center gap-3 h-8 px-3 rounded-md transition-all duration-200 text-sm font-medium \${isActive('/projects') ? 'bg-slate-200 dark:bg-white/10 text-slate-900 dark:text-white border-r-2 border-slate-400 dark:border-white/50' : 'text-slate-600 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-white/10 hover:text-slate-900 dark:hover:text-white'}\`}
-                title="Projetos"
+              </button>`;
+
+const replacement = `              <button
+                onClick={() => navigate('/files')}
+                className={\`w-full flex items-center gap-3 h-8 px-3 rounded-md transition-all duration-200 text-sm font-medium \${isActive('/files') ? 'bg-slate-200 dark:bg-white/10 text-slate-900 dark:text-white border-r-2 border-slate-400 dark:border-white/50' : 'text-slate-600 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-white/10 hover:text-slate-900 dark:hover:text-white'}\`}
+                title="Arquivos"
               >
-                <Folder size={20} className={isActive('/projects') ? 'text-slate-900 dark:text-white' : ''} />
-                {!isSidebarCollapsed && <span>Projetos</span>}
-              </button>
-              <button
-                onClick={() => navigate('/projects')}
-                className={\`w-full flex items-center gap-3 h-8 px-3 rounded-md transition-all duration-200 text-sm font-medium \${isActive('/projects') ? 'bg-slate-200 dark:bg-white/10 text-slate-900 dark:text-white border-r-2 border-slate-400 dark:border-white/50' : 'text-slate-600 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-white/10 hover:text-slate-900 dark:hover:text-white'}\`}
-                title="Projetos"
-              >
-                <Folder size={20} className={isActive('/projects') ? 'text-slate-900 dark:text-white' : ''} />
-                {!isSidebarCollapsed && <span>Projetos</span>}
-              </button>
-              </button>`,
-`                <FileText size={20} className={isActive('/files') ? 'text-slate-900 dark:text-white' : ''} />
+                <FileText size={20} className={isActive('/files') ? 'text-slate-900 dark:text-white' : ''} />
                 {!isSidebarCollapsed && <span>Arquivos</span>}
               </button>
               <button
@@ -34,7 +32,9 @@ content = content.replace(
               >
                 <Folder size={20} className={isActive('/projects') ? 'text-slate-900 dark:text-white' : ''} />
                 {!isSidebarCollapsed && <span>Projetos</span>}
-              </button>`
-);
+              </button>`;
 
-fs.writeFileSync('src/components/Layout.tsx', content, 'utf8');
+layout = layout.replace(target, replacement);
+
+// And we also want to remove the nested duplicate button from the previous step which was committed in `Layout.tsx` and now lives in git. Wait, I committed the broken version.
+// Let's inspect what is in git.
