@@ -1,14 +1,8 @@
 const fs = require('fs');
-let layout = fs.readFileSync('src/components/Layout.tsx', 'utf8');
 
-// Still missing an end tag. Let's just restore from git, apply the fix cleanly through string replacement of just the exact block.
-const { execSync } = require('child_process');
-execSync('git checkout src/components/Layout.tsx');
+let layoutContent = fs.readFileSync('src/components/Layout.tsx', 'utf8');
 
-layout = fs.readFileSync('src/components/Layout.tsx', 'utf8');
-
-// I just need to add the project navigation button without messing up anything else.
-const target = `              <button
+const oldFilesButton = `              <button
                 onClick={() => navigate('/files')}
                 className={\`w-full flex items-center gap-3 h-8 px-3 rounded-md transition-all duration-200 text-sm font-medium \${isActive('/files') ? 'bg-slate-200 dark:bg-white/10 text-slate-900 dark:text-white border-r-2 border-slate-400 dark:border-white/50' : 'text-slate-600 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-white/10 hover:text-slate-900 dark:hover:text-white'}\`}
                 title="Arquivos"
@@ -17,7 +11,7 @@ const target = `              <button
                 {!isSidebarCollapsed && <span>Arquivos</span>}
               </button>`;
 
-const replacement = `              <button
+const newButtons = `              <button
                 onClick={() => navigate('/files')}
                 className={\`w-full flex items-center gap-3 h-8 px-3 rounded-md transition-all duration-200 text-sm font-medium \${isActive('/files') ? 'bg-slate-200 dark:bg-white/10 text-slate-900 dark:text-white border-r-2 border-slate-400 dark:border-white/50' : 'text-slate-600 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-white/10 hover:text-slate-900 dark:hover:text-white'}\`}
                 title="Arquivos"
@@ -34,7 +28,10 @@ const replacement = `              <button
                 {!isSidebarCollapsed && <span>Projetos</span>}
               </button>`;
 
-layout = layout.replace(target, replacement);
-
-// And we also want to remove the nested duplicate button from the previous step which was committed in `Layout.tsx` and now lives in git. Wait, I committed the broken version.
-// Let's inspect what is in git.
+if (layoutContent.includes(oldFilesButton) && !layoutContent.includes("navigate('/projects')")) {
+    layoutContent = layoutContent.replace(oldFilesButton, newButtons);
+    fs.writeFileSync('src/components/Layout.tsx', layoutContent);
+    console.log("Patched Layout.tsx successfully");
+} else {
+    console.log("Could not find insertion point or already patched");
+}

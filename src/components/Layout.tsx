@@ -418,29 +418,41 @@ const Layout: React.FC = () => {
                   <div className="flex items-center">
                       <img src="https://phofwpyxbeulodrzfdjq.supabase.co/storage/v1/object/public/imagens_app/logo_droweder_IA.png" alt="DRoweder IA" className="h-6 object-contain" />
                   </div>
+                  <button
+                      onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+                      className="p-1.5 text-slate-500 hover:bg-slate-200 dark:text-gray-400 dark:hover:bg-white/10 rounded-md transition-colors"
+                  >
+                      <PanelLeft size={18} />
+                  </button>
                 </>
              )}
-             <button
-                onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
-                className="p-1.5 rounded-lg text-slate-500 hover:bg-slate-100 dark:text-gray-400 dark:hover:bg-white/10 transition-colors"
-                title={isSidebarCollapsed ? "Expandir Sidebar" : "Recolher Sidebar"}
-             >
-                <Sidebar size={18} className={isSidebarCollapsed ? "rotate-180" : ""} />
-             </button>
+             {isSidebarCollapsed && (
+                 <button
+                    onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+                    className="relative flex items-center justify-center group w-8 h-8 rounded-md hover:bg-slate-200 dark:hover:bg-white/10 transition-colors"
+                 >
+                     <img
+                        src="https://phofwpyxbeulodrzfdjq.supabase.co/storage/v1/object/public/imagens_app/favicom_droweder.png"
+                        alt="DRoweder IA"
+                        className="w-6 h-6 object-contain transition-opacity duration-200 group-hover:opacity-0"
+                     />
+                     <PanelLeft size={18} className="absolute inset-0 m-auto text-slate-500 dark:text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
+                 </button>
+             )}
         </div>
 
-        <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-slate-300 dark:scrollbar-thumb-blue-800 hover:scrollbar-thumb-slate-400 dark:hover:scrollbar-thumb-blue-700">
+        {/* Menu Principal */}
+        <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-6 scrollbar-thin scrollbar-thumb-slate-300 dark:scrollbar-thumb-blue-800 hover:scrollbar-thumb-slate-400 dark:hover:scrollbar-thumb-blue-700 scrollbar-track-transparent">
 
-          {/* Menu Principal */}
-          <div className="p-3 space-y-1">
+          <div className="space-y-1">
               <button
                 onClick={handleNewChat}
-                className="w-full flex items-center gap-3 h-10 px-3 mb-2 rounded-xl bg-blue-600 dark:bg-blue-600 hover:bg-blue-700 text-white shadow-sm transition-all text-sm font-medium"
+                className={`w-full flex items-center gap-3 h-8 px-3 rounded-md transition-all duration-200 text-sm font-medium ${isActive('/chat') && !activeConversationId ? 'bg-slate-200 dark:bg-white/10 text-slate-900 dark:text-white border-r-2 border-slate-400 dark:border-white/50' : 'text-slate-600 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-white/10 hover:text-slate-900 dark:hover:text-white'}`}
+                title="Novo Chat"
               >
-                <Plus size={20} />
+                <Plus size={20} className={isActive('/chat') && !activeConversationId ? 'text-slate-900 dark:text-white' : ''} />
                 {!isSidebarCollapsed && <span>Novo Chat</span>}
               </button>
-
               <button
                 onClick={() => setIsSearchModalOpen(true)}
                 className={`w-full flex items-center gap-3 h-8 px-3 rounded-md transition-all duration-200 text-sm font-medium text-slate-600 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-white/10 hover:text-slate-900 dark:hover:text-white`}
@@ -449,7 +461,6 @@ const Layout: React.FC = () => {
                 <Search size={20} />
                 {!isSidebarCollapsed && <span>Buscar em chats</span>}
               </button>
-
               <button
                 onClick={() => navigate('/files')}
                 className={`w-full flex items-center gap-3 h-8 px-3 rounded-md transition-all duration-200 text-sm font-medium ${isActive('/files') ? 'bg-slate-200 dark:bg-white/10 text-slate-900 dark:text-white border-r-2 border-slate-400 dark:border-white/50' : 'text-slate-600 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-white/10 hover:text-slate-900 dark:hover:text-white'}`}
@@ -458,7 +469,6 @@ const Layout: React.FC = () => {
                 <FileText size={20} className={isActive('/files') ? 'text-slate-900 dark:text-white' : ''} />
                 {!isSidebarCollapsed && <span>Arquivos</span>}
               </button>
-
               <button
                 onClick={() => navigate('/projects')}
                 className={`w-full flex items-center gap-3 h-8 px-3 rounded-md transition-all duration-200 text-sm font-medium ${isActive('/projects') ? 'bg-slate-200 dark:bg-white/10 text-slate-900 dark:text-white border-r-2 border-slate-400 dark:border-white/50' : 'text-slate-600 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-white/10 hover:text-slate-900 dark:hover:text-white'}`}
@@ -467,7 +477,6 @@ const Layout: React.FC = () => {
                 <Folder size={20} className={isActive('/projects') ? 'text-slate-900 dark:text-white' : ''} />
                 {!isSidebarCollapsed && <span>Projetos</span>}
               </button>
-
               <button
                 onClick={() => setIsExploreAssistantsModalOpen(true)}
                 className={`w-full flex items-center gap-3 h-8 px-3 rounded-md transition-all duration-200 text-sm font-medium text-slate-600 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-white/10 hover:text-slate-900 dark:hover:text-white`}
@@ -476,7 +485,6 @@ const Layout: React.FC = () => {
                 <Bot size={20} />
                 {!isSidebarCollapsed && <span>Assistentes</span>}
               </button>
-
               <button
                 onClick={() => setIsArchivedChatsModalOpen(true)}
                 className={`w-full flex items-center gap-3 h-8 px-3 rounded-md transition-all duration-200 text-sm font-medium text-slate-600 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-white/10 hover:text-slate-900 dark:hover:text-white`}
@@ -722,7 +730,7 @@ const Layout: React.FC = () => {
                                             }}
                                             className="w-full flex items-center gap-3 px-4 py-2 text-sm text-slate-700 dark:text-gray-200 hover:bg-slate-100 dark:hover:bg-white/5 transition-colors"
                                         >
-                                            <Pin size={16} className={chat.is_pinned ? "text-[#7e639f]" : ""} />
+                                            <Pin size={16} className={chat.is_pinned ? "text-blue-500" : ""} />
                                             {chat.is_pinned ? 'Desfixar chat' : 'Fixar chat'}
                                         </button>
                                         <button
