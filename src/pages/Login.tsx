@@ -37,7 +37,7 @@ const Login: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 flex flex-col justify-center py-12 sm:px-6 lg:px-8 relative overflow-hidden text-gray-100">
+    <div className="min-h-screen bg-black flex flex-col justify-center py-12 sm:px-6 lg:px-8 relative overflow-hidden text-gray-100">
 
       {/* Background Aurora Effect */}
       <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">

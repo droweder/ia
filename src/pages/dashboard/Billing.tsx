@@ -62,7 +62,7 @@ const Billing: React.FC = () => {
 
       {/* Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-white/40 dark:bg-slate-800/40 backdrop-blur-xl p-6 rounded-xl border border-slate-200 dark:border-white/10 shadow-sm hover:shadow-md transition-shadow">
+        <div className="bg-white/40 dark:bg-white/5 backdrop-blur-xl p-6 rounded-xl border border-slate-200 dark:border-white/10 shadow-sm hover:shadow-md transition-shadow">
             <div className="flex items-center gap-4">
                 <div className="p-3 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded-lg">
                     <Zap size={24} />
@@ -73,7 +73,7 @@ const Billing: React.FC = () => {
                 </div>
             </div>
         </div>
-        <div className="bg-white/40 dark:bg-slate-800/40 backdrop-blur-xl p-6 rounded-xl border border-slate-200 dark:border-white/10 shadow-sm hover:shadow-md transition-shadow">
+        <div className="bg-white/40 dark:bg-white/5 backdrop-blur-xl p-6 rounded-xl border border-slate-200 dark:border-white/10 shadow-sm hover:shadow-md transition-shadow">
              <div className="flex items-center gap-4">
                 <div className="p-3 bg-green-50 dark:bg-green-900/30 text-green-600 dark:text-green-400 rounded-lg">
                     <CreditCard size={24} />
@@ -84,7 +84,7 @@ const Billing: React.FC = () => {
                 </div>
             </div>
         </div>
-        <div className="bg-white/40 dark:bg-slate-800/40 backdrop-blur-xl p-6 rounded-xl border border-slate-200 dark:border-white/10 shadow-sm hover:shadow-md transition-shadow">
+        <div className="bg-white/40 dark:bg-white/5 backdrop-blur-xl p-6 rounded-xl border border-slate-200 dark:border-white/10 shadow-sm hover:shadow-md transition-shadow">
              <div className="flex items-center gap-4">
                 <div className="p-3 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-lg">
                     <TrendingUp size={24} />
@@ -98,17 +98,17 @@ const Billing: React.FC = () => {
       </div>
 
       {/* Table */}
-      <div className="bg-white/40 dark:bg-slate-800/40 backdrop-blur-xl rounded-xl border border-slate-200 dark:border-white/10 shadow-sm overflow-hidden">
-        <div className="px-6 py-4 border-b border-slate-200 dark:border-white/10 flex items-center justify-between bg-white/50 dark:bg-slate-900/50">
+      <div className="bg-white/40 dark:bg-white/5 backdrop-blur-xl rounded-xl border border-slate-200 dark:border-white/10 shadow-sm overflow-hidden">
+        <div className="px-6 py-4 border-b border-slate-200 dark:border-white/10 flex items-center justify-between bg-white/50 dark:bg-black/60">
             <h3 className="font-semibold text-slate-800 dark:text-slate-200">Histórico de Transações</h3>
-            <button className="text-sm text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 dark:hover:text-indigo-300 font-medium flex items-center gap-1 bg-white/40 dark:bg-slate-800/40 backdrop-blur-xl border border-slate-200 dark:border-white/10 px-3 py-1.5 rounded-lg hover:bg-white/60 dark:hover:bg-slate-800/60 transition-colors">
+            <button className="text-sm text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 dark:hover:text-indigo-300 font-medium flex items-center gap-1 bg-white/40 dark:bg-white/5 backdrop-blur-xl border border-slate-200 dark:border-white/10 px-3 py-1.5 rounded-lg hover:bg-white/60 dark:hover:bg-slate-800/60 transition-colors">
                 <Calendar size={16} />
                 Filtrar por Data
             </button>
         </div>
         <div className="overflow-x-auto">
             <table className="w-full text-sm text-left">
-                <thead className="bg-white/50 dark:bg-slate-900/50 text-slate-500 dark:text-slate-400 font-medium border-b border-slate-200 dark:border-white/10">
+                <thead className="bg-white/50 dark:bg-black/60 text-slate-500 dark:text-slate-400 font-medium border-b border-slate-200 dark:border-white/10">
                     <tr>
                         <th className="px-6 py-3 font-semibold uppercase text-xs tracking-wider">Data/Hora</th>
                         <th className="px-6 py-3 font-semibold uppercase text-xs tracking-wider">Descrição</th>
@@ -126,7 +126,7 @@ const Billing: React.FC = () => {
                             <tr key={log.id} className="hover:bg-white/60 dark:hover:bg-slate-800/60 transition-colors group">
                                 <td className="px-6 py-4 text-slate-600 dark:text-slate-400 font-mono text-xs">{new Date(log.transaction_date).toLocaleString()}</td>
                                 <td className="px-6 py-4 font-medium text-slate-900 dark:text-slate-100">{log.description || 'Consumo de IA'}</td>
-                                <td className="px-6 py-4 text-right text-slate-600 dark:text-slate-400 font-mono bg-white/40 dark:bg-slate-800/40 rounded-lg m-1">{log.tokens_used.toLocaleString()}</td>
+                                <td className="px-6 py-4 text-right text-slate-600 dark:text-slate-400 font-mono bg-white/40 dark:bg-white/5 rounded-lg m-1">{log.tokens_used.toLocaleString()}</td>
                                 <td className="px-6 py-4 text-right font-semibold text-slate-900 dark:text-slate-100">R$ {log.cost_brl.toFixed(2)}</td>
                             </tr>
                         ))

@@ -12,7 +12,7 @@ export function DeleteAssistantModal({ isOpen, onClose, onConfirm, assistantName
 
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/50 dark:bg-black/60 backdrop-blur-sm p-4">
-      <div className="bg-white/90 dark:bg-slate-800/90 dark:backdrop-blur-xl/90 backdrop-blur-xl border border-slate-200 dark:border-white/10 text-slate-800 dark:text-gray-200 w-full max-w-[400px] rounded-2xl shadow-2xl flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+      <div className="bg-white/90 dark:bg-black/60 dark:backdrop-blur-xl/90 backdrop-blur-xl border border-slate-200 dark:border-white/10 text-slate-800 dark:text-gray-200 w-full max-w-[400px] rounded-2xl shadow-2xl flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200">
         <div className="p-6 pb-4">
           <div className="flex items-center gap-3 text-red-500 mb-4">
             <div className="p-2 bg-red-100 dark:bg-red-500/20 rounded-full">
@@ -28,7 +28,7 @@ export function DeleteAssistantModal({ isOpen, onClose, onConfirm, assistantName
         <div className="p-4 border-t border-slate-200 dark:border-white/10 shrink-0 bg-slate-50 dark:bg-black/20 flex justify-end gap-3 rounded-b-2xl">
           <button
             onClick={onClose}
-            className="px-4 py-2 rounded-xl border border-slate-200 dark:border-white/10 bg-white/90 dark:bg-slate-800/90 backdrop-blur-xl text-slate-700 dark:text-gray-300 font-medium text-sm hover:bg-slate-50 dark:hover:bg-white/5 transition-colors"
+            className="px-4 py-2 rounded-xl border border-slate-200 dark:border-white/10 bg-white/90 dark:bg-black/60 backdrop-blur-xl text-slate-700 dark:text-gray-300 font-medium text-sm hover:bg-slate-50 dark:hover:bg-white/5 transition-colors"
           >
             Cancelar
           </button>
