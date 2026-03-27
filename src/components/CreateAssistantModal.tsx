@@ -48,7 +48,7 @@ export function CreateAssistantModal({ isOpen, onClose, onCreate, assistantToEdi
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 dark:bg-black/60 backdrop-blur-sm p-4">
-      <div className="bg-white dark:bg-[#212121] text-slate-800 dark:text-gray-200 w-full max-w-[600px] rounded-2xl shadow-2xl flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+      <div className="bg-white/90 dark:bg-slate-800/90 backdrop-blur-xl border border-slate-200 dark:border-white/10 text-slate-800 dark:text-gray-200 w-full max-w-[600px] rounded-2xl shadow-2xl flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200">
 
         {/* Header */}
         <div className="flex items-center justify-between p-6 pb-4">
@@ -125,7 +125,7 @@ export function CreateAssistantModal({ isOpen, onClose, onCreate, assistantToEdi
             <button
                 onClick={() => handleSuggestionClick('Tutor de Matemática')}
                 className="flex items-center gap-2 px-4 py-2 rounded-xl border border-slate-200 dark:border-white/10 hover:bg-slate-50 dark:hover:bg-white/10 bg-white/40 dark:bg-white/5 backdrop-blur-sm transition-colors text-sm font-medium text-slate-800 dark:text-white shadow-sm">
-              <GraduationCap size={16} className="text-purple-500 dark:text-purple-400" />
+              <GraduationCap size={16} className="text-blue-500 dark:text-blue-400" />
               Tutor
             </button>
             <button
