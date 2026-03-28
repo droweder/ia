@@ -1,3 +1,4 @@
+import { AuroraModalBackground } from './AuroraModalBackground';
 import { useState } from 'react';
 import { Search, X, MessageSquare, Calendar } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -28,17 +29,18 @@ export function SearchModal({ isOpen, onClose, conversations }: SearchModalProps
 
   return (
     <div className="fixed inset-0 z-50 flex items-start justify-center pt-[15vh] bg-slate-900/50 dark:bg-slate-900/50 dark:bg-black/60 dark:backdrop-blur-xl/50 backdrop-blur-sm p-4">
-      <div className="bg-white/40 dark:bg-white/5 backdrop-blur-xl text-slate-800 dark:text-gray-200 border border-slate-200 dark:border-white/10 w-full max-w-[600px] rounded-2xl shadow-2xl flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+      <div className="bg-white/5 backdrop-blur-xl text-gray-200 border border-white/10 w-full max-w-[600px] rounded-2xl shadow-2xl flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+        <AuroraModalBackground />
 
         {/* Header / Input */}
-        <div className="flex items-center gap-3 p-4 border-b border-slate-200 dark:border-white/10">
-          <Search size={20} className="text-slate-500 dark:text-gray-400 shrink-0 ml-2" />
+        <div className="flex items-center gap-3 p-4 border-b border-white/10">
+          <Search size={20} className="text-gray-400 shrink-0 ml-2" />
           <input
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Buscar em chats..."
-            className="flex-1 bg-transparent border-none focus:outline-none text-base text-slate-800 dark:text-white placeholder-slate-400 dark:placeholder-gray-500"
+            className="flex-1 bg-transparent border-none focus:outline-none text-base text-white placeholder-gray-500"
             autoFocus
           />
           <button
@@ -52,7 +54,7 @@ export function SearchModal({ isOpen, onClose, conversations }: SearchModalProps
         {/* Results List */}
         <div className="max-h-[60vh] overflow-y-auto p-2">
           {results.length === 0 ? (
-             <div className="p-8 text-center text-slate-500 dark:text-gray-400">
+             <div className="p-8 text-center text-gray-400">
                 <p>Nenhum chat encontrado para "{query}"</p>
              </div>
           ) : (
@@ -67,21 +69,21 @@ export function SearchModal({ isOpen, onClose, conversations }: SearchModalProps
                         className="flex items-center justify-between p-3 rounded-xl hover:bg-slate-100 dark:hover:bg-white/5 transition-colors text-left group"
                     >
                         <div className="flex items-center gap-3 min-w-0">
-                            <div className="w-10 h-10 rounded-full bg-slate-100 dark:bg-white/5 flex items-center justify-center text-slate-500 dark:text-gray-400 shrink-0">
+                            <div className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-gray-400 shrink-0">
                                 <MessageSquare size={18} />
                             </div>
                             <div className="flex flex-col min-w-0">
-                                <span className="text-sm font-medium text-slate-800 dark:text-white truncate">
+                                <span className="text-sm font-medium text-white truncate">
                                     {chat.title}
                                 </span>
                                 {chat.project && (
-                                    <span className="text-xs text-slate-500 dark:text-gray-400 truncate">
+                                    <span className="text-xs text-gray-400 truncate">
                                         Projeto: {chat.project.name}
                                     </span>
                                 )}
                             </div>
                         </div>
-                        <div className="flex items-center gap-1.5 text-xs text-slate-400 dark:text-gray-500 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+                        <div className="flex items-center gap-1.5 text-xs text-gray-500 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
                             <Calendar size={12} />
                             <span>{new Date(chat.created_at).toLocaleDateString('pt-BR')}</span>
                         </div>

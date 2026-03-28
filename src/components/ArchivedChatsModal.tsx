@@ -1,3 +1,4 @@
+import { AuroraModalBackground } from './AuroraModalBackground';
 import { useState, useEffect } from 'react';
 import { X, Archive, RotateCcw, Trash2 } from 'lucide-react';
 import { supabase } from '../lib/supabaseClient';
@@ -77,15 +78,16 @@ export function ArchivedChatsModal({ isOpen, onClose, onUnarchive }: ArchivedCha
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 dark:bg-slate-900/50 dark:bg-black/60 backdrop-blur-sm p-4">
-      <div className="bg-white/40 dark:bg-white/5 backdrop-blur-xl border border-slate-200 dark:border-white/10 text-slate-800 dark:text-gray-200 w-full max-w-[600px] h-[70vh] rounded-2xl shadow-2xl flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+      <div className="relative bg-white/5 border border-white/10 text-gray-200 w-full max-w-[600px] h-[70vh] rounded-2xl shadow-2xl flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+        <AuroraModalBackground />
 
         {/* Header */}
-        <div className="flex items-center justify-between p-6 pb-4 border-b border-slate-200 dark:border-white/10 shrink-0">
+        <div className="flex items-center justify-between p-6 pb-4 border-b border-white/10 shrink-0">
           <h2 className="text-xl font-semibold flex items-center gap-2">
             <Archive size={24} className="text-blue-500" />
             Chats Arquivados
           </h2>
-          <button onClick={onClose} className="p-2 text-slate-500 hover:text-slate-800 dark:text-gray-400 dark:hover:text-white transition-colors rounded-lg hover:bg-slate-100 dark:hover:bg-white/10">
+          <button onClick={onClose} className="p-2 text-gray-400 hover:text-white transition-colors rounded-lg hover:bg-white/10">
             <X size={20} />
           </button>
         </div>
@@ -97,15 +99,15 @@ export function ArchivedChatsModal({ isOpen, onClose, onUnarchive }: ArchivedCha
                Carregando...
             </div>
           ) : archivedChats.length === 0 ? (
-            <div className="flex flex-col items-center justify-center h-full text-slate-500 dark:text-gray-400">
+            <div className="flex flex-col items-center justify-center h-full text-gray-400">
                <Archive size={48} className="mb-4 opacity-50" />
                <p>Nenhum chat arquivado encontrado.</p>
             </div>
           ) : (
             archivedChats.map(chat => (
-              <div key={chat.id} className="flex items-center justify-between p-4 rounded-xl border border-slate-200 dark:border-white/10 bg-white/40 dark:bg-white/5 hover:bg-slate-50 dark:hover:bg-white/10 transition-colors group">
+              <div key={chat.id} className="flex items-center justify-between p-4 rounded-xl border border-white/10 bg-white/5 hover:bg-slate-50 dark:hover:bg-white/10 transition-colors group">
                 <div className="flex flex-col truncate pr-4">
-                   <h3 className="font-medium text-slate-800 dark:text-white truncate">{chat.title}</h3>
+                   <h3 className="font-medium text-white truncate">{chat.title}</h3>
                    <span className="text-xs text-slate-500">{new Date(chat.updated_at).toLocaleDateString()}</span>
                 </div>
                 <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">

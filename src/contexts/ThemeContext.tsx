@@ -1,37 +1,29 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 
+type Theme = 'dark' | 'light';
+
 interface ThemeContextType {
-  theme: 'light' | 'dark';
+  theme: Theme;
   toggleTheme: () => void;
 }
 
-const ThemeContext = createContext<ThemeContextType>({
-  theme: 'light',
-  toggleTheme: () => {},
-});
+const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
-export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [theme, setTheme] = useState<'light' | 'dark'>(() => {
-    // Check local storage or default to light preference
-    if (localStorage.theme === 'dark') {
-      return 'dark';
-    } else {
-      return 'light';
-    }
-  });
+export function ThemeProvider({ children }: { children: React.ReactNode }) {
+  // Always force 'dark' theme for the Aurora styling
+  const [theme] = useState<Theme>('dark');
 
   useEffect(() => {
+    // Force document body to use dark class
     const root = window.document.documentElement;
-    if (theme === 'dark') {
-      root.classList.add('dark');
-    } else {
-      root.classList.remove('dark');
-    }
-    localStorage.theme = theme;
-  }, [theme]);
+    root.classList.add('dark');
+    root.classList.remove('light');
+    localStorage.setItem('theme', 'dark');
+  }, []);
 
   const toggleTheme = () => {
-    setTheme(prev => prev === 'light' ? 'dark' : 'light');
+    // Disable toggling - App is permanently dark mode
+    console.log("Theme toggling is disabled while Aurora theme is active.");
   };
 
   return (
@@ -39,6 +31,12 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       {children}
     </ThemeContext.Provider>
   );
-};
+}
 
-export const useTheme = () => useContext(ThemeContext);
+export function useTheme() {
+  const context = useContext(ThemeContext);
+  if (context === undefined) {
+    throw new Error('useTheme must be used within a ThemeProvider');
+  }
+  return context;
+}

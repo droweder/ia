@@ -43,7 +43,7 @@ const CodeBlock = ({ node, inline, className, children, ...props }: any) => {
 
     if (inline || !match) {
         return (
-            <code {...props} className={`${className || ''} bg-slate-100 dark:bg-white/10 px-1.5 py-0.5 rounded-md font-mono text-sm text-pink-600 dark:text-pink-400`}>
+            <code {...props} className={`${className || ''} bg-white/10 px-1.5 py-0.5 rounded-md font-mono text-sm text-pink-400`}>
                 {children}
             </code>
         );
@@ -585,7 +585,7 @@ let systemPrompt = `Você é o DRoweder IA, um assistente especialista em manufa
       {/* Main Chat Area */}
       <div className="flex-1 flex flex-col min-w-0 min-h-0 bg-transparent transition-colors duration-200">
         {/* Header - Simplified */}
-        <div className="h-14 border-b border-slate-200 dark:border-white/10 flex justify-between items-center bg-white/40 dark:bg-white/5 backdrop-blur-md px-4 shadow-sm z-10">
+        <div className="h-14 border-b border-white/10 flex justify-between items-center bg-white/5 backdrop-blur-md px-4 shadow-sm z-10">
             <div className="flex items-center gap-4">
 
 
@@ -593,19 +593,19 @@ let systemPrompt = `Você é o DRoweder IA, um assistente especialista em manufa
                 <div className="relative" ref={modelMenuRef}>
                     <button
                         onClick={() => setShowModelMenu(!showModelMenu)}
-                        className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/50 dark:bg-black/20 hover:bg-white/80 dark:hover:bg-black/40 backdrop-blur-md border border-slate-200 dark:border-white/10 text-sm font-medium text-slate-700 dark:text-gray-300 transition-all shadow-sm"
+                        className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-black/20 hover:bg-black/40 backdrop-blur-md border border-white/10 text-sm font-medium text-gray-300 transition-all shadow-sm"
                         title="Selecionar Modelo IA"
                     >
-                        <Sparkles size={16} className={selectedModelId !== 'free' ? 'text-blue-500 dark:text-blue-400' : 'text-slate-500 dark:text-gray-400'} />
+                        <Sparkles size={16} className={selectedModelId !== 'free' ? 'text-blue-500 dark:text-blue-400' : 'text-gray-400'} />
                         <span className="hidden sm:inline">{MODELS.find(m => m.id === selectedModelId)?.name || 'Modelo'}</span>
                         <ChevronDown size={14} className="text-slate-400" />
                     </button>
 
                     {/* Dropdown de Modelos */}
                     {showModelMenu && (
-                        <div className="absolute top-full left-4 mt-2 w-64 bg-white/40 dark:bg-white/5 backdrop-blur-xl border border-slate-200 dark:border-white/10 rounded-xl shadow-lg overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 duration-200">
+                        <div className="absolute top-full left-4 mt-2 w-64 bg-white/5 backdrop-blur-xl border border-white/10 rounded-xl shadow-lg overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 duration-200">
                             <div className="p-2 border-b border-slate-100 dark:border-white/5">
-                                <p className="text-xs font-semibold text-slate-500 dark:text-gray-400 uppercase tracking-wider pl-2">Selecione o Modelo</p>
+                                <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider pl-2">Selecione o Modelo</p>
                             </div>
                             <div className="p-1 max-h-60 overflow-y-auto scrollbar-thin scrollbar-thumb-slate-300 dark:scrollbar-thumb-blue-800 hover:scrollbar-thumb-slate-400 dark:hover:scrollbar-thumb-blue-700">
                                 {MODELS.map(modelOption => (
@@ -617,8 +617,8 @@ let systemPrompt = `Você é o DRoweder IA, um assistente especialista em manufa
                                         }}
                                         className={`w-full flex flex-col text-left px-3 py-2 rounded-lg transition-colors ${
                                             selectedModelId === modelOption.id
-                                                ? 'bg-blue-50 dark:bg-blue-500/10 border border-blue-100 dark:border-blue-500/20'
-                                                : 'hover:bg-slate-50 dark:hover:bg-white/5 border border-transparent'
+                                                ? 'bg-blue-500/10 border border-blue-500/20'
+                                                : 'hover:bg-white/5 border border-transparent'
                                         }`}
                                     >
                                         <div className="flex items-center justify-between w-full">
@@ -631,7 +631,7 @@ let systemPrompt = `Você é o DRoweder IA, um assistente especialista em manufa
                                                 <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">GRÁTIS</span>
                                             )}
                                         </div>
-                                        <span className="text-xs text-slate-500 dark:text-gray-400 mt-0.5">{modelOption.description}</span>
+                                        <span className="text-xs text-gray-400 mt-0.5">{modelOption.description}</span>
                                     </button>
                                 ))}
                             </div>
@@ -641,7 +641,7 @@ let systemPrompt = `Você é o DRoweder IA, um assistente especialista em manufa
             </div>
 
             {/* Connection Badge */}
-            <div className="flex items-center gap-2 text-xs font-medium text-slate-600 dark:text-gray-300 bg-slate-200/50 dark:bg-white/10 px-3 py-1.5 rounded-full">
+            <div className="flex items-center gap-2 text-xs font-medium text-gray-300 bg-slate-200/50 dark:bg-white/10 px-3 py-1.5 rounded-full">
                 <ShieldCheck size={14} className="text-emerald-500 dark:text-emerald-400" />
                 <span className="hidden sm:inline">Planintex Conectado</span>
             </div>
@@ -651,7 +651,7 @@ let systemPrompt = `Você é o DRoweder IA, um assistente especialista em manufa
         <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-6 bg-transparent scrollbar-thin scrollbar-thumb-slate-300 dark:scrollbar-thumb-blue-800 hover:scrollbar-thumb-slate-400 dark:hover:scrollbar-thumb-blue-700 scrollbar-track-transparent ">
             {messages.length === 0 && !loading && (
                 <div className="flex flex-col items-center justify-center h-full text-slate-500 dark:text-gray-300 space-y-6">
-                    <div className="w-16 h-16 bg-white/60 dark:bg-white/10 backdrop-blur-md rounded-full flex items-center justify-center shadow-sm border border-slate-200 dark:border-white/20">
+                    <div className="w-16 h-16 bg-white/10 backdrop-blur-md rounded-full flex items-center justify-center shadow-sm border border-white/20">
                         <Bot size={32} className="text-slate-700 dark:text-white" />
                     </div>
                     {activeAssistant ? (
@@ -659,19 +659,19 @@ let systemPrompt = `Você é o DRoweder IA, um assistente especialista em manufa
                             <h2 className="text-xl font-semibold text-slate-800 dark:text-white mb-2">
                                 Olá! Sou o {activeAssistant.name}
                             </h2>
-                            <p className="text-sm text-slate-600 dark:text-gray-400">
+                            <p className="text-sm text-gray-400">
                                 {activeAssistant.description || "Como posso ajudar você hoje?"}
                             </p>
                         </div>
                     ) : (
                         <div className="grid grid-cols-2 gap-4 max-w-lg w-full">
-                            <button onClick={() => setInput("Qual a previsão de demanda para o próximo mês?")} className="p-4 border border-slate-200 dark:border-white/10 rounded-xl hover:bg-slate-50 dark:hover:bg-white/10 bg-white/40 dark:bg-white/5 backdrop-blur-sm text-left transition-colors shadow-sm">
+                            <button onClick={() => setInput("Qual a previsão de demanda para o próximo mês?")} className="p-4 border border-white/10 rounded-xl hover:bg-white/10 bg-white/5 backdrop-blur-sm text-left transition-colors shadow-sm">
                                 <h3 className="text-sm font-medium text-slate-800 dark:text-white mb-1">Previsão de Demanda</h3>
-                                <p className="text-xs text-slate-500 dark:text-gray-400">Analise tendências futuras</p>
+                                <p className="text-xs text-gray-400">Analise tendências futuras</p>
                             </button>
-                             <button onClick={() => setInput("Quais ordens estão atrasadas?")} className="p-4 border border-slate-200 dark:border-white/10 rounded-xl hover:bg-slate-50 dark:hover:bg-white/10 bg-white/40 dark:bg-white/5 backdrop-blur-sm text-left transition-colors shadow-sm">
+                             <button onClick={() => setInput("Quais ordens estão atrasadas?")} className="p-4 border border-white/10 rounded-xl hover:bg-white/10 bg-white/5 backdrop-blur-sm text-left transition-colors shadow-sm">
                                 <h3 className="text-sm font-medium text-slate-800 dark:text-white mb-1">Ordens Atrasadas</h3>
-                                <p className="text-xs text-slate-500 dark:text-gray-400">Liste gargalos na produção</p>
+                                <p className="text-xs text-gray-400">Liste gargalos na produção</p>
                             </button>
                         </div>
                     )}
@@ -680,7 +680,7 @@ let systemPrompt = `Você é o DRoweder IA, um assistente especialista em manufa
 
             {/* Error Banner */}
             {error && (
-                <div className="rounded-md bg-red-100/80 dark:bg-red-900/40 p-4 border border-red-300 dark:border-red-500/30 mx-auto max-w-2xl mt-4 backdrop-blur-sm">
+                <div className="rounded-md bg-red-900/40 p-4 border border-red-500/30 mx-auto max-w-2xl mt-4 backdrop-blur-sm">
                     <div className="flex">
                         <div className="flex-shrink-0">
                             <AlertCircle className="h-5 w-5 text-red-600 dark:text-red-400" aria-hidden="true" />
@@ -694,7 +694,7 @@ let systemPrompt = `Você é o DRoweder IA, um assistente especialista em manufa
 
             {messages.map((msg) => (
                 <div key={msg.id} className={`flex gap-4 max-w-3xl mx-auto w-full animate-in fade-in slide-in-from-bottom-2 duration-300 group`}>
-                    <div className={`w-8 h-8 rounded-sm flex items-center justify-center flex-shrink-0 ${msg.role === 'user' ? 'bg-slate-200 dark:bg-white/10 text-slate-600 dark:text-gray-300' : 'bg-[#7e639f] text-white shadow-sm'}`}>
+                    <div className={`w-8 h-8 rounded-sm flex items-center justify-center flex-shrink-0 ${msg.role === 'user' ? 'bg-white/10 text-gray-300' : 'bg-[#7e639f] text-white shadow-sm'}`}>
                         {msg.role === 'user' ? <User size={16} /> : <Bot size={16} />}
                     </div>
 
@@ -702,7 +702,7 @@ let systemPrompt = `Você é o DRoweder IA, um assistente especialista em manufa
                         <div className="text-sm font-semibold text-slate-800 dark:text-gray-200">
                             {msg.role === 'user' ? 'Você' : 'DRoweder IA'}
                         </div>
-                        <div className="prose prose-sm prose-slate dark:prose-invert max-w-none text-slate-700 dark:text-gray-300 leading-relaxed break-words overflow-x-auto scrollbar-thin scrollbar-thumb-slate-300 dark:scrollbar-thumb-blue-800 hover:scrollbar-thumb-slate-400 dark:hover:scrollbar-thumb-blue-700 scrollbar-track-transparent ">
+                        <div className="prose prose-sm prose-slate dark:prose-invert max-w-none text-gray-300 leading-relaxed break-words overflow-x-auto scrollbar-thin scrollbar-thumb-slate-300 dark:scrollbar-thumb-blue-800 hover:scrollbar-thumb-slate-400 dark:hover:scrollbar-thumb-blue-700 scrollbar-track-transparent ">
                             {msg.role === 'user' ? (
                                 <div className="whitespace-pre-wrap">{msg.content}</div>
                             ) : (
@@ -753,7 +753,7 @@ let systemPrompt = `Você é o DRoweder IA, um assistente especialista em manufa
                                     <span>{showSql === msg.id ? 'Ocultar SQL' : 'Debug SQL'}</span>
                                 </button>
                                 {showSql === msg.id && (
-                                    <div className="mt-2 p-3 bg-slate-100/50 dark:bg-white/5 rounded-md border border-slate-200 dark:border-white/10 font-mono text-xs overflow-x-auto text-slate-600 dark:text-gray-400 backdrop-blur-sm">
+                                    <div className="mt-2 p-3 bg-white/5 rounded-md border border-white/10 font-mono text-xs overflow-x-auto text-gray-400 backdrop-blur-sm">
                                         SELECT * FROM planintex.ordens ...
                                     </div>
                                 )}
@@ -780,12 +780,12 @@ let systemPrompt = `Você é o DRoweder IA, um assistente especialista em manufa
         {/* Input Area */}
         <div className="p-4 bg-transparent backdrop-blur-md">
             <div className="max-w-3xl mx-auto relative">
-                <div className="relative flex flex-col group bg-[#f4f4f4] dark:bg-[#2f2f2f] rounded-[26px] transition-all overflow-hidden focus-within:ring-2 focus-within:ring-gray-300 dark:focus-within:ring-gray-600">
+                <div className="relative flex flex-col group bg-[#2f2f2f] rounded-[26px] transition-all overflow-hidden focus-within:ring-2 focus-within:ring-gray-600">
                     {/* Attachments Preview */}
                     {attachments.length > 0 && (
                         <div className="flex flex-wrap gap-2 p-3 pb-0">
                             {attachments.map((file, index) => (
-                                <div key={index} className="relative group/attachment flex items-center justify-center bg-white dark:bg-slate-700 rounded-xl border border-slate-200 dark:border-white/10 shadow-sm overflow-hidden h-16 w-16">
+                                <div key={index} className="relative group/attachment flex items-center justify-center bg-white dark:bg-slate-700 rounded-xl border border-white/10 shadow-sm overflow-hidden h-16 w-16">
                                     {file.type.startsWith('image/') ? (
                                         <img src={URL.createObjectURL(file)} alt="preview" className="h-full w-full object-cover" />
                                     ) : (
@@ -796,7 +796,7 @@ let systemPrompt = `Você é o DRoweder IA, um assistente especialista em manufa
                                     )}
                                     <button
                                         onClick={() => removeAttachment(index)}
-                                        className="absolute -top-1 -right-1 bg-white/40 dark:bg-white/5 backdrop-blur-xl text-slate-600 dark:text-gray-200 rounded-full p-0.5 opacity-0 group-hover/attachment:opacity-100 transition-opacity border border-slate-200 dark:border-white/10 shadow-sm hover:bg-slate-100 dark:hover:bg-slate-700"
+                                        className="absolute -top-1 -right-1 bg-white/5 backdrop-blur-xl text-gray-200 rounded-full p-0.5 opacity-0 group-hover/attachment:opacity-100 transition-opacity border border-white/10 shadow-sm hover:bg-slate-700"
                                     >
                                         <X size={12} />
                                     </button>
@@ -875,7 +875,7 @@ let systemPrompt = `Você é o DRoweder IA, um assistente especialista em manufa
                 </div>
                 </div>
                 <div className="text-center mt-3">
-                    <p className="text-xs text-slate-500 dark:text-gray-400">A AI pode cometer erros. Considere verificar informações importantes.</p>
+                    <p className="text-xs text-gray-400">A AI pode cometer erros. Considere verificar informações importantes.</p>
                 </div>
             </div>
         </div>
