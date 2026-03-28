@@ -587,13 +587,10 @@ let systemPrompt = `Você é o DRoweder IA, um assistente especialista em manufa
         {/* Header - Simplified */}
         <div className="h-14 border-b border-slate-200 dark:border-white/10 flex justify-between items-center bg-white/40 dark:bg-white/5 backdrop-blur-md px-4 shadow-sm z-10">
             <div className="flex items-center gap-4">
-                <div className="font-medium text-slate-700 dark:text-gray-200 text-sm py-1.5 pl-2 flex items-center gap-2">
-                    <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span>
-                    Mia AI
-                </div>
+
 
                 {/* Model Selector */}
-                <div className="relative border-l border-slate-300 dark:border-white/10 pl-4 ml-2" ref={modelMenuRef}>
+                <div className="relative" ref={modelMenuRef}>
                     <button
                         onClick={() => setShowModelMenu(!showModelMenu)}
                         className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/50 dark:bg-black/20 hover:bg-white/80 dark:hover:bg-black/40 backdrop-blur-md border border-slate-200 dark:border-white/10 text-sm font-medium text-slate-700 dark:text-gray-300 transition-all shadow-sm"
@@ -606,7 +603,7 @@ let systemPrompt = `Você é o DRoweder IA, um assistente especialista em manufa
 
                     {/* Dropdown de Modelos */}
                     {showModelMenu && (
-                        <div className="absolute top-full left-4 mt-2 w-64 bg-white/90 dark:bg-slate-800/90 backdrop-blur-xl border border-slate-200 dark:border-white/10 rounded-xl shadow-lg overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 duration-200">
+                        <div className="absolute top-full left-4 mt-2 w-64 bg-white/40 dark:bg-white/5 backdrop-blur-xl border border-slate-200 dark:border-white/10 rounded-xl shadow-lg overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 duration-200">
                             <div className="p-2 border-b border-slate-100 dark:border-white/5">
                                 <p className="text-xs font-semibold text-slate-500 dark:text-gray-400 uppercase tracking-wider pl-2">Selecione o Modelo</p>
                             </div>
@@ -799,7 +796,7 @@ let systemPrompt = `Você é o DRoweder IA, um assistente especialista em manufa
                                     )}
                                     <button
                                         onClick={() => removeAttachment(index)}
-                                        className="absolute -top-1 -right-1 bg-white dark:bg-slate-800 text-slate-600 dark:text-gray-200 rounded-full p-0.5 opacity-0 group-hover/attachment:opacity-100 transition-opacity border border-slate-200 dark:border-white/10 shadow-sm hover:bg-slate-100 dark:hover:bg-slate-700"
+                                        className="absolute -top-1 -right-1 bg-white/40 dark:bg-white/5 backdrop-blur-xl text-slate-600 dark:text-gray-200 rounded-full p-0.5 opacity-0 group-hover/attachment:opacity-100 transition-opacity border border-slate-200 dark:border-white/10 shadow-sm hover:bg-slate-100 dark:hover:bg-slate-700"
                                     >
                                         <X size={12} />
                                     </button>

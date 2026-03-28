@@ -228,7 +228,7 @@ export default function Projects() {
                   <div
                     key={chat.id}
                     onClick={() => handleOpenChat(chat.id)}
-                    className="group flex flex-col p-4 rounded-xl bg-white dark:bg-slate-800/50 border border-slate-200 dark:border-white/10 hover:border-blue-500/50 dark:hover:border-blue-500/50 cursor-pointer transition-all shadow-sm hover:shadow-md"
+                    className="group flex flex-col p-4 rounded-xl bg-white/40 dark:bg-white/5 border border-slate-200 dark:border-white/10 hover:border-blue-500/50 dark:hover:border-blue-500/50 cursor-pointer transition-all shadow-sm hover:shadow-md"
                   >
                     <div className="flex items-start justify-between mb-3">
                       <div className="w-10 h-10 rounded-lg bg-blue-50 dark:bg-blue-500/10 flex items-center justify-center shrink-0">
@@ -300,7 +300,7 @@ export default function Projects() {
               onClick={() => setIsCreateOpen(true)}
               className="group flex flex-col items-center justify-center min-h-[160px] rounded-2xl border-2 border-dashed border-slate-300 dark:border-white/20 bg-transparent hover:bg-slate-50 dark:hover:bg-white/5 transition-colors"
             >
-              <div className="w-10 h-10 rounded-full bg-slate-100 dark:bg-black/40 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+              <div className="w-10 h-10 rounded-full bg-slate-100 dark:bg-white/5 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
                 <Plus size={20} className="text-slate-600 dark:text-gray-300" />
               </div>
               <span className="text-sm font-medium text-slate-600 dark:text-gray-300">Novo Projeto</span>
@@ -311,7 +311,7 @@ export default function Projects() {
               <div
                 key={project.id}
                 onClick={() => loadProjectChats(project)}
-                className="group relative flex flex-col p-5 cursor-pointer min-h-[160px] rounded-2xl bg-white/50 dark:bg-slate-800/50 backdrop-blur-md border border-slate-200 dark:border-white/10 hover:border-blue-500/50 dark:hover:border-blue-500/50 transition-all shadow-sm hover:shadow-md overflow-hidden"
+                className="group relative flex flex-col p-5 cursor-pointer min-h-[160px] rounded-2xl bg-white/50 dark:bg-white/5 backdrop-blur-md border border-slate-200 dark:border-white/10 hover:border-blue-500/50 dark:hover:border-blue-500/50 transition-all shadow-sm hover:shadow-md overflow-hidden"
               >
                 <div className="flex items-start justify-between mb-4">
                   <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-500/10 flex items-center justify-center shrink-0">
@@ -363,7 +363,7 @@ export default function Projects() {
                       transform: 'translateX(-100%)',
                       zIndex: 9999
                     }}
-                    className="w-48 bg-white/90 dark:bg-slate-800/90 backdrop-blur-xl border border-slate-200 dark:border-white/10 rounded-xl shadow-xl py-2 animate-in fade-in slide-in-from-top-2 duration-200"
+                    className="w-48 bg-white/40 dark:bg-white/5 backdrop-blur-xl border border-slate-200 dark:border-white/10 rounded-xl shadow-xl py-2 animate-in fade-in slide-in-from-top-2 duration-200"
                   >
                     <button
                       onClick={(e) => {
