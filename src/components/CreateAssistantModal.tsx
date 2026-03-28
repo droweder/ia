@@ -47,7 +47,7 @@ export function CreateAssistantModal({ isOpen, onClose, onCreate, assistantToEdi
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 dark:bg-black/60 backdrop-blur-sm p-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 dark:bg-slate-900/50 dark:bg-black/60 backdrop-blur-sm p-4">
       <div className="bg-white/40 dark:bg-white/5 backdrop-blur-xl text-slate-800 dark:text-gray-200 w-full max-w-[600px] rounded-2xl shadow-2xl flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200">
 
         {/* Header */}
