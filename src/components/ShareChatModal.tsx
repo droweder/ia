@@ -34,7 +34,7 @@ export const ShareChatModal: React.FC<ShareChatModalProps> = ({
         className="bg-white/40 dark:bg-white/5 backdrop-blur-xl w-full max-w-md rounded-2xl shadow-2xl border border-slate-200 dark:border-white/10 overflow-hidden transform transition-all scale-100 animate-in zoom-in-95 duration-200"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between p-6 border-b border-slate-100 dark:border-white/5">
+        <div className="flex items-center justify-between p-6 border-b border-slate-200 dark:border-white/10">
           <h2 className="text-xl font-semibold text-slate-800 dark:text-white">Compartilhar Chat</h2>
           <button
             onClick={onClose}
@@ -54,7 +54,7 @@ export const ShareChatModal: React.FC<ShareChatModalProps> = ({
               type="text"
               readOnly
               value={shareUrl}
-              className="flex-1 px-4 py-3 bg-slate-50 dark:bg-[#2b2d31] border border-slate-200 dark:border-white/10 rounded-xl outline-none text-slate-900 dark:text-white text-sm"
+              className="flex-1 px-4 py-3 bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl outline-none text-slate-900 dark:text-white text-sm"
             />
             <button
               onClick={handleCopy}
@@ -66,7 +66,7 @@ export const ShareChatModal: React.FC<ShareChatModalProps> = ({
           </div>
         </div>
 
-        <div className="p-6 border-t border-slate-100 dark:border-white/5 flex justify-end">
+        <div className="p-6 border-t border-slate-200 dark:border-white/10 flex justify-end">
              <button
               onClick={onClose}
               className="px-5 py-2.5 text-sm font-medium text-slate-600 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-white/5 rounded-xl transition-colors"

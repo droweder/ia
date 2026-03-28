@@ -49,7 +49,7 @@ export const RenameChatModal: React.FC<RenameChatModalProps> = ({
         className="bg-white/40 dark:bg-white/5 backdrop-blur-xl w-full max-w-md rounded-2xl shadow-2xl border border-slate-200 dark:border-white/10 overflow-hidden transform transition-all scale-100 animate-in zoom-in-95 duration-200"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between p-6 border-b border-slate-100 dark:border-white/5">
+        <div className="flex items-center justify-between p-6 border-b border-slate-200 dark:border-white/10">
           <h2 className="text-xl font-semibold text-slate-800 dark:text-white">Renomear Chat</h2>
           <button
             onClick={onClose}
@@ -69,7 +69,7 @@ export const RenameChatModal: React.FC<RenameChatModalProps> = ({
               id="name"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full px-4 py-3 bg-slate-50 dark:bg-[#2b2d31] border border-slate-200 dark:border-white/10 rounded-xl focus:ring-2 focus:ring-[#7e639f] focus:border-transparent outline-none transition-all text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-gray-500"
+              className="w-full px-4 py-3 bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-gray-500"
               placeholder="Ex: Análise de Vendas Q3"
               autoFocus
               required
@@ -87,7 +87,7 @@ export const RenameChatModal: React.FC<RenameChatModalProps> = ({
             <button
               type="submit"
               disabled={isLoading || !name.trim()}
-              className="flex items-center justify-center px-5 py-2.5 bg-[#7e639f] hover:bg-[#6b538c] text-white text-sm font-medium rounded-xl transition-all shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed min-w-[100px]"
+              className="flex items-center justify-center px-5 py-2.5 bg-blue-600 dark:bg-blue-500 hover:bg-blue-700 dark:hover:bg-blue-600 text-white text-sm font-medium rounded-xl transition-all shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed min-w-[100px]"
             >
               {isLoading ? (
                 <Loader2 size={18} className="animate-spin" />

@@ -44,9 +44,9 @@ export const RenameProjectModal: React.FC<RenameProjectModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 dark:bg-slate-900/50 dark:bg-black/60 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 dark:bg-black/60 backdrop-blur-sm p-4 animate-in fade-in duration-200">
       <div
-        className="bg-white/40 dark:bg-white/5 backdrop-blur-xl backdrop-blur-xl border border-slate-200 dark:border-white/10 text-slate-800 dark:text-gray-200 w-full max-w-md rounded-2xl shadow-2xl flex flex-col overflow-hidden transform transition-all scale-100 animate-in zoom-in-95 duration-200"
+        className="bg-white/40 dark:bg-white/5 backdrop-blur-xl border border-slate-200 dark:border-white/10 text-slate-800 dark:text-gray-200 w-full max-w-md rounded-2xl shadow-2xl flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between p-6 border-b border-slate-200 dark:border-white/10">
@@ -69,7 +69,7 @@ export const RenameProjectModal: React.FC<RenameProjectModalProps> = ({
               id="projectName"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full bg-white/40 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl py-3 px-4 text-slate-800 dark:text-white placeholder-slate-400 dark:placeholder-gray-500 focus:outline-none focus:border-blue-500 dark:focus:border-[#3b82f6] focus:ring-1 focus:ring-blue-500 dark:focus:ring-[#3b82f6] transition-colors shadow-sm"
+              className="w-full bg-white/40 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl py-3 px-4 text-slate-800 dark:text-white placeholder-slate-400 dark:placeholder-gray-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/50 transition-colors shadow-sm"
               placeholder="Ex: Novo Projeto de Vendas"
               autoFocus
               required
@@ -87,7 +87,7 @@ export const RenameProjectModal: React.FC<RenameProjectModalProps> = ({
             <button
               type="submit"
               disabled={isLoading || !name.trim()}
-              className="flex items-center justify-center px-5 py-2.5 bg-blue-600 dark:bg-[#3b82f6] hover:bg-blue-700 dark:hover:bg-blue-500 text-white text-sm font-medium rounded-xl transition-all shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed min-w-[100px]"
+              className="flex items-center justify-center px-5 py-2.5 bg-blue-600 dark:bg-blue-500 hover:bg-blue-700 dark:hover:bg-blue-500 text-white text-sm font-medium rounded-xl transition-all shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed min-w-[100px]"
             >
               {isLoading ? (
                 <Loader2 size={18} className="animate-spin" />

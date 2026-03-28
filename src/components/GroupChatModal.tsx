@@ -47,7 +47,7 @@ export const GroupChatModal: React.FC<GroupChatModalProps> = ({
         className="bg-white/40 dark:bg-white/5 backdrop-blur-xl w-full max-w-md rounded-2xl shadow-2xl border border-slate-200 dark:border-white/10 overflow-hidden transform transition-all scale-100 animate-in zoom-in-95 duration-200"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between p-6 border-b border-slate-100 dark:border-white/5">
+        <div className="flex items-center justify-between p-6 border-b border-slate-200 dark:border-white/10">
           <h2 className="text-xl font-semibold text-slate-800 dark:text-white">Criar Grupo</h2>
           <button
             onClick={onClose}
@@ -65,7 +65,7 @@ export const GroupChatModal: React.FC<GroupChatModalProps> = ({
               placeholder="Buscar colaboradores..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-3 bg-slate-50 dark:bg-[#2b2d31] border border-slate-200 dark:border-white/10 rounded-xl focus:ring-2 focus:ring-[#7e639f] focus:border-transparent outline-none transition-all text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-gray-500 text-sm"
+              className="w-full pl-10 pr-4 py-3 bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-gray-500 text-sm"
             />
           </div>
 
@@ -100,7 +100,7 @@ export const GroupChatModal: React.FC<GroupChatModalProps> = ({
             )}
           </div>
 
-          <div className="flex justify-between items-center pt-4 border-t border-slate-100 dark:border-white/5">
+          <div className="flex justify-between items-center pt-4 border-t border-slate-200 dark:border-white/10">
             <div className="text-sm text-slate-500 dark:text-gray-400">
                 {selectedUsers.length} selecionados
             </div>
@@ -115,7 +115,7 @@ export const GroupChatModal: React.FC<GroupChatModalProps> = ({
                 <button
                 type="submit"
                 disabled={selectedUsers.length === 0}
-                className="flex items-center justify-center px-4 py-2 bg-blue-600 dark:bg-blue-500 hover:bg-[#6b538c] text-white text-sm font-medium rounded-xl transition-all shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex items-center justify-center px-4 py-2 bg-blue-600 dark:bg-blue-500 hover:bg-blue-700 dark:hover:bg-blue-600 text-white text-sm font-medium rounded-xl transition-all shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                 Iniciar Grupo
                 </button>
