@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { X, Loader2 } from 'lucide-react';
+import { AuroraModalBackground } from './AuroraModalBackground';
 
 interface RenameProjectModalProps {
   isOpen: boolean;
@@ -46,14 +47,15 @@ export const RenameProjectModal: React.FC<RenameProjectModalProps> = ({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 dark:bg-black/60 backdrop-blur-sm p-4 animate-in fade-in duration-200">
       <div
-        className="bg-white/40 dark:bg-white/5 backdrop-blur-xl border border-slate-200 dark:border-white/10 text-slate-800 dark:text-gray-200 w-full max-w-md rounded-2xl shadow-2xl flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200"
+        className="relative w-full max-w-md rounded-2xl shadow-2xl border border-white/10 overflow-hidden transform transition-all scale-100 animate-in zoom-in-95 duration-200 text-gray-200"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between p-6 border-b border-slate-200 dark:border-white/10">
+        <AuroraModalBackground />
+        <div className="flex items-center justify-between p-6 border-b border-white/10">
           <h2 className="text-xl font-semibold">Renomear Projeto</h2>
           <button
             onClick={onClose}
-            className="p-2 text-slate-500 hover:text-slate-800 dark:text-gray-400 dark:hover:text-white transition-colors rounded-lg hover:bg-slate-100 dark:hover:bg-white/10"
+            className="p-2 hover: text-gray-400 dark:hover:text-white transition-colors rounded-lg hover: hover:bg-white/10"
           >
             <X size={20} />
           </button>
@@ -61,7 +63,7 @@ export const RenameProjectModal: React.FC<RenameProjectModalProps> = ({
 
         <form onSubmit={handleSubmit} className="p-6 flex flex-col gap-6">
           <div>
-            <label htmlFor="projectName" className="block text-sm font-medium text-slate-700 dark:text-gray-300 mb-2">
+            <label htmlFor="projectName" className="block text-sm font-medium text-gray-300 mb-2">
               Nome do projeto
             </label>
             <input
@@ -69,7 +71,7 @@ export const RenameProjectModal: React.FC<RenameProjectModalProps> = ({
               id="projectName"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full bg-white/40 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl py-3 px-4 text-slate-800 dark:text-white placeholder-slate-400 dark:placeholder-gray-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/50 transition-colors shadow-sm"
+              className="w-full bg-white/40 bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-white placeholder-slate-400 dark:placeholder-gray-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/50 transition-colors shadow-sm"
               placeholder="Ex: Novo Projeto de Vendas"
               autoFocus
               required
@@ -80,7 +82,7 @@ export const RenameProjectModal: React.FC<RenameProjectModalProps> = ({
             <button
               type="button"
               onClick={onClose}
-              className="px-5 py-2.5 rounded-xl font-medium text-sm text-slate-700 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-white/5 transition-colors"
+              className="px-5 py-2.5 rounded-xl font-medium text-sm text-gray-300 hover: hover:bg-white/5 transition-colors"
             >
               Cancelar
             </button>

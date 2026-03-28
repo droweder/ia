@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { X, Loader2 } from 'lucide-react';
+import { AuroraModalBackground } from './AuroraModalBackground';
 
 interface RenameChatModalProps {
   isOpen: boolean;
@@ -46,14 +47,15 @@ export const RenameChatModal: React.FC<RenameChatModalProps> = ({
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/50 dark:bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
       <div
-        className="bg-white/40 dark:bg-white/5 backdrop-blur-xl w-full max-w-md rounded-2xl shadow-2xl border border-slate-200 dark:border-white/10 overflow-hidden transform transition-all scale-100 animate-in zoom-in-95 duration-200"
+        className="relative w-full max-w-md rounded-2xl shadow-2xl border border-white/10 overflow-hidden transform transition-all scale-100 animate-in zoom-in-95 duration-200 text-gray-200"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between p-6 border-b border-slate-200 dark:border-white/10">
-          <h2 className="text-xl font-semibold text-slate-800 dark:text-white">Renomear Chat</h2>
+        <AuroraModalBackground />
+        <div className="flex items-center justify-between p-6 border-b border-white/10">
+          <h2 className="text-xl font-semibold text-white">Renomear Chat</h2>
           <button
             onClick={onClose}
-            className="p-2 text-slate-400 hover:text-slate-600 dark:hover:text-gray-300 rounded-full hover:bg-slate-100 dark:hover:bg-white/5 transition-colors"
+            className="p-2 text-gray-400 hover:text-white rounded-full hover: hover:bg-white/5 transition-colors"
           >
             <X size={20} />
           </button>
@@ -61,7 +63,7 @@ export const RenameChatModal: React.FC<RenameChatModalProps> = ({
 
         <form onSubmit={handleSubmit} className="p-6 space-y-6">
           <div>
-            <label htmlFor="name" className="block text-sm font-medium text-slate-700 dark:text-gray-300 mb-2">
+            <label htmlFor="name" className="block text-sm font-medium text-gray-300 mb-2">
               Nome do chat
             </label>
             <input
@@ -69,7 +71,7 @@ export const RenameChatModal: React.FC<RenameChatModalProps> = ({
               id="name"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full px-4 py-3 bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-gray-500"
+              className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all text-white placeholder-slate-400 dark:placeholder-gray-500"
               placeholder="Ex: Análise de Vendas Q3"
               autoFocus
               required
@@ -80,7 +82,7 @@ export const RenameChatModal: React.FC<RenameChatModalProps> = ({
             <button
               type="button"
               onClick={onClose}
-              className="px-5 py-2.5 text-sm font-medium text-slate-600 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-white/5 rounded-xl transition-colors"
+              className="px-5 py-2.5 text-sm font-medium text-gray-300 hover: hover:bg-white/5 rounded-xl transition-colors"
             >
               Cancelar
             </button>
