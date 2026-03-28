@@ -507,7 +507,7 @@ const Layout: React.FC = () => {
                                             left: `${Math.min(chatMenuPosition.left - 240, window.innerWidth - 250)}px`,
                                             zIndex: 9999
                                         }}
-                                        className="w-60 bg-white/90 dark:bg-black/60 backdrop-blur-xl border border-slate-200 dark:border-white/10 rounded-xl shadow-xl py-2"
+                                        className="w-60 bg-white/40 dark:bg-white/5 backdrop-blur-xl border border-slate-200 dark:border-white/10 rounded-xl shadow-xl py-2"
                                     >
                                         <button
                                             onClick={(e) => {
@@ -672,7 +672,7 @@ const Layout: React.FC = () => {
 
              {/* User Menu Dropdown */}
              {showUserMenu && (
-                <div className="absolute bottom-full left-0 w-full mb-2 bg-white/90 dark:bg-black/60 backdrop-blur-xl border border-slate-200 dark:border-white/10 rounded-lg shadow-xl py-1 overflow-hidden animate-in fade-in slide-in-from-bottom-2 duration-200 z-50">
+                <div className="absolute bottom-full left-0 w-full mb-2 bg-white/40 dark:bg-white/5 backdrop-blur-xl border border-slate-200 dark:border-white/10 rounded-lg shadow-xl py-1 overflow-hidden animate-in fade-in slide-in-from-bottom-2 duration-200 z-50">
                     <button
                         onClick={() => { toggleTheme(); setShowUserMenu(false); }}
                         className="w-full text-left px-4 py-2.5 text-sm text-slate-700 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-white/10 flex items-center gap-2"

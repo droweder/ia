@@ -228,7 +228,7 @@ export default function Projects() {
                   <div
                     key={chat.id}
                     onClick={() => handleOpenChat(chat.id)}
-                    className="group flex flex-col p-4 rounded-xl bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 hover:border-blue-500/50 dark:hover:border-blue-500/50 cursor-pointer transition-all shadow-sm hover:shadow-md"
+                    className="group flex flex-col p-4 rounded-xl bg-white/40 dark:bg-white/5 border border-slate-200 dark:border-white/10 hover:border-blue-500/50 dark:hover:border-blue-500/50 cursor-pointer transition-all shadow-sm hover:shadow-md"
                   >
                     <div className="flex items-start justify-between mb-3">
                       <div className="w-10 h-10 rounded-lg bg-blue-50 dark:bg-blue-500/10 flex items-center justify-center shrink-0">
@@ -363,7 +363,7 @@ export default function Projects() {
                       transform: 'translateX(-100%)',
                       zIndex: 9999
                     }}
-                    className="w-48 bg-white/90 dark:bg-black/60 backdrop-blur-xl border border-slate-200 dark:border-white/10 rounded-xl shadow-xl py-2 animate-in fade-in slide-in-from-top-2 duration-200"
+                    className="w-48 bg-white/40 dark:bg-white/5 backdrop-blur-xl border border-slate-200 dark:border-white/10 rounded-xl shadow-xl py-2 animate-in fade-in slide-in-from-top-2 duration-200"
                   >
                     <button
                       onClick={(e) => {

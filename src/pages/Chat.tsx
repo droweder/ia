@@ -603,7 +603,7 @@ let systemPrompt = `Você é o DRoweder IA, um assistente especialista em manufa
 
                     {/* Dropdown de Modelos */}
                     {showModelMenu && (
-                        <div className="absolute top-full left-4 mt-2 w-64 bg-white/90 dark:bg-black/60 backdrop-blur-xl border border-slate-200 dark:border-white/10 rounded-xl shadow-lg overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 duration-200">
+                        <div className="absolute top-full left-4 mt-2 w-64 bg-white/40 dark:bg-white/5 backdrop-blur-xl border border-slate-200 dark:border-white/10 rounded-xl shadow-lg overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 duration-200">
                             <div className="p-2 border-b border-slate-100 dark:border-white/5">
                                 <p className="text-xs font-semibold text-slate-500 dark:text-gray-400 uppercase tracking-wider pl-2">Selecione o Modelo</p>
                             </div>
@@ -796,7 +796,7 @@ let systemPrompt = `Você é o DRoweder IA, um assistente especialista em manufa
                                     )}
                                     <button
                                         onClick={() => removeAttachment(index)}
-                                        className="absolute -top-1 -right-1 bg-white/90 dark:bg-black/60 backdrop-blur-xl text-slate-600 dark:text-gray-200 rounded-full p-0.5 opacity-0 group-hover/attachment:opacity-100 transition-opacity border border-slate-200 dark:border-white/10 shadow-sm hover:bg-slate-100 dark:hover:bg-slate-700"
+                                        className="absolute -top-1 -right-1 bg-white/40 dark:bg-white/5 backdrop-blur-xl text-slate-600 dark:text-gray-200 rounded-full p-0.5 opacity-0 group-hover/attachment:opacity-100 transition-opacity border border-slate-200 dark:border-white/10 shadow-sm hover:bg-slate-100 dark:hover:bg-slate-700"
                                     >
                                         <X size={12} />
                                     </button>
