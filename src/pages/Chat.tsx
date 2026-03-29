@@ -582,10 +582,10 @@ let systemPrompt = `Você é o DRoweder IA, um assistente especialista em manufa
       {/* Main Chat Area */}
       <div className="relative flex-1 flex flex-col min-w-0 min-h-0 bg-transparent transition-colors duration-200">
                 {loading && (
-            <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden opacity-50 dark:opacity-80 transition-opacity duration-1000">
-                <div className="absolute -top-[30%] -left-[10%] w-[70%] h-[70%] bg-red-600/30 blur-[80px] rounded-full mix-blend-screen animate-pulse duration-[10000ms]" />
-                <div className="absolute top-[20%] -right-[20%] w-[80%] h-[80%] bg-blue-600/30 blur-[80px] rounded-full mix-blend-screen animate-pulse duration-[7000ms]" />
-                <div className="absolute -bottom-[30%] left-[20%] w-[70%] h-[70%] bg-yellow-500/20 blur-[80px] rounded-full mix-blend-screen animate-pulse duration-[10000ms]" />
+            <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden opacity-40 dark:opacity-80 transition-opacity duration-1000">
+                <div className="absolute -top-[30%] -left-[10%] w-[70%] h-[70%] bg-red-500/20 dark:bg-red-600/30 blur-[80px] rounded-full mix-blend-multiply dark:mix-blend-screen animate-pulse duration-[10000ms]" />
+                <div className="absolute top-[20%] -right-[20%] w-[80%] h-[80%] bg-blue-500/20 dark:bg-blue-600/30 blur-[80px] rounded-full mix-blend-multiply dark:mix-blend-screen animate-pulse duration-[7000ms]" />
+                <div className="absolute -bottom-[30%] left-[20%] w-[70%] h-[70%] bg-yellow-400/20 dark:bg-yellow-500/20 blur-[80px] rounded-full mix-blend-multiply dark:mix-blend-screen animate-pulse duration-[10000ms]" />
             </div>
         )}
 
