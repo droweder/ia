@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/purity */
 import React, { useState, useEffect, useRef } from 'react';
-import { Bot, User, ChevronDown, ShieldCheck, Loader2, Database, AlertCircle, Plus, Mic, ArrowUp, Copy, Check, RefreshCcw, X, File as FileIcon, Sparkles } from 'lucide-react';
+import { Maximize2, Minimize2, Bot, User, ChevronDown, ShieldCheck, Database, AlertCircle, Plus, Mic, ArrowUp, Copy, Check, RefreshCcw, X, File as FileIcon, Sparkles } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
@@ -43,7 +43,7 @@ const CodeBlock = ({ node, inline, className, children, ...props }: any) => {
 
     if (inline || !match) {
         return (
-            <code {...props} className={`${className || ''} bg-slate-100 dark:bg-white/10 px-1.5 py-0.5 rounded-md font-mono text-sm text-pink-600 dark:text-pink-400`}>
+            <code {...props} className={`${className || ''} bg-white/10 px-1.5 py-0.5 rounded-md font-mono text-sm text-pink-400`}>
                 {children}
             </code>
         );
@@ -54,7 +54,7 @@ const CodeBlock = ({ node, inline, className, children, ...props }: any) => {
     return (
         <div className="relative group/code mt-4 mb-4 rounded-xl overflow-hidden bg-[#1E1E1E] border border-gray-700/50 shadow-sm">
             <div
-                className={`flex items-center justify-between px-4 py-2.5 bg-[#2D2D2D] text-xs font-medium text-gray-400 transition-colors ${language === 'sql' ? 'cursor-pointer hover:bg-[#3D3D3D]' : ''}`}
+                className={`flex items-center justify-between px-4 py-2.5 bg-[#2D2D2D] text-xs font-medium text-slate-500 dark:text-gray-400 transition-colors ${language === 'sql' ? 'cursor-pointer hover:bg-[#3D3D3D]' : ''}`}
                 onClick={() => language === 'sql' && setIsExpanded(!isExpanded)}
             >
                 <div className="flex items-center gap-2">
@@ -67,7 +67,7 @@ const CodeBlock = ({ node, inline, className, children, ...props }: any) => {
                 <div className="flex items-center gap-3" onClick={(e) => e.stopPropagation()}>
                     <button
                         onClick={handleCopy}
-                        className="flex items-center gap-1.5 hover:text-white transition-colors"
+                        className="flex items-center gap-1.5 hover:text-slate-800 dark:text-white transition-colors"
                         title="Copiar código"
                     >
                         {isCopied ? <Check size={14} className="text-emerald-400" /> : <Copy size={14} />}
@@ -116,6 +116,7 @@ const Chat: React.FC = () => {
   }, []);
 
   const [input, setInput] = useState("");
+  const [isInputExpanded, setIsInputExpanded] = useState(false);
 
   const { conversations, setConversations, activeConversationId, setActiveConversationId, activeAssistantId, setActiveAssistantId, assistants } = useOutletContext<LayoutContextType>();
   const [isRecording, setIsRecording] = useState(false);
@@ -401,26 +402,26 @@ useEffect(() => {
         setConversations([newConv, ...conversations]);
     }
 
-    // Save user message
-    const { error: msgError } = await supabase
+    // Save user message (Aways wait for DB to avoid race conditions with duplicate states)
+    const { data: savedUserMsg, error: msgError } = await supabase
         .schema('droweder_ia')
         .from('messages')
         .insert({
             conversation_id: conversationId,
             role: 'user',
             content: finalMessageContent
-        });
+        })
+        .select()
+        .single();
 
-    if (msgError) {
+    if (msgError || !savedUserMsg) {
         console.error('Error saving message:', msgError);
         setLoading(false);
         return false;
     }
 
-    // Optimistic update
-    const userMessage: Message = { id: 'temp-' + new Date().getTime(), role: 'user', content: finalMessageContent };
-    // Only append to the currentHistory we passed in, avoiding race conditions if we trimmed history
-    setMessages([...currentHistory, userMessage]);
+    // Safely append the confirmed user message to state, ignoring temp ids
+    setMessages(prev => [...prev.filter(m => !m.id.startsWith('temp-')), savedUserMsg as Message]);
 
     // Text-to-SQL logic
     // We instruct the LLM to behave as a data analyst.
@@ -436,7 +437,8 @@ let systemPrompt = `Você é o DRoweder IA, um assistente especialista em manufa
         4. O sistema executará sua query e retornará o JSON dos resultados em uma mensagem interna.
         5. Quando receber os resultados do JSON (ou se a pergunta não exigir banco de dados), responda ao usuário final APENAS com a análise em linguagem natural e os dados formatados (tabelas markdown, listas).
         6. NÃO exponha comandos SQL na resposta final com textos longos ou não formatados. Se precisar justificar a consulta, e o usuário quiser ver o SQL, envolva-o em blocos de markdown padrão (\`\`\`sql) que agora são ocultos por padrão na interface.
-        7. Seja conciso, profissional e use Português do Brasil.\n        8. VOCÊ TEM ACESSO À INTERNET em tempo real. Sempre que um usuário pedir informações de datas futuras (ex: 2025, 2026), notícias, ou dados não constantes no ERP, NÃO NEGUE O ACESSO; pesquise e responda com base nos resultados da web acoplados à sua requisição.
+        7. Seja conciso, profissional e use Português do Brasil.
+        8. VOCÊ TEM ACESSO À INTERNET em tempo real. Sempre que um usuário pedir informações de datas futuras (ex: 2025, 2026), notícias, ou dados não constantes no ERP, NÃO NEGUE O ACESSO; pesquise e responda com base nos resultados da web acoplados à sua requisição.
         8. O 'empresa_id' do usuário logado é: ${companyId}. Sempre filtre as tabelas por empresa_id = '${companyId}' quando aplicável.
         `;
 
@@ -455,18 +457,13 @@ let systemPrompt = `Você é o DRoweder IA, um assistente especialista em manufa
     ];
 
     try {
-        // Optimistic AI message placeholder
-        const tempAiMessageId = 'temp-ai-' + new Date().getTime();
+        // Optimistic AI message placeholder. We use a more distinct ID.
+        const tempAiMessageId = 'temp-ai-' + Math.random().toString(36).substring(7) + '-' + new Date().getTime();
         const initialAiMessage: Message = { id: tempAiMessageId, role: 'assistant', content: '' };
 
-        // Append user message AND empty AI message to state for streaming
-        setMessages(prev => {
-            // Remove previous temp messages and add new ones
-            const filtered = prev.filter(m => !m.id.startsWith('temp-'));
-            return [...filtered, userMessage, initialAiMessage];
-        });
+        // Append empty AI message to state for streaming
+        setMessages(prev => [...prev, initialAiMessage]);
 
-        // Use standard model for stream (edge function forces the free one anyway)
         const messagesForApi = openRouterMessages.filter(m => m.role !== 'system');
 
 
@@ -583,94 +580,93 @@ let systemPrompt = `Você é o DRoweder IA, um assistente especialista em manufa
     <div className="flex flex-1 flex-col h-full min-h-0 bg-transparent overflow-hidden transition-colors duration-200">
 
       {/* Main Chat Area */}
-      <div className="flex-1 flex flex-col min-w-0 min-h-0 bg-transparent transition-colors duration-200">
+      <div className="relative flex-1 flex flex-col min-w-0 min-h-0 bg-transparent transition-colors duration-200">
+                {loading && (
+            <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden opacity-50 dark:opacity-80 transition-opacity duration-1000">
+                <div className="absolute -top-[30%] -left-[10%] w-[70%] h-[70%] bg-red-600/30 blur-[80px] rounded-full mix-blend-screen animate-pulse duration-[10000ms]" />
+                <div className="absolute top-[20%] -right-[20%] w-[80%] h-[80%] bg-blue-600/30 blur-[80px] rounded-full mix-blend-screen animate-pulse duration-[7000ms]" />
+                <div className="absolute -bottom-[30%] left-[20%] w-[70%] h-[70%] bg-yellow-500/20 blur-[80px] rounded-full mix-blend-screen animate-pulse duration-[10000ms]" />
+            </div>
+        )}
+
         {/* Header - Simplified */}
-        <div className="h-14 border-b border-slate-200 dark:border-white/10 flex justify-between items-center bg-white/40 dark:bg-white/5 backdrop-blur-md px-4 shadow-sm z-10">
-            <div className="flex items-center gap-4">
+                <div className="absolute top-4 left-4 z-20" ref={modelMenuRef}>
+            <button
+                onClick={() => setShowModelMenu(!showModelMenu)}
+                className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/40 dark:bg-white/5 hover:bg-white/10 backdrop-blur-xl border border-slate-200 dark:border-slate-200 dark:border-white/10 text-sm font-medium text-gray-300 transition-all shadow-sm"
+                title="Selecionar Modelo IA"
+            >
+                <Sparkles size={16} className={selectedModelId !== 'free' ? 'text-blue-500' : 'text-slate-500 dark:text-gray-400'} />
+                <span className="hidden sm:inline">{MODELS.find(m => m.id === selectedModelId)?.name || 'Modelo'}</span>
+                <ChevronDown size={14} className="text-slate-500 dark:text-gray-400" />
+            </button>
 
-
-                {/* Model Selector */}
-                <div className="relative" ref={modelMenuRef}>
-                    <button
-                        onClick={() => setShowModelMenu(!showModelMenu)}
-                        className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/50 dark:bg-black/20 hover:bg-white/80 dark:hover:bg-black/40 backdrop-blur-md border border-slate-200 dark:border-white/10 text-sm font-medium text-slate-700 dark:text-gray-300 transition-all shadow-sm"
-                        title="Selecionar Modelo IA"
-                    >
-                        <Sparkles size={16} className={selectedModelId !== 'free' ? 'text-blue-500 dark:text-blue-400' : 'text-slate-500 dark:text-gray-400'} />
-                        <span className="hidden sm:inline">{MODELS.find(m => m.id === selectedModelId)?.name || 'Modelo'}</span>
-                        <ChevronDown size={14} className="text-slate-400" />
-                    </button>
-
-                    {/* Dropdown de Modelos */}
-                    {showModelMenu && (
-                        <div className="absolute top-full left-4 mt-2 w-64 bg-white/40 dark:bg-white/5 backdrop-blur-xl border border-slate-200 dark:border-white/10 rounded-xl shadow-lg overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 duration-200">
-                            <div className="p-2 border-b border-slate-100 dark:border-white/5">
-                                <p className="text-xs font-semibold text-slate-500 dark:text-gray-400 uppercase tracking-wider pl-2">Selecione o Modelo</p>
-                            </div>
-                            <div className="p-1 max-h-60 overflow-y-auto scrollbar-thin scrollbar-thumb-slate-300 dark:scrollbar-thumb-blue-800 hover:scrollbar-thumb-slate-400 dark:hover:scrollbar-thumb-blue-700">
-                                {MODELS.map(modelOption => (
-                                    <button
-                                        key={modelOption.id}
-                                        onClick={() => {
-                                            setSelectedModelId(modelOption.id);
-                                            setShowModelMenu(false);
-                                        }}
-                                        className={`w-full flex flex-col text-left px-3 py-2 rounded-lg transition-colors ${
-                                            selectedModelId === modelOption.id
-                                                ? 'bg-blue-50 dark:bg-blue-500/10 border border-blue-100 dark:border-blue-500/20'
-                                                : 'hover:bg-slate-50 dark:hover:bg-white/5 border border-transparent'
-                                        }`}
-                                    >
-                                        <div className="flex items-center justify-between w-full">
-                                            <span className={`text-sm font-medium ${selectedModelId === modelOption.id ? 'text-blue-700 dark:text-blue-400' : 'text-slate-700 dark:text-gray-200'}`}>
-                                                {modelOption.name}
-                                            </span>
-                                            {modelOption.isPaid ? (
-                                                <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">PAGO</span>
-                                            ) : (
-                                                <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">GRÁTIS</span>
-                                            )}
-                                        </div>
-                                        <span className="text-xs text-slate-500 dark:text-gray-400 mt-0.5">{modelOption.description}</span>
-                                    </button>
-                                ))}
-                            </div>
-                        </div>
-                    )}
+            {/* Dropdown de Modelos */}
+            {showModelMenu && (
+                <div className="absolute top-full left-0 mt-2 w-64 bg-slate-50 dark:bg-white dark:bg-transparent backdrop-blur-xl border border-slate-200 dark:border-slate-200 dark:border-white/10 rounded-xl shadow-lg overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 duration-200">
+                    <div className="p-2 border-b border-slate-200 dark:border-slate-200 dark:border-white/10">
+                        <p className="text-xs font-semibold text-slate-500 dark:text-gray-400 uppercase tracking-wider pl-2">Selecione o Modelo</p>
+                    </div>
+                    <div className="p-2 flex flex-col gap-1 max-h-[300px] overflow-y-auto scrollbar-thin scrollbar-thumb-blue-800 hover:scrollbar-thumb-blue-700">
+                        {MODELS.map(model => (
+                            <button
+                                key={model.id}
+                                onClick={() => {
+                                    setSelectedModelId(model.id);
+                                    setShowModelMenu(false);
+                                }}
+                                className={`w-full flex items-center justify-between p-2 rounded-lg transition-colors text-left
+                                    ${selectedModelId === model.id
+                                        ? 'bg-blue-500/10 border border-blue-500/20'
+                                        : 'hover:bg-white/40 dark:bg-white/5 border border-transparent'
+                                    }
+                                `}
+                            >
+                                <div className="flex items-center gap-3">
+                                    <div className={`p-1.5 rounded-md ${selectedModelId === model.id ? 'bg-blue-500/20 text-blue-400' : 'bg-white/40 dark:bg-white/5 text-slate-500 dark:text-gray-400'}`}>
+                                        <Bot size={16} />
+                                    </div>
+                                    <div className="flex flex-col">
+                                        <span className={`text-sm font-medium ${selectedModelId === model.id ? 'text-blue-400' : 'text-gray-200'}`}>
+                                            {model.name}
+                                        </span>
+                                        <span className="text-xs text-gray-500">
+                                            {model.description}
+                                        </span>
+                                    </div>
+                                </div>
+                                {selectedModelId === model.id && <ShieldCheck size={16} className="text-blue-500" />}
+                            </button>
+                        ))}
+                    </div>
                 </div>
-            </div>
-
-            {/* Connection Badge */}
-            <div className="flex items-center gap-2 text-xs font-medium text-slate-600 dark:text-gray-300 bg-slate-200/50 dark:bg-white/10 px-3 py-1.5 rounded-full">
-                <ShieldCheck size={14} className="text-emerald-500 dark:text-emerald-400" />
-                <span className="hidden sm:inline">Planintex Conectado</span>
-            </div>
+            )}
         </div>
 
         {/* Messages */}
         <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-6 bg-transparent scrollbar-thin scrollbar-thumb-slate-300 dark:scrollbar-thumb-blue-800 hover:scrollbar-thumb-slate-400 dark:hover:scrollbar-thumb-blue-700 scrollbar-track-transparent ">
             {messages.length === 0 && !loading && (
                 <div className="flex flex-col items-center justify-center h-full text-slate-500 dark:text-gray-300 space-y-6">
-                    <div className="w-16 h-16 bg-white/60 dark:bg-white/10 backdrop-blur-md rounded-full flex items-center justify-center shadow-sm border border-slate-200 dark:border-white/20">
-                        <Bot size={32} className="text-slate-700 dark:text-white" />
+                    <div className="w-16 h-16 bg-white/10 backdrop-blur-md rounded-full flex items-center justify-center shadow-sm border border-slate-200 dark:border-white/20">
+                        <Bot size={32} className="text-slate-700 dark:text-slate-800 dark:text-white" />
                     </div>
                     {activeAssistant ? (
                         <div className="text-center max-w-md">
-                            <h2 className="text-xl font-semibold text-slate-800 dark:text-white mb-2">
+                            <h2 className="text-xl font-semibold text-slate-800 dark:text-slate-800 dark:text-white mb-2">
                                 Olá! Sou o {activeAssistant.name}
                             </h2>
-                            <p className="text-sm text-slate-600 dark:text-gray-400">
+                            <p className="text-sm text-slate-500 dark:text-gray-400">
                                 {activeAssistant.description || "Como posso ajudar você hoje?"}
                             </p>
                         </div>
                     ) : (
                         <div className="grid grid-cols-2 gap-4 max-w-lg w-full">
-                            <button onClick={() => setInput("Qual a previsão de demanda para o próximo mês?")} className="p-4 border border-slate-200 dark:border-white/10 rounded-xl hover:bg-slate-50 dark:hover:bg-white/10 bg-white/40 dark:bg-white/5 backdrop-blur-sm text-left transition-colors shadow-sm">
-                                <h3 className="text-sm font-medium text-slate-800 dark:text-white mb-1">Previsão de Demanda</h3>
+                            <button onClick={() => setInput("Qual a previsão de demanda para o próximo mês?")} className="p-4 border border-slate-200 dark:border-slate-200 dark:border-white/10 rounded-xl hover:bg-white/10 bg-white/40 dark:bg-white/5 backdrop-blur-sm text-left transition-colors shadow-sm">
+                                <h3 className="text-sm font-medium text-slate-800 dark:text-slate-800 dark:text-white mb-1">Previsão de Demanda</h3>
                                 <p className="text-xs text-slate-500 dark:text-gray-400">Analise tendências futuras</p>
                             </button>
-                             <button onClick={() => setInput("Quais ordens estão atrasadas?")} className="p-4 border border-slate-200 dark:border-white/10 rounded-xl hover:bg-slate-50 dark:hover:bg-white/10 bg-white/40 dark:bg-white/5 backdrop-blur-sm text-left transition-colors shadow-sm">
-                                <h3 className="text-sm font-medium text-slate-800 dark:text-white mb-1">Ordens Atrasadas</h3>
+                             <button onClick={() => setInput("Quais ordens estão atrasadas?")} className="p-4 border border-slate-200 dark:border-slate-200 dark:border-white/10 rounded-xl hover:bg-white/10 bg-white/40 dark:bg-white/5 backdrop-blur-sm text-left transition-colors shadow-sm">
+                                <h3 className="text-sm font-medium text-slate-800 dark:text-slate-800 dark:text-white mb-1">Ordens Atrasadas</h3>
                                 <p className="text-xs text-slate-500 dark:text-gray-400">Liste gargalos na produção</p>
                             </button>
                         </div>
@@ -680,7 +676,7 @@ let systemPrompt = `Você é o DRoweder IA, um assistente especialista em manufa
 
             {/* Error Banner */}
             {error && (
-                <div className="rounded-md bg-red-100/80 dark:bg-red-900/40 p-4 border border-red-300 dark:border-red-500/30 mx-auto max-w-2xl mt-4 backdrop-blur-sm">
+                <div className="rounded-md bg-red-900/40 p-4 border border-red-500/30 mx-auto max-w-2xl mt-4 backdrop-blur-sm">
                     <div className="flex">
                         <div className="flex-shrink-0">
                             <AlertCircle className="h-5 w-5 text-red-600 dark:text-red-400" aria-hidden="true" />
@@ -694,7 +690,7 @@ let systemPrompt = `Você é o DRoweder IA, um assistente especialista em manufa
 
             {messages.map((msg) => (
                 <div key={msg.id} className={`flex gap-4 max-w-3xl mx-auto w-full animate-in fade-in slide-in-from-bottom-2 duration-300 group`}>
-                    <div className={`w-8 h-8 rounded-sm flex items-center justify-center flex-shrink-0 ${msg.role === 'user' ? 'bg-slate-200 dark:bg-white/10 text-slate-600 dark:text-gray-300' : 'bg-[#7e639f] text-white shadow-sm'}`}>
+                    <div className={`w-8 h-8 rounded-sm flex items-center justify-center flex-shrink-0 ${msg.role === 'user' ? 'bg-white/10 text-gray-300' : 'bg-[#7e639f] text-slate-800 dark:text-white shadow-sm'}`}>
                         {msg.role === 'user' ? <User size={16} /> : <Bot size={16} />}
                     </div>
 
@@ -702,7 +698,7 @@ let systemPrompt = `Você é o DRoweder IA, um assistente especialista em manufa
                         <div className="text-sm font-semibold text-slate-800 dark:text-gray-200">
                             {msg.role === 'user' ? 'Você' : 'DRoweder IA'}
                         </div>
-                        <div className="prose prose-sm prose-slate dark:prose-invert max-w-none text-slate-700 dark:text-gray-300 leading-relaxed break-words overflow-x-auto scrollbar-thin scrollbar-thumb-slate-300 dark:scrollbar-thumb-blue-800 hover:scrollbar-thumb-slate-400 dark:hover:scrollbar-thumb-blue-700 scrollbar-track-transparent ">
+                        <div className="prose prose-sm prose-slate dark:prose-invert max-w-none text-gray-300 leading-relaxed break-words overflow-x-auto scrollbar-thin scrollbar-thumb-slate-300 dark:scrollbar-thumb-blue-800 hover:scrollbar-thumb-slate-400 dark:hover:scrollbar-thumb-blue-700 scrollbar-track-transparent ">
                             {msg.role === 'user' ? (
                                 <div className="whitespace-pre-wrap">{msg.content}</div>
                             ) : (
@@ -722,7 +718,7 @@ let systemPrompt = `Você é o DRoweder IA, um assistente especialista em manufa
                             <div className="flex items-center gap-2 mt-2">
                                 <button
                                     onClick={() => handleCopyMessage(msg.content, msg.id)}
-                                    className="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-gray-300 rounded-md hover:bg-slate-100 dark:hover:bg-white/5 transition-colors"
+                                    className="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-gray-300 rounded-md hover:bg-slate-100 dark:hover:bg-white/40 dark:bg-white/5 transition-colors"
                                     title="Copiar mensagem"
                                 >
                                     {copiedMessages[msg.id] ? <Check size={16} className="text-green-500" /> : <Copy size={16} />}
@@ -733,7 +729,7 @@ let systemPrompt = `Você é o DRoweder IA, um assistente especialista em manufa
                                     <button
                                         onClick={handleRegenerate}
                                         disabled={loading}
-                                        className="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-gray-300 rounded-md hover:bg-slate-100 dark:hover:bg-white/5 transition-colors disabled:opacity-50"
+                                        className="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-gray-300 rounded-md hover:bg-slate-100 dark:hover:bg-white/40 dark:bg-white/5 transition-colors disabled:opacity-50"
                                         title="Regerar resposta"
                                     >
                                         <RefreshCcw size={16} className={loading ? "animate-spin" : ""} />
@@ -747,13 +743,13 @@ let systemPrompt = `Você é o DRoweder IA, um assistente especialista em manufa
                             <div className="mt-2">
                                 <button
                                     onClick={() => toggleSql(msg.id)}
-                                    className="flex items-center gap-1 text-xs text-slate-500 hover:text-slate-700 dark:text-gray-400 dark:hover:text-gray-300 transition-colors"
+                                    className="flex items-center gap-1 text-xs text-slate-500 hover:text-slate-700 dark:text-slate-500 dark:text-gray-400 dark:hover:text-gray-300 transition-colors"
                                 >
                                     <Database size={12} />
                                     <span>{showSql === msg.id ? 'Ocultar SQL' : 'Debug SQL'}</span>
                                 </button>
                                 {showSql === msg.id && (
-                                    <div className="mt-2 p-3 bg-slate-100/50 dark:bg-white/5 rounded-md border border-slate-200 dark:border-white/10 font-mono text-xs overflow-x-auto text-slate-600 dark:text-gray-400 backdrop-blur-sm">
+                                    <div className="mt-2 p-3 bg-white/40 dark:bg-white/5 rounded-md border border-slate-200 dark:border-slate-200 dark:border-white/10 font-mono text-xs overflow-x-auto text-slate-500 dark:text-gray-400 backdrop-blur-sm">
                                         SELECT * FROM planintex.ordens ...
                                     </div>
                                 )}
@@ -762,30 +758,19 @@ let systemPrompt = `Você é o DRoweder IA, um assistente especialista em manufa
                     </div>
                 </div>
             ))}
-             {loading && (
-                <div className="flex gap-4 max-w-3xl mx-auto w-full">
-                    <div className="w-8 h-8 rounded-sm bg-purple-600/80 text-white flex items-center justify-center flex-shrink-0">
-                        <Loader2 size={16} className="animate-spin" />
-                    </div>
-                    <div className="flex items-center">
-                        <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce mr-1"></span>
-                        <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce mr-1 delay-100"></span>
-                        <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce delay-200"></span>
-                    </div>
-                </div>
-            )}
+
             <div ref={messagesEndRef} />
         </div>
 
         {/* Input Area */}
         <div className="p-4 bg-transparent backdrop-blur-md">
             <div className="max-w-3xl mx-auto relative">
-                <div className="relative flex flex-col group bg-[#f4f4f4] dark:bg-[#2f2f2f] rounded-[26px] transition-all overflow-hidden focus-within:ring-2 focus-within:ring-gray-300 dark:focus-within:ring-gray-600">
+                <div className="relative flex flex-col group bg-white/40 dark:bg-white/5 border border-slate-200 dark:border-slate-200 dark:border-white/10 backdrop-blur-xl rounded-[26px] transition-all overflow-hidden focus-within:ring-2 focus-within:ring-blue-500/50 shadow-lg">
                     {/* Attachments Preview */}
                     {attachments.length > 0 && (
                         <div className="flex flex-wrap gap-2 p-3 pb-0">
                             {attachments.map((file, index) => (
-                                <div key={index} className="relative group/attachment flex items-center justify-center bg-white dark:bg-slate-700 rounded-xl border border-slate-200 dark:border-white/10 shadow-sm overflow-hidden h-16 w-16">
+                                <div key={index} className="relative group/attachment flex items-center justify-center bg-white dark:bg-slate-700 rounded-xl border border-slate-200 dark:border-slate-200 dark:border-white/10 shadow-sm overflow-hidden h-16 w-16">
                                     {file.type.startsWith('image/') ? (
                                         <img src={URL.createObjectURL(file)} alt="preview" className="h-full w-full object-cover" />
                                     ) : (
@@ -796,7 +781,7 @@ let systemPrompt = `Você é o DRoweder IA, um assistente especialista em manufa
                                     )}
                                     <button
                                         onClick={() => removeAttachment(index)}
-                                        className="absolute -top-1 -right-1 bg-white/40 dark:bg-white/5 backdrop-blur-xl text-slate-600 dark:text-gray-200 rounded-full p-0.5 opacity-0 group-hover/attachment:opacity-100 transition-opacity border border-slate-200 dark:border-white/10 shadow-sm hover:bg-slate-100 dark:hover:bg-slate-700"
+                                        className="absolute -top-1 -right-1 bg-white/40 dark:bg-white/5 backdrop-blur-xl text-gray-200 rounded-full p-0.5 opacity-0 group-hover/attachment:opacity-100 transition-opacity border border-slate-200 dark:border-slate-200 dark:border-white/10 shadow-sm hover:bg-slate-700"
                                     >
                                         <X size={12} />
                                     </button>
@@ -809,7 +794,7 @@ let systemPrompt = `Você é o DRoweder IA, um assistente especialista em manufa
                         <div className="flex items-center justify-center p-2 pl-3 pb-[10px]">
                             <button
                                 onClick={() => fileInputRef.current?.click()}
-                                className="w-8 h-8 rounded-full flex items-center justify-center text-slate-500 hover:text-slate-800 dark:text-gray-400 dark:hover:text-gray-200 transition-colors border border-transparent hover:bg-black/5 dark:hover:bg-white/10"
+                                className="w-8 h-8 rounded-full flex items-center justify-center text-slate-500 hover:text-slate-800 dark:text-slate-500 dark:text-gray-400 dark:hover:text-gray-200 transition-colors border border-transparent hover:bg-black/5 dark:hover:bg-white/10"
                             >
                                 <Plus size={20} strokeWidth={2.5} />
                             </button>
@@ -832,17 +817,24 @@ let systemPrompt = `Você é o DRoweder IA, um assistente especialista em manufa
                         }}
                         placeholder="Pergunte alguma coisa"
                         disabled={loading}
-                        rows={1}
-                        className="flex-1 py-3.5 bg-transparent resize-none focus:outline-none text-base text-slate-900 dark:text-gray-100 placeholder-slate-500 dark:placeholder-gray-400 disabled:opacity-50 max-h-[200px]"
-                        style={{ minHeight: '52px' }}
+                        rows={isInputExpanded ? 10 : 1}
+                        className={`flex-1 py-3.5 bg-transparent resize-none focus:outline-none text-base text-slate-800 dark:text-white placeholder-gray-400 disabled:opacity-50 transition-all ${isInputExpanded ? "min-h-[240px] max-h-[50vh]" : "min-h-[52px] max-h-[200px]"}`}
+                        style={{ overflowY: "auto" }}
                     />
                     <div className="p-2 pr-3 flex items-center gap-2 pb-[10px]">
+                        <button
+                            onClick={() => setIsInputExpanded(!isInputExpanded)}
+                            className="w-8 h-8 rounded-full flex items-center justify-center transition-colors text-slate-500 hover:text-slate-800 dark:text-slate-500 dark:text-gray-400 dark:hover:text-slate-800 dark:text-white hover:bg-white/10"
+                            title={isInputExpanded ? "Reduzir" : "Expandir"}
+                        >
+                            {isInputExpanded ? <Minimize2 size={16} /> : <Maximize2 size={16} />}
+                        </button>
                         <button
                             onClick={toggleRecording}
                             className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors border border-transparent
                                 ${isRecording
-                                    ? 'bg-red-500 text-white animate-pulse'
-                                    : 'text-slate-500 hover:text-slate-800 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-black/5 dark:hover:bg-white/10'
+                                    ? 'bg-red-500 text-slate-800 dark:text-white animate-pulse'
+                                    : 'text-slate-500 hover:text-slate-800 dark:text-slate-500 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-black/5 dark:hover:bg-white/10'
                                 }
                             `}
                             title={isRecording ? "Parar gravação" : "Gravar áudio"}
@@ -854,8 +846,8 @@ let systemPrompt = `Você é o DRoweder IA, um assistente especialista em manufa
                             disabled={(!input.trim() && attachments.length === 0) || loading}
                             className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors
                                 ${(!input.trim() && attachments.length === 0)
-                                    ? 'bg-black text-white dark:bg-white dark:text-black opacity-100 hover:opacity-80'
-                                    : 'bg-black text-white dark:bg-white dark:text-black hover:opacity-80'
+                                    ? 'bg-black text-slate-800 dark:text-white dark:bg-white dark:text-black opacity-100 hover:opacity-80'
+                                    : 'bg-black text-slate-800 dark:text-white dark:bg-white dark:text-black hover:opacity-80'
                                 }
                                 ${loading ? 'opacity-50 cursor-not-allowed' : ''}
                             `}

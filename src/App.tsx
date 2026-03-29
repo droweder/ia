@@ -1,6 +1,9 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Layout from './components/Layout';
 import Chat from './pages/Chat';
+import Search from './pages/Search';
+import Assistants from './pages/Assistants';
+import ArchivedChats from './pages/ArchivedChats';
 import Files from './pages/Files';
 import Projects from './pages/Projects';
 import Billing from './pages/dashboard/Billing';
@@ -22,6 +25,9 @@ function App() {
               <Route path="/" element={<Layout />}>
                 <Route index element={<Navigate to="/chat" replace />} />
                 <Route path="chat" element={<Chat />} />
+                <Route path="search" element={<Search />} />
+                <Route path="assistants" element={<Assistants />} />
+                <Route path="archived" element={<ArchivedChats />} />
                 <Route path="files" element={<Files />} />
                 <Route path="projects" element={<Projects />} />
                 <Route path="dashboard/billing" element={<Billing />} />

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { X } from 'lucide-react';
+import { AuroraModalBackground } from './AuroraModalBackground';
 
 interface Project {
   id: string;
@@ -27,13 +28,14 @@ export function SelectProjectModal({ isOpen, onClose, projects, onSelectProject 
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-      <div className="w-full max-w-md rounded-2xl bg-white/40 p-6 shadow-xl dark:bg-white/5 backdrop-blur-xl border border-slate-200 dark:border-white/10">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 dark:bg-black/60 backdrop-blur-sm p-4">
+      <div className="relative w-full max-w-md rounded-2xl shadow-2xl border border-white/10 overflow-hidden transform transition-all scale-100 animate-in zoom-in-95 duration-200 p-6 text-gray-200">
+        <AuroraModalBackground />
         <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-xl font-semibold text-slate-800 dark:text-white">Transferir para Projeto</h2>
+          <h2 className="text-xl font-semibold text-white">Transferir para Projeto</h2>
           <button
             onClick={onClose}
-            className="rounded-full p-2 text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-white/10"
+            className="rounded-full p-2 text-gray-400 hover:text-white hover:bg-white/10 transition-colors"
           >
             <X className="h-5 w-5" />
           </button>
@@ -41,20 +43,20 @@ export function SelectProjectModal({ isOpen, onClose, projects, onSelectProject 
 
         <form onSubmit={handleSelect}>
           <div className="mb-6">
-            <label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-300">
+            <label className="mb-2 block text-sm font-medium text-gray-300">
               Selecione o projeto de destino
             </label>
             <select
               value={selectedProjectId}
               onChange={(e) => setSelectedProjectId(e.target.value)}
-              className="w-full rounded-xl border border-slate-200 bg-transparent px-4 py-2 text-slate-800 focus:border-blue-500 focus:outline-none dark:border-white/10 dark:text-white"
+              className="w-full rounded-xl border bg-transparent px-4 py-2 focus:border-blue-500 focus:outline-none border-white/10 text-white"
               required
             >
-              <option value="" disabled className="dark:bg-[#111111]">
+              <option value="" disabled className="bg-slate-800">
                 Escolha um projeto...
               </option>
               {projects.map((project) => (
-                <option key={project.id} value={project.id} className="dark:bg-[#111111]">
+                <option key={project.id} value={project.id} className="bg-slate-800">
                   {project.name}
                 </option>
               ))}
@@ -65,7 +67,7 @@ export function SelectProjectModal({ isOpen, onClose, projects, onSelectProject 
             <button
               type="button"
               onClick={onClose}
-              className="rounded-xl px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-white/10"
+              className="px-5 py-2.5 rounded-xl font-medium text-sm text-gray-300 hover:bg-white/5 transition-colors"
             >
               Cancelar
             </button>

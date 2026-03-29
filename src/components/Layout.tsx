@@ -1,3 +1,4 @@
+import { AuroraModalBackground } from './AuroraModalBackground';
 import React, { useState, useEffect, useRef } from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { createPortal } from 'react-dom';
@@ -12,9 +13,6 @@ import { SelectProjectModal } from './SelectProjectModal';
 import { RenameChatModal } from './RenameChatModal';
 import { ShareChatModal } from './ShareChatModal';
 import { GroupChatModal } from './GroupChatModal';
-import { SearchModal } from './SearchModal';
-import { ArchivedChatsModal } from './ArchivedChatsModal';
-import { ExploreAssistantsModal } from './ExploreAssistantsModal';
 import { DeleteAssistantModal } from './DeleteAssistantModal';
 import { DeleteChatModal } from './DeleteChatModal';
 
@@ -99,14 +97,11 @@ const Layout: React.FC = () => {
 
 
   // Search Modal
-  const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
-  const [isArchivedChatsModalOpen, setIsArchivedChatsModalOpen] = useState(false);
 
   // Assistant state
   const [assistants, setAssistants] = useState<any[]>([]);
   const [isCreateAssistantModalOpen, setIsCreateAssistantModalOpen] = useState(false);
-  const [isExploreAssistantsModalOpen, setIsExploreAssistantsModalOpen] = useState(false);
-  const [assistantToEdit, setAssistantToEdit] = useState<any>(null);
+    const [assistantToEdit, setAssistantToEdit] = useState<any>(null);
   const [assistantToDelete, setAssistantToDelete] = useState<any>(null);
 
   const loadAssistants = async () => {
@@ -376,15 +371,16 @@ const Layout: React.FC = () => {
   const companyName = user?.user_metadata?.company_name || 'Minha Empresa'; // In a real app, fetch from relation
 
   return (
-    <div className="flex h-screen font-sans text-slate-800 dark:text-gray-100 transition-colors duration-200 bg-transparent selection:bg-blue-600 dark:bg-blue-500/30">
+    <div className="relative flex h-screen font-sans bg-slate-50 dark:bg-white dark:bg-[#0B0F19] selection:bg-blue-500/30 overflow-hidden">
+      <AuroraModalBackground />
       {/* Sidebar - Multiplier AI Style */}
       <aside
       onMouseEnter={() => setIsSidebarHovered(true)}
       onMouseLeave={() => setIsSidebarHovered(false)}
-      className={`${!isEffectivelyExpanded ? 'w-20' : 'w-72'} border-r border-slate-200 dark:border-white/10 bg-white/40 dark:bg-white/5 backdrop-blur-xl hidden md:flex flex-col z-10 transition-all duration-300 shrink-0`}>
+      className={`${!isEffectivelyExpanded ? 'w-20' : 'w-72'} border-r border-slate-200 bg-white/80 dark:border-slate-200 dark:border-slate-200 dark:border-white/10 dark:bg-slate-50 dark:bg-white/5 backdrop-blur-xl border-slate-200 dark:border-slate-200 dark:border-white/10 hidden md:flex flex-col z-10 transition-all duration-300 shrink-0`}>
 
         {/* Header da Sidebar */}
-        <div className={`h-12 flex items-center px-4 border-b border-slate-200 dark:border-white/10 ${!isEffectivelyExpanded ? 'justify-center' : 'justify-between'}`}>
+        <div className={`h-12 flex items-center px-4 border-b border-slate-200 dark:border-slate-200 dark:border-white/10 ${!isEffectivelyExpanded ? 'justify-center' : 'justify-between'}`}>
              {isEffectivelyExpanded && (
                 <>
                   <div className="flex items-center">
@@ -394,7 +390,7 @@ const Layout: React.FC = () => {
              )}
              <button
                 onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
-                className="p-1.5 rounded-lg text-slate-500 hover:bg-slate-100 dark:text-gray-400 dark:hover:bg-white/10 transition-colors"
+                className="p-1.5 rounded-lg hover: dark: dark:hover: transition-colors"
                 title={isSidebarCollapsed ? "Fixar Sidebar" : "Desafixar Sidebar"}
              >
                 <Sidebar size={18} className={!isEffectivelyExpanded ? "rotate-180" : ""} />
@@ -408,14 +404,14 @@ const Layout: React.FC = () => {
           <div className="p-3 space-y-1">
               <button
                 onClick={handleNewChat}
-                className="w-full flex items-center gap-3 h-10 px-3 mb-2 rounded-xl bg-blue-600 dark:bg-blue-600 hover:bg-blue-700 text-white shadow-sm transition-all text-sm font-medium"
+                className="w-full flex items-center gap-3 h-10 px-3 mb-2 rounded-xl bg-blue-600 bg-blue-600 hover:bg-blue-700 text-slate-800 dark:text-white shadow-sm transition-all text-sm font-medium"
               >
                 <Plus size={20} />
                 {isEffectivelyExpanded && <span>Novo Chat</span>}
               </button>
               <button
-                onClick={() => setIsSearchModalOpen(true)}
-                className={`w-full flex items-center gap-3 h-8 px-3 rounded-md transition-all duration-200 text-sm font-medium text-slate-600 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-white/10 hover:text-slate-900 dark:hover:text-white`}
+                onClick={() => navigate("/search")}
+                className={`w-full flex items-center gap-3 h-8 px-3 rounded-md transition-all duration-200 text-sm font-medium ${isActive("/search") ? "bg-slate-100 text-blue-600 border-r-2 border-blue-500 dark:bg-white/10 dark:text-slate-800 dark:text-white dark:border-white/50" : "text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-gray-300 dark:hover:bg-white/10 dark:hover:text-slate-800 dark:text-white"}`}
                 title="Buscar em chats"
               >
                 <Search size={20} />
@@ -423,31 +419,31 @@ const Layout: React.FC = () => {
               </button>
               <button
                 onClick={() => navigate('/files')}
-                className={`w-full flex items-center gap-3 h-8 px-3 rounded-md transition-all duration-200 text-sm font-medium ${isActive('/files') ? 'bg-slate-200 dark:bg-white/10 text-slate-900 dark:text-white border-r-2 border-slate-400 dark:border-white/50' : 'text-slate-600 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-white/10 hover:text-slate-900 dark:hover:text-white'}`}
+                className={`w-full flex items-center gap-3 h-8 px-3 rounded-md transition-all duration-200 text-sm font-medium ${isActive('/files') ? 'bg-slate-100 text-blue-600 border-r-2 border-blue-500 dark:bg-white/10 dark:text-slate-800 dark:text-white dark:border-white/50' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-gray-300 dark:hover:bg-white/10 dark:hover:text-slate-800 dark:text-white'}`}
                 title="Arquivos"
               >
-                <FileText size={20} className={isActive('/files') ? 'text-slate-900 dark:text-white' : ''} />
+                <FileText size={20} className={isActive('/files') ? 'text-slate-800 dark:text-white' : ''} />
                 {isEffectivelyExpanded && <span>Arquivos</span>}
               </button>
               <button
                 onClick={() => navigate('/projects')}
-                className={`w-full flex items-center gap-3 h-8 px-3 rounded-md transition-all duration-200 text-sm font-medium ${isActive('/projects') ? 'bg-slate-200 dark:bg-white/10 text-slate-900 dark:text-white border-r-2 border-slate-400 dark:border-white/50' : 'text-slate-600 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-white/10 hover:text-slate-900 dark:hover:text-white'}`}
+                className={`w-full flex items-center gap-3 h-8 px-3 rounded-md transition-all duration-200 text-sm font-medium ${isActive('/projects') ? 'bg-slate-100 text-blue-600 border-r-2 border-blue-500 dark:bg-white/10 dark:text-slate-800 dark:text-white dark:border-white/50' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-gray-300 dark:hover:bg-white/10 dark:hover:text-slate-800 dark:text-white'}`}
                 title="Projetos"
               >
-                <Folder size={20} className={isActive('/projects') ? 'text-slate-900 dark:text-white' : ''} />
+                <Folder size={20} className={isActive('/projects') ? 'text-slate-800 dark:text-white' : ''} />
                 {isEffectivelyExpanded && <span>Projetos</span>}
               </button>
               <button
-                onClick={() => setIsExploreAssistantsModalOpen(true)}
-                className={`w-full flex items-center gap-3 h-8 px-3 rounded-md transition-all duration-200 text-sm font-medium text-slate-600 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-white/10 hover:text-slate-900 dark:hover:text-white`}
+                onClick={() => navigate("/assistants")}
+                className={`w-full flex items-center gap-3 h-8 px-3 rounded-md transition-all duration-200 text-sm font-medium ${isActive("/assistants") ? "bg-slate-100 text-blue-600 border-r-2 border-blue-500 dark:bg-white/10 dark:text-slate-800 dark:text-white dark:border-white/50" : "text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-gray-300 dark:hover:bg-white/10 dark:hover:text-slate-800 dark:text-white"}`}
                 title="Assistentes"
               >
                 <Bot size={20} />
                 {isEffectivelyExpanded && <span>Assistentes</span>}
               </button>
               <button
-                onClick={() => setIsArchivedChatsModalOpen(true)}
-                className={`w-full flex items-center gap-3 h-8 px-3 rounded-md transition-all duration-200 text-sm font-medium text-slate-600 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-white/10 hover:text-slate-900 dark:hover:text-white`}
+                onClick={() => navigate("/archived")}
+                className={`w-full flex items-center gap-3 h-8 px-3 rounded-md transition-all duration-200 text-sm font-medium text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-gray-300 dark:hover:bg-white/10 dark:hover:text-slate-800 dark:text-white`}
                 title="Chats Arquivados"
               >
                 <Archive size={20} />
@@ -462,7 +458,7 @@ const Layout: React.FC = () => {
               <div className="pt-2">
                  <button
                     onClick={() => setIsRecentChatsOpen(!isRecentChatsOpen)}
-                    className="w-full flex items-center justify-between px-3 py-2 text-xs font-semibold text-slate-500 dark:text-gray-400 uppercase tracking-wider hover:text-slate-800 dark:hover:text-gray-200 transition-colors group"
+                    className="w-full flex items-center justify-between px-3 py-2 text-xs font-semibold dark: uppercase tracking-wider hover: dark:hover: transition-colors group"
                  >
                     CONVERSAS RECENTES
                     <ChevronDown size={14} className={`transition-transform duration-200 opacity-0 group-hover:opacity-100 ${isRecentChatsOpen ? '' : '-rotate-90'}`} />
@@ -476,7 +472,7 @@ const Layout: React.FC = () => {
                                         setActiveConversationId(chat.id);
                                         if (!isActive('/chat')) navigate('/chat');
                                     }}
-                                    className={`group relative flex items-center justify-between h-8 px-3 rounded-md cursor-pointer transition-colors ${activeConversationId === chat.id ? 'bg-slate-200 dark:bg-white/10 text-slate-900 dark:text-white' : 'hover:bg-slate-100 dark:hover:bg-white/10 text-slate-600 dark:text-gray-300 hover:text-slate-900 dark:hover:text-white'}`}
+                                    className={`group relative flex items-center justify-between h-8 px-3 rounded-md cursor-pointer transition-colors ${activeConversationId === chat.id ? 'bg-white/10 text-slate-800 dark:text-white' : 'hover:bg-white/10 text-gray-300 hover:text-slate-800 dark:text-white'}`}
                                 >
                                     <span className="text-sm truncate pr-6">{chat.title}</span>
                                     <button
@@ -493,7 +489,7 @@ const Layout: React.FC = () => {
                                                 setOpenChatMenuId(chat.id);
                                             }
                                         }}
-                                        className="absolute right-2 opacity-0 group-hover:opacity-100 p-1 hover:bg-slate-300 dark:hover:bg-white/20 rounded text-slate-500 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white transition-all"
+                                        className="absolute right-2 opacity-0 group-hover:opacity-100 p-1 hover: dark:hover: rounded dark: hover: hover:text-slate-800 dark:text-white transition-all"
                                     >
                                         <MoreVertical size={14} />
                                     </button>
@@ -507,7 +503,7 @@ const Layout: React.FC = () => {
                                             left: `${Math.min(chatMenuPosition.left - 240, window.innerWidth - 250)}px`,
                                             zIndex: 9999
                                         }}
-                                        className="w-60 bg-white/40 dark:bg-white/5 backdrop-blur-xl border border-slate-200 dark:border-white/10 rounded-xl shadow-xl py-2"
+                                        className="w-60 dark: backdrop-blur-xl border border-slate-200 dark:border-slate-200 dark:border-white/10 rounded-xl shadow-xl py-2"
                                     >
                                         <button
                                             onClick={(e) => {
@@ -517,7 +513,7 @@ const Layout: React.FC = () => {
                                                 setChatToShareTitle(chat.title || 'Chat');
                                                 setIsShareModalOpen(true);
                                             }}
-                                            className="w-full flex items-center gap-3 px-4 py-2 text-sm text-slate-700 dark:text-gray-200 hover:bg-slate-100 dark:hover:bg-white/5 transition-colors"
+                                            className="w-full flex items-center gap-3 px-4 py-2 text-sm dark: hover: dark:hover: transition-colors"
                                         >
                                             <Share size={16} />
                                             Compartilhar
@@ -528,7 +524,7 @@ const Layout: React.FC = () => {
                                                 setOpenChatMenuId(null);
                                                 setIsGroupChatModalOpen(true);
                                             }}
-                                            className="w-full flex items-center gap-3 px-4 py-2 text-sm text-slate-700 dark:text-gray-200 hover:bg-slate-100 dark:hover:bg-white/5 transition-colors"
+                                            className="w-full flex items-center gap-3 px-4 py-2 text-sm dark: hover: dark:hover: transition-colors"
                                         >
                                             <UserPlus size={16} />
                                             Iniciar um chat em grupo
@@ -541,7 +537,7 @@ const Layout: React.FC = () => {
                                                 setChatToRenameCurrentName(chat.title || 'Novo Chat');
                                                 setIsRenameModalOpen(true);
                                             }}
-                                            className="w-full flex items-center gap-3 px-4 py-2 text-sm text-slate-700 dark:text-gray-200 hover:bg-slate-100 dark:hover:bg-white/5 transition-colors"
+                                            className="w-full flex items-center gap-3 px-4 py-2 text-sm dark: hover: dark:hover: transition-colors"
                                         >
                                             <Pencil size={16} />
                                             Renomear
@@ -551,7 +547,7 @@ const Layout: React.FC = () => {
                                                 e.stopPropagation();
                                                 handleTransferToProjectClick(chat.id);
                                             }}
-                                            className="w-full flex items-center justify-between px-4 py-2 text-sm text-slate-700 dark:text-gray-200 hover:bg-slate-100 dark:hover:bg-white/5 transition-colors"
+                                            className="w-full flex items-center justify-between px-4 py-2 text-sm dark: hover: dark:hover: transition-colors"
                                         >
                                             <div className="flex items-center gap-3">
                                                 <Folder size={16} />
@@ -560,7 +556,7 @@ const Layout: React.FC = () => {
                                             <ChevronRight size={16} />
                                         </button>
 
-                                        <div className="h-px bg-slate-200 dark:bg-white/10 my-1 mx-4"></div>
+                                        <div className="h-px dark: my-1 mx-4"></div>
 
                                         <button
                                             onClick={async (e) => {
@@ -595,7 +591,7 @@ const Layout: React.FC = () => {
                                                     showToast(newPinnedStatus ? "Chat fixado com sucesso." : "Chat desfixado com sucesso.", "success");
                                                 }
                                             }}
-                                            className="w-full flex items-center gap-3 px-4 py-2 text-sm text-slate-700 dark:text-gray-200 hover:bg-slate-100 dark:hover:bg-white/5 transition-colors"
+                                            className="w-full flex items-center gap-3 px-4 py-2 text-sm dark: hover: dark:hover: transition-colors"
                                         >
                                             <Pin size={16} className={chat.is_pinned ? "text-blue-500" : ""} />
                                             {chat.is_pinned ? 'Desfixar chat' : 'Fixar chat'}
@@ -619,7 +615,7 @@ const Layout: React.FC = () => {
                                                     }
                                                 }
                                             }}
-                                            className="w-full flex items-center gap-3 px-4 py-2 text-sm text-slate-700 dark:text-gray-200 hover:bg-slate-100 dark:hover:bg-white/5 transition-colors"
+                                            className="w-full flex items-center gap-3 px-4 py-2 text-sm dark: hover: dark:hover: transition-colors"
                                         >
                                             <Archive size={16} />
                                             Arquivar
@@ -631,7 +627,7 @@ const Layout: React.FC = () => {
                                                 setIsDeleteModalOpen(true);
                                                 setOpenChatMenuId(null);
                                             }}
-                                            className="w-full flex items-center gap-3 px-4 py-2 text-sm text-red-600 dark:text-[#f87171] hover:bg-slate-100 dark:hover:bg-white/5 transition-colors"
+                                            className="w-full flex items-center gap-3 px-4 py-2 text-sm text-red-600 text-[#f87171] hover: dark:hover: transition-colors"
                                         >
                                             <Trash2 size={16} />
                                             Excluir
@@ -650,40 +646,40 @@ const Layout: React.FC = () => {
         </div>
 
         {/* User Menu (Bottom) */}
-        <div className="p-3 border-t border-slate-200 dark:border-white/10">
+        <div className="p-3 border-t border-slate-200 dark:border-slate-200 dark:border-white/10">
           <div className="relative" ref={userMenuRef}>
              <button
                 onClick={() => setShowUserMenu(!showUserMenu)}
-                className={`w-full flex items-center ${!isEffectivelyExpanded ? 'justify-center' : 'gap-3'} hover:bg-slate-100 dark:hover:bg-white/10 p-2 rounded-md transition-colors text-left group`}
+                className={`w-full flex items-center ${!isEffectivelyExpanded ? 'justify-center' : 'gap-3'} hover:bg-white/10 p-2 rounded-md transition-colors text-left group`}
              >
-                <div className="w-8 h-8 bg-blue-600 dark:bg-blue-500 rounded flex items-center justify-center text-xs text-white font-medium uppercase flex-shrink-0">
+                <div className="w-8 h-8 bg-blue-600 bg-blue-500 rounded flex items-center justify-center text-xs text-slate-800 dark:text-white font-medium uppercase flex-shrink-0">
                     {displayName.substring(0, 2)}
                 </div>
                 {isEffectivelyExpanded && (
                     <>
                         <div className="flex-1 min-w-0">
-                            <p className="text-sm font-medium text-slate-700 dark:text-gray-200 truncate group-hover:text-slate-900 dark:group-hover:text-white">{displayName}</p>
-                            <p className="text-xs text-slate-500 dark:text-gray-400 truncate">{companyName}</p>
+                            <p className="text-sm font-medium dark: truncate group-hover: dark:group-hover:text-slate-800 dark:text-white">{displayName}</p>
+                            <p className="text-xs dark: truncate">{companyName}</p>
                         </div>
-                        <ChevronDown size={14} className="text-slate-400 dark:text-gray-400 group-hover:text-slate-600 dark:group-hover:text-gray-200" />
+                        <ChevronDown size={14} className="dark: group-hover: dark:group-hover:" />
                     </>
                 )}
              </button>
 
              {/* User Menu Dropdown */}
              {showUserMenu && (
-                <div className="absolute bottom-full left-0 w-full mb-2 bg-white/40 dark:bg-white/5 backdrop-blur-xl border border-slate-200 dark:border-white/10 rounded-lg shadow-xl py-1 overflow-hidden animate-in fade-in slide-in-from-bottom-2 duration-200 z-50">
+                <div className="absolute bottom-full left-0 w-full mb-2 dark: backdrop-blur-xl border border-slate-200 dark:border-slate-200 dark:border-white/10 rounded-lg shadow-xl py-1 overflow-hidden animate-in fade-in slide-in-from-bottom-2 duration-200 z-50">
                     <button
                         onClick={() => { toggleTheme(); setShowUserMenu(false); }}
-                        className="w-full text-left px-4 py-2.5 text-sm text-slate-700 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-white/10 flex items-center gap-2"
+                        className="w-full text-left px-4 py-2.5 text-sm dark: hover: dark:hover: flex items-center gap-2"
                     >
                         {theme === 'light' ? <Moon size={16} /> : <Sun size={16} />}
                         <span>{theme === 'light' ? 'Modo Escuro' : 'Modo Claro'}</span>
                     </button>
-                    <div className="border-t border-slate-100 dark:border-white/10 my-1"></div>
+                    <div className="border-t border-slate-200 dark:border-slate-200 dark:border-white/10 my-1"></div>
                     <button
                         onClick={() => signOut()}
-                        className="w-full text-left px-4 py-2.5 text-sm text-red-600 dark:text-red-400 hover:bg-slate-100 dark:hover:bg-white/10 flex items-center gap-2"
+                        className="w-full text-left px-4 py-2.5 text-sm text-red-600 dark:text-red-400 hover: dark:hover: flex items-center gap-2"
                     >
                         <LogOut size={16} />
                         <span>Sair</span>
@@ -787,56 +783,7 @@ const Layout: React.FC = () => {
 
 
 
-      <SearchModal
-          isOpen={isSearchModalOpen}
-          onClose={() => setIsSearchModalOpen(false)}
-          conversations={conversations}
-      />
 
-      <ArchivedChatsModal
-          isOpen={isArchivedChatsModalOpen}
-          onClose={() => setIsArchivedChatsModalOpen(false)}
-          onUnarchive={async (chatId) => {
-              // Reload conversation to the main list
-              const { data, error } = await supabase
-                  .schema('droweder_ia')
-                  .from('conversations')
-                  .select('*')
-                  .eq('id', chatId)
-                  .single();
-              if (data && !error) {
-                  setConversations(prev => [data, ...prev].sort((a, b) => {
-                      if (a.is_pinned === b.is_pinned) {
-                          return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
-                      }
-                      return a.is_pinned ? -1 : 1;
-                  }));
-                  showToast("Chat desarquivado com sucesso.", "success");
-              }
-          }}
-      />
-
-      <ExploreAssistantsModal
-          isOpen={isExploreAssistantsModalOpen}
-          onClose={() => setIsExploreAssistantsModalOpen(false)}
-          assistants={assistants}
-          onSelectAssistant={(assistantId) => {
-              setActiveConversationId(null);
-              setActiveAssistantId(assistantId);
-              if (!isActive('/chat')) navigate('/chat');
-          }}
-          onEditAssistant={(assistant) => {
-              setAssistantToEdit(assistant);
-              setIsCreateAssistantModalOpen(true);
-              setIsExploreAssistantsModalOpen(false);
-          }}
-          onDeleteAssistant={(assistantId) => {
-              const assistant = assistants.find(a => a.id === assistantId);
-              if (assistant) {
-                  setAssistantToDelete(assistant);
-              }
-          }}
-      />
 
       {assistantToDelete && (
         <DeleteAssistantModal
