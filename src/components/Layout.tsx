@@ -472,7 +472,7 @@ const Layout: React.FC = () => {
                                         setActiveConversationId(chat.id);
                                         if (!isActive('/chat')) navigate('/chat');
                                     }}
-                                    className={`group relative flex items-center justify-between h-8 px-3 rounded-md cursor-pointer transition-colors ${activeConversationId === chat.id ? 'bg-white/10 text-slate-800 dark:text-white' : 'hover:bg-white/10 text-gray-300 hover:text-slate-800 dark:text-white'}`}
+                                    className={`group relative flex items-center justify-between h-8 px-3 rounded-md cursor-pointer transition-colors ${activeConversationId === chat.id ? 'bg-black/10 dark:bg-white/10 text-slate-900 dark:text-white' : 'hover:bg-black/5 dark:hover:bg-white/10 text-slate-700 dark:text-gray-300 hover:text-slate-900 dark:hover:text-white'}`}
                                 >
                                     <span className="text-sm truncate pr-6">{chat.title}</span>
                                     <button

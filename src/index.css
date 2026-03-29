@@ -3,23 +3,25 @@
 @tailwind utilities;
 
 @layer base {
-  body {
+  html, body {
     @apply antialiased transition-colors duration-300;
+    min-height: 100vh;
 
     /* Light Mode (Default/Fallback) - Soft, clean light theme */
     background: radial-gradient(
       circle at 50% 50%,
-      #f8fafc 0%,
-      #e2e8f0 100%
+      rgba(255, 255, 255, 1) 0%,
+      rgba(248, 250, 252, 1) 100%
     );
-    background-color: #f8fafc;
+    background-color: #ffffff;
     background-image: none;
     background-attachment: fixed;
     color: #1e293b;
   }
 
   /* Dark Mode Aurora */
-  .dark body {
+  html.dark, html.dark body {
+    background-color: #000000;
     color-scheme: dark;
         /* Aurora Gradient Background */
     background: radial-gradient(
