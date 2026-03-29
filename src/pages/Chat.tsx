@@ -593,7 +593,7 @@ let systemPrompt = `Você é o DRoweder IA, um assistente especialista em manufa
                 <div className="absolute top-4 left-4 z-20" ref={modelMenuRef}>
             <button
                 onClick={() => setShowModelMenu(!showModelMenu)}
-                className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/40 dark:bg-white/5 hover:bg-black/5 dark:hover:bg-white/10 backdrop-blur-xl border border-slate-200 dark:border-slate-200 dark:border-white/10 text-sm font-medium text-gray-300 transition-all shadow-sm"
+                className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/40 dark:bg-white/5 hover:bg-black/5 dark:hover:bg-white/10 backdrop-blur-xl border border-slate-200 dark:border-slate-200 dark:border-white/10 text-sm font-medium text-slate-700 dark:text-gray-300 transition-all shadow-sm"
                 title="Selecionar Modelo IA"
             >
                 <Sparkles size={16} className={selectedModelId !== 'free' ? 'text-blue-500' : 'text-slate-500 dark:text-gray-400'} />
@@ -690,7 +690,7 @@ let systemPrompt = `Você é o DRoweder IA, um assistente especialista em manufa
 
             {messages.map((msg) => (
                 <div key={msg.id} className={`flex gap-4 max-w-3xl mx-auto w-full animate-in fade-in slide-in-from-bottom-2 duration-300 group`}>
-                    <div className={`w-8 h-8 rounded-sm flex items-center justify-center flex-shrink-0 ${msg.role === 'user' ? 'bg-white/10 text-gray-300' : 'bg-[#7e639f] text-white shadow-sm'}`}>
+                    <div className={`w-8 h-8 rounded-sm flex items-center justify-center flex-shrink-0 ${msg.role === 'user' ? 'bg-black/10 dark:bg-white/10 text-slate-700 dark:text-gray-300' : 'bg-[#7e639f] text-white shadow-sm'}`}>
                         {msg.role === 'user' ? <User size={16} /> : <Bot size={16} />}
                     </div>
 
@@ -698,7 +698,7 @@ let systemPrompt = `Você é o DRoweder IA, um assistente especialista em manufa
                         <div className="text-sm font-semibold text-slate-800 dark:text-gray-200">
                             {msg.role === 'user' ? 'Você' : 'DRoweder IA'}
                         </div>
-                        <div className="prose prose-sm prose-slate dark:prose-invert max-w-none text-gray-300 leading-relaxed break-words overflow-x-auto scrollbar-thin scrollbar-thumb-slate-300 dark:scrollbar-thumb-blue-800 hover:scrollbar-thumb-slate-400 dark:hover:scrollbar-thumb-blue-700 scrollbar-track-transparent ">
+                        <div className="prose prose-sm prose-slate dark:prose-invert max-w-none text-slate-800 dark:text-gray-300 leading-relaxed break-words overflow-x-auto scrollbar-thin scrollbar-thumb-slate-300 dark:scrollbar-thumb-blue-800 hover:scrollbar-thumb-slate-400 dark:hover:scrollbar-thumb-blue-700 scrollbar-track-transparent ">
                             {msg.role === 'user' ? (
                                 <div className="whitespace-pre-wrap">{msg.content}</div>
                             ) : (
