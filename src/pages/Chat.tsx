@@ -1,7 +1,6 @@
-import { AuroraModalBackground } from '../components/AuroraModalBackground';
 /* eslint-disable react-hooks/purity */
 import React, { useState, useEffect, useRef } from 'react';
-import { Maximize2, Minimize2, Bot, User, ChevronDown, ShieldCheck, Loader2, Database, AlertCircle, Plus, Mic, ArrowUp, Copy, Check, RefreshCcw, X, File as FileIcon, Sparkles } from 'lucide-react';
+import { Maximize2, Minimize2, Bot, User, ChevronDown, ShieldCheck, Database, AlertCircle, Plus, Mic, ArrowUp, Copy, Check, RefreshCcw, X, File as FileIcon, Sparkles } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
@@ -403,26 +402,26 @@ useEffect(() => {
         setConversations([newConv, ...conversations]);
     }
 
-    // Save user message
-    const { error: msgError } = await supabase
+    // Save user message (Aways wait for DB to avoid race conditions with duplicate states)
+    const { data: savedUserMsg, error: msgError } = await supabase
         .schema('droweder_ia')
         .from('messages')
         .insert({
             conversation_id: conversationId,
             role: 'user',
             content: finalMessageContent
-        });
+        })
+        .select()
+        .single();
 
-    if (msgError) {
+    if (msgError || !savedUserMsg) {
         console.error('Error saving message:', msgError);
         setLoading(false);
         return false;
     }
 
-    // Optimistic update
-    const userMessage: Message = { id: 'temp-' + new Date().getTime(), role: 'user', content: finalMessageContent };
-    // Only append to the currentHistory we passed in, avoiding race conditions if we trimmed history
-    setMessages([...currentHistory, userMessage]);
+    // Safely append the confirmed user message to state, ignoring temp ids
+    setMessages(prev => [...prev.filter(m => !m.id.startsWith('temp-')), savedUserMsg as Message]);
 
     // Text-to-SQL logic
     // We instruct the LLM to behave as a data analyst.
@@ -438,7 +437,8 @@ let systemPrompt = `Você é o DRoweder IA, um assistente especialista em manufa
         4. O sistema executará sua query e retornará o JSON dos resultados em uma mensagem interna.
         5. Quando receber os resultados do JSON (ou se a pergunta não exigir banco de dados), responda ao usuário final APENAS com a análise em linguagem natural e os dados formatados (tabelas markdown, listas).
         6. NÃO exponha comandos SQL na resposta final com textos longos ou não formatados. Se precisar justificar a consulta, e o usuário quiser ver o SQL, envolva-o em blocos de markdown padrão (\`\`\`sql) que agora são ocultos por padrão na interface.
-        7. Seja conciso, profissional e use Português do Brasil.\n        8. VOCÊ TEM ACESSO À INTERNET em tempo real. Sempre que um usuário pedir informações de datas futuras (ex: 2025, 2026), notícias, ou dados não constantes no ERP, NÃO NEGUE O ACESSO; pesquise e responda com base nos resultados da web acoplados à sua requisição.
+        7. Seja conciso, profissional e use Português do Brasil.
+        8. VOCÊ TEM ACESSO À INTERNET em tempo real. Sempre que um usuário pedir informações de datas futuras (ex: 2025, 2026), notícias, ou dados não constantes no ERP, NÃO NEGUE O ACESSO; pesquise e responda com base nos resultados da web acoplados à sua requisição.
         8. O 'empresa_id' do usuário logado é: ${companyId}. Sempre filtre as tabelas por empresa_id = '${companyId}' quando aplicável.
         `;
 
@@ -457,18 +457,13 @@ let systemPrompt = `Você é o DRoweder IA, um assistente especialista em manufa
     ];
 
     try {
-        // Optimistic AI message placeholder
-        const tempAiMessageId = 'temp-ai-' + new Date().getTime();
+        // Optimistic AI message placeholder. We use a more distinct ID.
+        const tempAiMessageId = 'temp-ai-' + Math.random().toString(36).substring(7) + '-' + new Date().getTime();
         const initialAiMessage: Message = { id: tempAiMessageId, role: 'assistant', content: '' };
 
-        // Append user message AND empty AI message to state for streaming
-        setMessages(prev => {
-            // Remove previous temp messages and add new ones
-            const filtered = prev.filter(m => !m.id.startsWith('temp-'));
-            return [...filtered, userMessage, initialAiMessage];
-        });
+        // Append empty AI message to state for streaming
+        setMessages(prev => [...prev, initialAiMessage]);
 
-        // Use standard model for stream (edge function forces the free one anyway)
         const messagesForApi = openRouterMessages.filter(m => m.role !== 'system');
 
 
@@ -586,7 +581,13 @@ let systemPrompt = `Você é o DRoweder IA, um assistente especialista em manufa
 
       {/* Main Chat Area */}
       <div className="relative flex-1 flex flex-col min-w-0 min-h-0 bg-transparent transition-colors duration-200">
-        {loading && <AuroraModalBackground />}
+                {loading && (
+            <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden opacity-50 dark:opacity-80 transition-opacity duration-1000">
+                <div className="absolute -top-[30%] -left-[10%] w-[70%] h-[70%] bg-red-600/30 blur-[80px] rounded-full mix-blend-screen animate-pulse duration-[10000ms]" />
+                <div className="absolute top-[20%] -right-[20%] w-[80%] h-[80%] bg-blue-600/30 blur-[80px] rounded-full mix-blend-screen animate-pulse duration-[7000ms]" />
+                <div className="absolute -bottom-[30%] left-[20%] w-[70%] h-[70%] bg-yellow-500/20 blur-[80px] rounded-full mix-blend-screen animate-pulse duration-[10000ms]" />
+            </div>
+        )}
 
         {/* Header - Simplified */}
                 <div className="absolute top-4 left-4 z-20" ref={modelMenuRef}>
@@ -757,18 +758,7 @@ let systemPrompt = `Você é o DRoweder IA, um assistente especialista em manufa
                     </div>
                 </div>
             ))}
-             {loading && (
-                <div className="flex gap-4 max-w-3xl mx-auto w-full">
-                    <div className="w-8 h-8 rounded-sm bg-purple-600/80 text-white flex items-center justify-center flex-shrink-0">
-                        <Loader2 size={16} className="animate-spin" />
-                    </div>
-                    <div className="flex items-center">
-                        <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce mr-1"></span>
-                        <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce mr-1 delay-100"></span>
-                        <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce delay-200"></span>
-                    </div>
-                </div>
-            )}
+
             <div ref={messagesEndRef} />
         </div>
 
