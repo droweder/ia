@@ -24,11 +24,11 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     const root = window.document.documentElement;
     if (theme === 'dark') {
       root.classList.add('dark');
-      root.classList.remove('light'); root.style.backgroundColor = "#0B0F19"; root.style.color = "#ffffff";
+      root.classList.remove('light'); root.style.backgroundColor = ""; root.style.color = "";
       console.log("[ThemeContext] Set dark mode colors. root.className:", root.className);
     } else {
       root.classList.remove('dark');
-      root.classList.add('light'); root.style.backgroundColor = "#ffffff"; root.style.color = "#1e293b";
+      root.classList.add('light'); root.style.backgroundColor = ""; root.style.color = "";
       console.log("[ThemeContext] Set light mode colors. root.className:", root.className);
     }
     localStorage.theme = theme;
