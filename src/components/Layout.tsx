@@ -371,13 +371,13 @@ const Layout: React.FC = () => {
   const companyName = user?.user_metadata?.company_name || 'Minha Empresa'; // In a real app, fetch from relation
 
   return (
-    <div className="relative flex h-screen font-sans bg-slate-50 dark:bg-slate-50 dark:bg-[#0B0F19] selection:bg-blue-500/30 overflow-hidden">
+    <div className="relative flex h-screen font-sans bg-slate-50 dark:bg-white dark:bg-[#0B0F19] selection:bg-blue-500/30 overflow-hidden">
       <AuroraModalBackground />
       {/* Sidebar - Multiplier AI Style */}
       <aside
       onMouseEnter={() => setIsSidebarHovered(true)}
       onMouseLeave={() => setIsSidebarHovered(false)}
-      className={`${!isEffectivelyExpanded ? 'w-20' : 'w-72'} border-r border-slate-200 bg-white/80 dark:border-slate-200 dark:border-slate-200 dark:border-white/10 dark:bg-white/80 dark:bg-white/5 backdrop-blur-xl border-slate-200 dark:border-slate-200 dark:border-white/10 hidden md:flex flex-col z-10 transition-all duration-300 shrink-0`}>
+      className={`${!isEffectivelyExpanded ? 'w-20' : 'w-72'} border-r border-slate-200 bg-white/80 dark:border-slate-200 dark:border-slate-200 dark:border-white/10 dark:bg-slate-50 dark:bg-white/5 backdrop-blur-xl border-slate-200 dark:border-slate-200 dark:border-white/10 hidden md:flex flex-col z-10 transition-all duration-300 shrink-0`}>
 
         {/* Header da Sidebar */}
         <div className={`h-12 flex items-center px-4 border-b border-slate-200 dark:border-slate-200 dark:border-white/10 ${!isEffectivelyExpanded ? 'justify-center' : 'justify-between'}`}>

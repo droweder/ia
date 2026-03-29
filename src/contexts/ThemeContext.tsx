@@ -23,10 +23,10 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     const root = window.document.documentElement;
     if (theme === 'dark') {
       root.classList.add('dark');
-      root.classList.remove('light');
+      root.classList.remove('light'); root.style.backgroundColor = "#0B0F19"; root.style.color = "#ffffff";
     } else {
       root.classList.remove('dark');
-      root.classList.add('light');
+      root.classList.add('light'); root.style.backgroundColor = "#ffffff"; root.style.color = "#1e293b";
     }
     localStorage.theme = theme;
   }, [theme]);

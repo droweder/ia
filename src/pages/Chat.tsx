@@ -593,7 +593,7 @@ let systemPrompt = `Você é o DRoweder IA, um assistente especialista em manufa
                 <div className="absolute top-4 left-4 z-20" ref={modelMenuRef}>
             <button
                 onClick={() => setShowModelMenu(!showModelMenu)}
-                className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/60 dark:bg-white/5 hover:bg-white/10 backdrop-blur-xl border border-slate-200 dark:border-slate-200 dark:border-white/10 text-sm font-medium text-gray-300 transition-all shadow-sm"
+                className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/40 dark:bg-white/5 hover:bg-white/10 backdrop-blur-xl border border-slate-200 dark:border-slate-200 dark:border-white/10 text-sm font-medium text-gray-300 transition-all shadow-sm"
                 title="Selecionar Modelo IA"
             >
                 <Sparkles size={16} className={selectedModelId !== 'free' ? 'text-blue-500' : 'text-slate-500 dark:text-gray-400'} />
@@ -603,7 +603,7 @@ let systemPrompt = `Você é o DRoweder IA, um assistente especialista em manufa
 
             {/* Dropdown de Modelos */}
             {showModelMenu && (
-                <div className="absolute top-full left-0 mt-2 w-64 bg-slate-50 dark:bg-slate-50 dark:bg-[#0B0F19] backdrop-blur-xl border border-slate-200 dark:border-slate-200 dark:border-white/10 rounded-xl shadow-lg overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 duration-200">
+                <div className="absolute top-full left-0 mt-2 w-64 bg-slate-50 dark:bg-white dark:bg-transparent backdrop-blur-xl border border-slate-200 dark:border-slate-200 dark:border-white/10 rounded-xl shadow-lg overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 duration-200">
                     <div className="p-2 border-b border-slate-200 dark:border-slate-200 dark:border-white/10">
                         <p className="text-xs font-semibold text-slate-500 dark:text-gray-400 uppercase tracking-wider pl-2">Selecione o Modelo</p>
                     </div>
@@ -618,12 +618,12 @@ let systemPrompt = `Você é o DRoweder IA, um assistente especialista em manufa
                                 className={`w-full flex items-center justify-between p-2 rounded-lg transition-colors text-left
                                     ${selectedModelId === model.id
                                         ? 'bg-blue-500/10 border border-blue-500/20'
-                                        : 'hover:bg-white/60 dark:bg-white/5 border border-transparent'
+                                        : 'hover:bg-white/40 dark:bg-white/5 border border-transparent'
                                     }
                                 `}
                             >
                                 <div className="flex items-center gap-3">
-                                    <div className={`p-1.5 rounded-md ${selectedModelId === model.id ? 'bg-blue-500/20 text-blue-400' : 'bg-white/60 dark:bg-white/5 text-slate-500 dark:text-gray-400'}`}>
+                                    <div className={`p-1.5 rounded-md ${selectedModelId === model.id ? 'bg-blue-500/20 text-blue-400' : 'bg-white/40 dark:bg-white/5 text-slate-500 dark:text-gray-400'}`}>
                                         <Bot size={16} />
                                     </div>
                                     <div className="flex flex-col">
@@ -661,11 +661,11 @@ let systemPrompt = `Você é o DRoweder IA, um assistente especialista em manufa
                         </div>
                     ) : (
                         <div className="grid grid-cols-2 gap-4 max-w-lg w-full">
-                            <button onClick={() => setInput("Qual a previsão de demanda para o próximo mês?")} className="p-4 border border-slate-200 dark:border-slate-200 dark:border-white/10 rounded-xl hover:bg-white/10 bg-white/60 dark:bg-white/5 backdrop-blur-sm text-left transition-colors shadow-sm">
+                            <button onClick={() => setInput("Qual a previsão de demanda para o próximo mês?")} className="p-4 border border-slate-200 dark:border-slate-200 dark:border-white/10 rounded-xl hover:bg-white/10 bg-white/40 dark:bg-white/5 backdrop-blur-sm text-left transition-colors shadow-sm">
                                 <h3 className="text-sm font-medium text-slate-800 dark:text-slate-800 dark:text-white mb-1">Previsão de Demanda</h3>
                                 <p className="text-xs text-slate-500 dark:text-gray-400">Analise tendências futuras</p>
                             </button>
-                             <button onClick={() => setInput("Quais ordens estão atrasadas?")} className="p-4 border border-slate-200 dark:border-slate-200 dark:border-white/10 rounded-xl hover:bg-white/10 bg-white/60 dark:bg-white/5 backdrop-blur-sm text-left transition-colors shadow-sm">
+                             <button onClick={() => setInput("Quais ordens estão atrasadas?")} className="p-4 border border-slate-200 dark:border-slate-200 dark:border-white/10 rounded-xl hover:bg-white/10 bg-white/40 dark:bg-white/5 backdrop-blur-sm text-left transition-colors shadow-sm">
                                 <h3 className="text-sm font-medium text-slate-800 dark:text-slate-800 dark:text-white mb-1">Ordens Atrasadas</h3>
                                 <p className="text-xs text-slate-500 dark:text-gray-400">Liste gargalos na produção</p>
                             </button>
@@ -718,7 +718,7 @@ let systemPrompt = `Você é o DRoweder IA, um assistente especialista em manufa
                             <div className="flex items-center gap-2 mt-2">
                                 <button
                                     onClick={() => handleCopyMessage(msg.content, msg.id)}
-                                    className="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-gray-300 rounded-md hover:bg-slate-100 dark:hover:bg-white/60 dark:bg-white/5 transition-colors"
+                                    className="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-gray-300 rounded-md hover:bg-slate-100 dark:hover:bg-white/40 dark:bg-white/5 transition-colors"
                                     title="Copiar mensagem"
                                 >
                                     {copiedMessages[msg.id] ? <Check size={16} className="text-green-500" /> : <Copy size={16} />}
@@ -729,7 +729,7 @@ let systemPrompt = `Você é o DRoweder IA, um assistente especialista em manufa
                                     <button
                                         onClick={handleRegenerate}
                                         disabled={loading}
-                                        className="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-gray-300 rounded-md hover:bg-slate-100 dark:hover:bg-white/60 dark:bg-white/5 transition-colors disabled:opacity-50"
+                                        className="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-gray-300 rounded-md hover:bg-slate-100 dark:hover:bg-white/40 dark:bg-white/5 transition-colors disabled:opacity-50"
                                         title="Regerar resposta"
                                     >
                                         <RefreshCcw size={16} className={loading ? "animate-spin" : ""} />
@@ -749,7 +749,7 @@ let systemPrompt = `Você é o DRoweder IA, um assistente especialista em manufa
                                     <span>{showSql === msg.id ? 'Ocultar SQL' : 'Debug SQL'}</span>
                                 </button>
                                 {showSql === msg.id && (
-                                    <div className="mt-2 p-3 bg-white/60 dark:bg-white/5 rounded-md border border-slate-200 dark:border-slate-200 dark:border-white/10 font-mono text-xs overflow-x-auto text-slate-500 dark:text-gray-400 backdrop-blur-sm">
+                                    <div className="mt-2 p-3 bg-white/40 dark:bg-white/5 rounded-md border border-slate-200 dark:border-slate-200 dark:border-white/10 font-mono text-xs overflow-x-auto text-slate-500 dark:text-gray-400 backdrop-blur-sm">
                                         SELECT * FROM planintex.ordens ...
                                     </div>
                                 )}
@@ -765,7 +765,7 @@ let systemPrompt = `Você é o DRoweder IA, um assistente especialista em manufa
         {/* Input Area */}
         <div className="p-4 bg-transparent backdrop-blur-md">
             <div className="max-w-3xl mx-auto relative">
-                <div className="relative flex flex-col group bg-white/60 dark:bg-white/5 border border-slate-200 dark:border-slate-200 dark:border-white/10 backdrop-blur-xl rounded-[26px] transition-all overflow-hidden focus-within:ring-2 focus-within:ring-blue-500/50 shadow-lg">
+                <div className="relative flex flex-col group bg-white/40 dark:bg-white/5 border border-slate-200 dark:border-slate-200 dark:border-white/10 backdrop-blur-xl rounded-[26px] transition-all overflow-hidden focus-within:ring-2 focus-within:ring-blue-500/50 shadow-lg">
                     {/* Attachments Preview */}
                     {attachments.length > 0 && (
                         <div className="flex flex-wrap gap-2 p-3 pb-0">
@@ -781,7 +781,7 @@ let systemPrompt = `Você é o DRoweder IA, um assistente especialista em manufa
                                     )}
                                     <button
                                         onClick={() => removeAttachment(index)}
-                                        className="absolute -top-1 -right-1 bg-white/60 dark:bg-white/5 backdrop-blur-xl text-gray-200 rounded-full p-0.5 opacity-0 group-hover/attachment:opacity-100 transition-opacity border border-slate-200 dark:border-slate-200 dark:border-white/10 shadow-sm hover:bg-slate-700"
+                                        className="absolute -top-1 -right-1 bg-white/40 dark:bg-white/5 backdrop-blur-xl text-gray-200 rounded-full p-0.5 opacity-0 group-hover/attachment:opacity-100 transition-opacity border border-slate-200 dark:border-slate-200 dark:border-white/10 shadow-sm hover:bg-slate-700"
                                     >
                                         <X size={12} />
                                     </button>
