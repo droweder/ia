@@ -13,9 +13,6 @@ import { SelectProjectModal } from './SelectProjectModal';
 import { RenameChatModal } from './RenameChatModal';
 import { ShareChatModal } from './ShareChatModal';
 import { GroupChatModal } from './GroupChatModal';
-import { SearchModal } from './SearchModal';
-import { ArchivedChatsModal } from './ArchivedChatsModal';
-import { ExploreAssistantsModal } from './ExploreAssistantsModal';
 import { DeleteAssistantModal } from './DeleteAssistantModal';
 import { DeleteChatModal } from './DeleteChatModal';
 
@@ -100,14 +97,11 @@ const Layout: React.FC = () => {
 
 
   // Search Modal
-  const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
-  const [isArchivedChatsModalOpen, setIsArchivedChatsModalOpen] = useState(false);
 
   // Assistant state
   const [assistants, setAssistants] = useState<any[]>([]);
   const [isCreateAssistantModalOpen, setIsCreateAssistantModalOpen] = useState(false);
-  const [isExploreAssistantsModalOpen, setIsExploreAssistantsModalOpen] = useState(false);
-  const [assistantToEdit, setAssistantToEdit] = useState<any>(null);
+    const [assistantToEdit, setAssistantToEdit] = useState<any>(null);
   const [assistantToDelete, setAssistantToDelete] = useState<any>(null);
 
   const loadAssistants = async () => {
@@ -416,8 +410,8 @@ const Layout: React.FC = () => {
                 {isEffectivelyExpanded && <span>Novo Chat</span>}
               </button>
               <button
-                onClick={() => setIsSearchModalOpen(true)}
-                className={`w-full flex items-center gap-3 h-8 px-3 rounded-md transition-all duration-200 text-sm font-medium text-gray-300 hover:bg-white/10 hover:text-white`}
+                onClick={() => navigate("/search")}
+                className={`w-full flex items-center gap-3 h-8 px-3 rounded-md transition-all duration-200 text-sm font-medium ${isActive("/search") ? "bg-white/10 text-white border-r-2 border-white/50" : "text-gray-300 hover:bg-white/10 hover:text-white"}`}
                 title="Buscar em chats"
               >
                 <Search size={20} />
@@ -440,15 +434,15 @@ const Layout: React.FC = () => {
                 {isEffectivelyExpanded && <span>Projetos</span>}
               </button>
               <button
-                onClick={() => setIsExploreAssistantsModalOpen(true)}
-                className={`w-full flex items-center gap-3 h-8 px-3 rounded-md transition-all duration-200 text-sm font-medium text-gray-300 hover:bg-white/10 hover:text-white`}
+                onClick={() => navigate("/assistants")}
+                className={`w-full flex items-center gap-3 h-8 px-3 rounded-md transition-all duration-200 text-sm font-medium ${isActive("/assistants") ? "bg-white/10 text-white border-r-2 border-white/50" : "text-gray-300 hover:bg-white/10 hover:text-white"}`}
                 title="Assistentes"
               >
                 <Bot size={20} />
                 {isEffectivelyExpanded && <span>Assistentes</span>}
               </button>
               <button
-                onClick={() => setIsArchivedChatsModalOpen(true)}
+                onClick={() => navigate("/archived")}
                 className={`w-full flex items-center gap-3 h-8 px-3 rounded-md transition-all duration-200 text-sm font-medium text-gray-300 hover:bg-white/10 hover:text-white`}
                 title="Chats Arquivados"
               >
@@ -789,56 +783,7 @@ const Layout: React.FC = () => {
 
 
 
-      <SearchModal
-          isOpen={isSearchModalOpen}
-          onClose={() => setIsSearchModalOpen(false)}
-          conversations={conversations}
-      />
 
-      <ArchivedChatsModal
-          isOpen={isArchivedChatsModalOpen}
-          onClose={() => setIsArchivedChatsModalOpen(false)}
-          onUnarchive={async (chatId) => {
-              // Reload conversation to the main list
-              const { data, error } = await supabase
-                  .schema('droweder_ia')
-                  .from('conversations')
-                  .select('*')
-                  .eq('id', chatId)
-                  .single();
-              if (data && !error) {
-                  setConversations(prev => [data, ...prev].sort((a, b) => {
-                      if (a.is_pinned === b.is_pinned) {
-                          return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
-                      }
-                      return a.is_pinned ? -1 : 1;
-                  }));
-                  showToast("Chat desarquivado com sucesso.", "success");
-              }
-          }}
-      />
-
-      <ExploreAssistantsModal
-          isOpen={isExploreAssistantsModalOpen}
-          onClose={() => setIsExploreAssistantsModalOpen(false)}
-          assistants={assistants}
-          onSelectAssistant={(assistantId) => {
-              setActiveConversationId(null);
-              setActiveAssistantId(assistantId);
-              if (!isActive('/chat')) navigate('/chat');
-          }}
-          onEditAssistant={(assistant) => {
-              setAssistantToEdit(assistant);
-              setIsCreateAssistantModalOpen(true);
-              setIsExploreAssistantsModalOpen(false);
-          }}
-          onDeleteAssistant={(assistantId) => {
-              const assistant = assistants.find(a => a.id === assistantId);
-              if (assistant) {
-                  setAssistantToDelete(assistant);
-              }
-          }}
-      />
 
       {assistantToDelete && (
         <DeleteAssistantModal

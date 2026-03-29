@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/purity */
 import React, { useState, useEffect, useRef } from 'react';
-import { Bot, User, ChevronDown, ShieldCheck, Loader2, Database, AlertCircle, Plus, Mic, ArrowUp, Copy, Check, RefreshCcw, X, File as FileIcon, Sparkles } from 'lucide-react';
+import { Maximize2, Minimize2, Bot, User, ChevronDown, ShieldCheck, Loader2, Database, AlertCircle, Plus, Mic, ArrowUp, Copy, Check, RefreshCcw, X, File as FileIcon, Sparkles } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
@@ -116,6 +116,7 @@ const Chat: React.FC = () => {
   }, []);
 
   const [input, setInput] = useState("");
+  const [isInputExpanded, setIsInputExpanded] = useState(false);
 
   const { conversations, setConversations, activeConversationId, setActiveConversationId, activeAssistantId, setActiveAssistantId, assistants } = useOutletContext<LayoutContextType>();
   const [isRecording, setIsRecording] = useState(false);
@@ -780,7 +781,7 @@ let systemPrompt = `Você é o DRoweder IA, um assistente especialista em manufa
         {/* Input Area */}
         <div className="p-4 bg-transparent backdrop-blur-md">
             <div className="max-w-3xl mx-auto relative">
-                <div className="relative flex flex-col group bg-[#2f2f2f] rounded-[26px] transition-all overflow-hidden focus-within:ring-2 focus-within:ring-gray-600">
+                <div className="relative flex flex-col group bg-white/5 border border-white/10 backdrop-blur-xl rounded-[26px] transition-all overflow-hidden focus-within:ring-2 focus-within:ring-blue-500/50 shadow-lg">
                     {/* Attachments Preview */}
                     {attachments.length > 0 && (
                         <div className="flex flex-wrap gap-2 p-3 pb-0">
@@ -832,11 +833,18 @@ let systemPrompt = `Você é o DRoweder IA, um assistente especialista em manufa
                         }}
                         placeholder="Pergunte alguma coisa"
                         disabled={loading}
-                        rows={1}
-                        className="flex-1 py-3.5 bg-transparent resize-none focus:outline-none text-base text-slate-900 dark:text-gray-100 placeholder-slate-500 dark:placeholder-gray-400 disabled:opacity-50 max-h-[200px]"
-                        style={{ minHeight: '52px' }}
+                        rows={isInputExpanded ? 10 : 1}
+                        className={`flex-1 py-3.5 bg-transparent resize-none focus:outline-none text-base text-white placeholder-gray-400 disabled:opacity-50 transition-all ${isInputExpanded ? "min-h-[240px] max-h-[50vh]" : "min-h-[52px] max-h-[200px]"}`}
+                        style={{ overflowY: "auto" }}
                     />
                     <div className="p-2 pr-3 flex items-center gap-2 pb-[10px]">
+                        <button
+                            onClick={() => setIsInputExpanded(!isInputExpanded)}
+                            className="w-8 h-8 rounded-full flex items-center justify-center transition-colors text-gray-400 hover:text-white hover:bg-white/10"
+                            title={isInputExpanded ? "Reduzir" : "Expandir"}
+                        >
+                            {isInputExpanded ? <Minimize2 size={16} /> : <Maximize2 size={16} />}
+                        </button>
                         <button
                             onClick={toggleRecording}
                             className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors border border-transparent
