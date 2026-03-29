@@ -1,3 +1,4 @@
+import { AuroraModalBackground } from '../components/AuroraModalBackground';
 /* eslint-disable react-hooks/purity */
 import React, { useState, useEffect, useRef } from 'react';
 import { Maximize2, Minimize2, Bot, User, ChevronDown, ShieldCheck, Loader2, Database, AlertCircle, Plus, Mic, ArrowUp, Copy, Check, RefreshCcw, X, File as FileIcon, Sparkles } from 'lucide-react';
@@ -584,68 +585,61 @@ let systemPrompt = `Você é o DRoweder IA, um assistente especialista em manufa
     <div className="flex flex-1 flex-col h-full min-h-0 bg-transparent overflow-hidden transition-colors duration-200">
 
       {/* Main Chat Area */}
-      <div className="flex-1 flex flex-col min-w-0 min-h-0 bg-transparent transition-colors duration-200">
+      <div className="relative flex-1 flex flex-col min-w-0 min-h-0 bg-transparent transition-colors duration-200">
+        {loading && <AuroraModalBackground />}
+
         {/* Header - Simplified */}
-        <div className="h-14 border-b border-white/10 flex justify-between items-center bg-white/5 backdrop-blur-md px-4 shadow-sm z-10">
-            <div className="flex items-center gap-4">
+                <div className="absolute top-4 left-4 z-20" ref={modelMenuRef}>
+            <button
+                onClick={() => setShowModelMenu(!showModelMenu)}
+                className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 backdrop-blur-xl border border-white/10 text-sm font-medium text-gray-300 transition-all shadow-sm"
+                title="Selecionar Modelo IA"
+            >
+                <Sparkles size={16} className={selectedModelId !== 'free' ? 'text-blue-500' : 'text-gray-400'} />
+                <span className="hidden sm:inline">{MODELS.find(m => m.id === selectedModelId)?.name || 'Modelo'}</span>
+                <ChevronDown size={14} className="text-gray-400" />
+            </button>
 
-
-                {/* Model Selector */}
-                <div className="relative" ref={modelMenuRef}>
-                    <button
-                        onClick={() => setShowModelMenu(!showModelMenu)}
-                        className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-black/20 hover:bg-black/40 backdrop-blur-md border border-white/10 text-sm font-medium text-gray-300 transition-all shadow-sm"
-                        title="Selecionar Modelo IA"
-                    >
-                        <Sparkles size={16} className={selectedModelId !== 'free' ? 'text-blue-500 dark:text-blue-400' : 'text-gray-400'} />
-                        <span className="hidden sm:inline">{MODELS.find(m => m.id === selectedModelId)?.name || 'Modelo'}</span>
-                        <ChevronDown size={14} className="text-slate-400" />
-                    </button>
-
-                    {/* Dropdown de Modelos */}
-                    {showModelMenu && (
-                        <div className="absolute top-full left-4 mt-2 w-64 bg-white/5 backdrop-blur-xl border border-white/10 rounded-xl shadow-lg overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 duration-200">
-                            <div className="p-2 border-b border-slate-100 dark:border-white/5">
-                                <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider pl-2">Selecione o Modelo</p>
-                            </div>
-                            <div className="p-1 max-h-60 overflow-y-auto scrollbar-thin scrollbar-thumb-slate-300 dark:scrollbar-thumb-blue-800 hover:scrollbar-thumb-slate-400 dark:hover:scrollbar-thumb-blue-700">
-                                {MODELS.map(modelOption => (
-                                    <button
-                                        key={modelOption.id}
-                                        onClick={() => {
-                                            setSelectedModelId(modelOption.id);
-                                            setShowModelMenu(false);
-                                        }}
-                                        className={`w-full flex flex-col text-left px-3 py-2 rounded-lg transition-colors ${
-                                            selectedModelId === modelOption.id
-                                                ? 'bg-blue-500/10 border border-blue-500/20'
-                                                : 'hover:bg-white/5 border border-transparent'
-                                        }`}
-                                    >
-                                        <div className="flex items-center justify-between w-full">
-                                            <span className={`text-sm font-medium ${selectedModelId === modelOption.id ? 'text-blue-700 dark:text-blue-400' : 'text-slate-700 dark:text-gray-200'}`}>
-                                                {modelOption.name}
-                                            </span>
-                                            {modelOption.isPaid ? (
-                                                <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">PAGO</span>
-                                            ) : (
-                                                <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">GRÁTIS</span>
-                                            )}
-                                        </div>
-                                        <span className="text-xs text-gray-400 mt-0.5">{modelOption.description}</span>
-                                    </button>
-                                ))}
-                            </div>
-                        </div>
-                    )}
+            {/* Dropdown de Modelos */}
+            {showModelMenu && (
+                <div className="absolute top-full left-0 mt-2 w-64 bg-[#0B0F19] backdrop-blur-xl border border-white/10 rounded-xl shadow-lg overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 duration-200">
+                    <div className="p-2 border-b border-white/10">
+                        <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider pl-2">Selecione o Modelo</p>
+                    </div>
+                    <div className="p-2 flex flex-col gap-1 max-h-[300px] overflow-y-auto scrollbar-thin scrollbar-thumb-blue-800 hover:scrollbar-thumb-blue-700">
+                        {MODELS.map(model => (
+                            <button
+                                key={model.id}
+                                onClick={() => {
+                                    setSelectedModelId(model.id);
+                                    setShowModelMenu(false);
+                                }}
+                                className={`w-full flex items-center justify-between p-2 rounded-lg transition-colors text-left
+                                    ${selectedModelId === model.id
+                                        ? 'bg-blue-500/10 border border-blue-500/20'
+                                        : 'hover:bg-white/5 border border-transparent'
+                                    }
+                                `}
+                            >
+                                <div className="flex items-center gap-3">
+                                    <div className={`p-1.5 rounded-md ${selectedModelId === model.id ? 'bg-blue-500/20 text-blue-400' : 'bg-white/5 text-gray-400'}`}>
+                                        <Bot size={16} />
+                                    </div>
+                                    <div className="flex flex-col">
+                                        <span className={`text-sm font-medium ${selectedModelId === model.id ? 'text-blue-400' : 'text-gray-200'}`}>
+                                            {model.name}
+                                        </span>
+                                        <span className="text-xs text-gray-500">
+                                            {model.description}
+                                        </span>
+                                    </div>
+                                </div>
+                                {selectedModelId === model.id && <ShieldCheck size={16} className="text-blue-500" />}
+                            </button>
+                        ))}
+                    </div>
                 </div>
-            </div>
-
-            {/* Connection Badge */}
-            <div className="flex items-center gap-2 text-xs font-medium text-gray-300 bg-slate-200/50 dark:bg-white/10 px-3 py-1.5 rounded-full">
-                <ShieldCheck size={14} className="text-emerald-500 dark:text-emerald-400" />
-                <span className="hidden sm:inline">Planintex Conectado</span>
-            </div>
+            )}
         </div>
 
         {/* Messages */}
