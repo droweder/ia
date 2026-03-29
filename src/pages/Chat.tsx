@@ -43,7 +43,7 @@ const CodeBlock = ({ node, inline, className, children, ...props }: any) => {
 
     if (inline || !match) {
         return (
-            <code {...props} className={`${className || ''} bg-white/10 px-1.5 py-0.5 rounded-md font-mono text-sm text-pink-400`}>
+            <code {...props} className={`${className || ''} bg-black/10 dark:bg-white/10 px-1.5 py-0.5 rounded-md font-mono text-sm text-pink-600 dark:text-pink-400`}>
                 {children}
             </code>
         );
@@ -593,7 +593,7 @@ let systemPrompt = `Você é o DRoweder IA, um assistente especialista em manufa
                 <div className="absolute top-4 left-4 z-20" ref={modelMenuRef}>
             <button
                 onClick={() => setShowModelMenu(!showModelMenu)}
-                className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/40 dark:bg-white/5 hover:bg-white/10 backdrop-blur-xl border border-slate-200 dark:border-slate-200 dark:border-white/10 text-sm font-medium text-gray-300 transition-all shadow-sm"
+                className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/40 dark:bg-white/5 hover:bg-black/5 dark:hover:bg-white/10 backdrop-blur-xl border border-slate-200 dark:border-slate-200 dark:border-white/10 text-sm font-medium text-gray-300 transition-all shadow-sm"
                 title="Selecionar Modelo IA"
             >
                 <Sparkles size={16} className={selectedModelId !== 'free' ? 'text-blue-500' : 'text-slate-500 dark:text-gray-400'} />
@@ -647,7 +647,7 @@ let systemPrompt = `Você é o DRoweder IA, um assistente especialista em manufa
         <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-6 bg-transparent scrollbar-thin scrollbar-thumb-slate-300 dark:scrollbar-thumb-blue-800 hover:scrollbar-thumb-slate-400 dark:hover:scrollbar-thumb-blue-700 scrollbar-track-transparent ">
             {messages.length === 0 && !loading && (
                 <div className="flex flex-col items-center justify-center h-full text-slate-500 dark:text-gray-300 space-y-6">
-                    <div className="w-16 h-16 bg-white/10 backdrop-blur-md rounded-full flex items-center justify-center shadow-sm border border-slate-200 dark:border-white/20">
+                    <div className="w-16 h-16 bg-black/5 dark:bg-white/10 backdrop-blur-md rounded-full flex items-center justify-center shadow-sm border border-slate-200 dark:border-white/20">
                         <Bot size={32} className="text-slate-700 dark:text-slate-800 dark:text-white" />
                     </div>
                     {activeAssistant ? (
@@ -661,11 +661,11 @@ let systemPrompt = `Você é o DRoweder IA, um assistente especialista em manufa
                         </div>
                     ) : (
                         <div className="grid grid-cols-2 gap-4 max-w-lg w-full">
-                            <button onClick={() => setInput("Qual a previsão de demanda para o próximo mês?")} className="p-4 border border-slate-200 dark:border-slate-200 dark:border-white/10 rounded-xl hover:bg-white/10 bg-white/40 dark:bg-white/5 backdrop-blur-sm text-left transition-colors shadow-sm">
+                            <button onClick={() => setInput("Qual a previsão de demanda para o próximo mês?")} className="p-4 border border-slate-200 dark:border-slate-200 dark:border-white/10 rounded-xl hover:bg-black/5 dark:hover:bg-black/5 dark:hover:bg-white/10 bg-white/80 dark:bg-white/5 backdrop-blur-sm text-left transition-colors shadow-sm">
                                 <h3 className="text-sm font-medium text-slate-800 dark:text-slate-800 dark:text-white mb-1">Previsão de Demanda</h3>
                                 <p className="text-xs text-slate-500 dark:text-gray-400">Analise tendências futuras</p>
                             </button>
-                             <button onClick={() => setInput("Quais ordens estão atrasadas?")} className="p-4 border border-slate-200 dark:border-slate-200 dark:border-white/10 rounded-xl hover:bg-white/10 bg-white/40 dark:bg-white/5 backdrop-blur-sm text-left transition-colors shadow-sm">
+                             <button onClick={() => setInput("Quais ordens estão atrasadas?")} className="p-4 border border-slate-200 dark:border-slate-200 dark:border-white/10 rounded-xl hover:bg-black/5 dark:hover:bg-black/5 dark:hover:bg-white/10 bg-white/80 dark:bg-white/5 backdrop-blur-sm text-left transition-colors shadow-sm">
                                 <h3 className="text-sm font-medium text-slate-800 dark:text-slate-800 dark:text-white mb-1">Ordens Atrasadas</h3>
                                 <p className="text-xs text-slate-500 dark:text-gray-400">Liste gargalos na produção</p>
                             </button>
@@ -690,7 +690,7 @@ let systemPrompt = `Você é o DRoweder IA, um assistente especialista em manufa
 
             {messages.map((msg) => (
                 <div key={msg.id} className={`flex gap-4 max-w-3xl mx-auto w-full animate-in fade-in slide-in-from-bottom-2 duration-300 group`}>
-                    <div className={`w-8 h-8 rounded-sm flex items-center justify-center flex-shrink-0 ${msg.role === 'user' ? 'bg-white/10 text-gray-300' : 'bg-[#7e639f] text-slate-800 dark:text-white shadow-sm'}`}>
+                    <div className={`w-8 h-8 rounded-sm flex items-center justify-center flex-shrink-0 ${msg.role === 'user' ? 'bg-white/10 text-gray-300' : 'bg-[#7e639f] text-white shadow-sm'}`}>
                         {msg.role === 'user' ? <User size={16} /> : <Bot size={16} />}
                     </div>
 
@@ -794,7 +794,7 @@ let systemPrompt = `Você é o DRoweder IA, um assistente especialista em manufa
                         <div className="flex items-center justify-center p-2 pl-3 pb-[10px]">
                             <button
                                 onClick={() => fileInputRef.current?.click()}
-                                className="w-8 h-8 rounded-full flex items-center justify-center text-slate-500 hover:text-slate-800 dark:text-slate-500 dark:text-gray-400 dark:hover:text-gray-200 transition-colors border border-transparent hover:bg-black/5 dark:hover:bg-white/10"
+                                className="w-8 h-8 rounded-full flex items-center justify-center text-slate-500 hover:text-slate-800 dark:text-slate-500 dark:text-gray-400 dark:hover:text-gray-200 transition-colors border border-transparent hover:bg-black/5 dark:hover:bg-black/5 dark:hover:bg-white/10"
                             >
                                 <Plus size={20} strokeWidth={2.5} />
                             </button>
@@ -824,7 +824,7 @@ let systemPrompt = `Você é o DRoweder IA, um assistente especialista em manufa
                     <div className="p-2 pr-3 flex items-center gap-2 pb-[10px]">
                         <button
                             onClick={() => setIsInputExpanded(!isInputExpanded)}
-                            className="w-8 h-8 rounded-full flex items-center justify-center transition-colors text-slate-500 hover:text-slate-800 dark:text-slate-500 dark:text-gray-400 dark:hover:text-slate-800 dark:text-white hover:bg-white/10"
+                            className="w-8 h-8 rounded-full flex items-center justify-center transition-colors text-slate-500 hover:text-slate-800 dark:text-slate-500 dark:text-gray-400 dark:hover:text-slate-800 dark:text-white hover:bg-black/5 dark:hover:bg-white/10"
                             title={isInputExpanded ? "Reduzir" : "Expandir"}
                         >
                             {isInputExpanded ? <Minimize2 size={16} /> : <Maximize2 size={16} />}
@@ -834,7 +834,7 @@ let systemPrompt = `Você é o DRoweder IA, um assistente especialista em manufa
                             className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors border border-transparent
                                 ${isRecording
                                     ? 'bg-red-500 text-slate-800 dark:text-white animate-pulse'
-                                    : 'text-slate-500 hover:text-slate-800 dark:text-slate-500 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-black/5 dark:hover:bg-white/10'
+                                    : 'text-slate-500 hover:text-slate-800 dark:text-slate-500 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-black/5 dark:hover:bg-black/5 dark:hover:bg-white/10'
                                 }
                             `}
                             title={isRecording ? "Parar gravação" : "Gravar áudio"}

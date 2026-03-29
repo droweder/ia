@@ -20,18 +20,22 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   });
 
   useEffect(() => {
+    console.log("[ThemeContext] Applying theme:", theme);
     const root = window.document.documentElement;
     if (theme === 'dark') {
       root.classList.add('dark');
       root.classList.remove('light'); root.style.backgroundColor = "#0B0F19"; root.style.color = "#ffffff";
+      console.log("[ThemeContext] Set dark mode colors. root.className:", root.className);
     } else {
       root.classList.remove('dark');
       root.classList.add('light'); root.style.backgroundColor = "#ffffff"; root.style.color = "#1e293b";
+      console.log("[ThemeContext] Set light mode colors. root.className:", root.className);
     }
     localStorage.theme = theme;
   }, [theme]);
 
   const toggleTheme = () => {
+    console.log("[ThemeContext] Toggling theme from", theme);
     setTheme(prev => (prev === 'light' ? 'dark' : 'light'));
   };
 
