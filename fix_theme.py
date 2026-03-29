@@ -1,4 +1,10 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import re
+
+with open('src/contexts/ThemeContext.tsx', 'r') as f:
+    content = f.read()
+
+# Replace the entire file with the correct standard theme provider
+new_content = """import React, { createContext, useContext, useEffect, useState } from 'react';
 
 type Theme = 'dark' | 'light';
 
@@ -49,3 +55,7 @@ export function useTheme() {
   }
   return context;
 }
+"""
+
+with open('src/contexts/ThemeContext.tsx', 'w') as f:
+    f.write(new_content)
