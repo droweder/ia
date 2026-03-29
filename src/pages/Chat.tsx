@@ -54,7 +54,7 @@ const CodeBlock = ({ node, inline, className, children, ...props }: any) => {
     return (
         <div className="relative group/code mt-4 mb-4 rounded-xl overflow-hidden bg-[#1E1E1E] border border-gray-700/50 shadow-sm">
             <div
-                className={`flex items-center justify-between px-4 py-2.5 bg-[#2D2D2D] text-xs font-medium text-gray-400 transition-colors ${language === 'sql' ? 'cursor-pointer hover:bg-[#3D3D3D]' : ''}`}
+                className={`flex items-center justify-between px-4 py-2.5 bg-[#2D2D2D] text-xs font-medium text-slate-500 dark:text-gray-400 transition-colors ${language === 'sql' ? 'cursor-pointer hover:bg-[#3D3D3D]' : ''}`}
                 onClick={() => language === 'sql' && setIsExpanded(!isExpanded)}
             >
                 <div className="flex items-center gap-2">
@@ -67,7 +67,7 @@ const CodeBlock = ({ node, inline, className, children, ...props }: any) => {
                 <div className="flex items-center gap-3" onClick={(e) => e.stopPropagation()}>
                     <button
                         onClick={handleCopy}
-                        className="flex items-center gap-1.5 hover:text-white transition-colors"
+                        className="flex items-center gap-1.5 hover:text-slate-800 dark:text-white transition-colors"
                         title="Copiar código"
                     >
                         {isCopied ? <Check size={14} className="text-emerald-400" /> : <Copy size={14} />}
@@ -593,19 +593,19 @@ let systemPrompt = `Você é o DRoweder IA, um assistente especialista em manufa
                 <div className="absolute top-4 left-4 z-20" ref={modelMenuRef}>
             <button
                 onClick={() => setShowModelMenu(!showModelMenu)}
-                className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 backdrop-blur-xl border border-white/10 text-sm font-medium text-gray-300 transition-all shadow-sm"
+                className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/60 dark:bg-white/5 hover:bg-white/10 backdrop-blur-xl border border-slate-200 dark:border-slate-200 dark:border-white/10 text-sm font-medium text-gray-300 transition-all shadow-sm"
                 title="Selecionar Modelo IA"
             >
-                <Sparkles size={16} className={selectedModelId !== 'free' ? 'text-blue-500' : 'text-gray-400'} />
+                <Sparkles size={16} className={selectedModelId !== 'free' ? 'text-blue-500' : 'text-slate-500 dark:text-gray-400'} />
                 <span className="hidden sm:inline">{MODELS.find(m => m.id === selectedModelId)?.name || 'Modelo'}</span>
-                <ChevronDown size={14} className="text-gray-400" />
+                <ChevronDown size={14} className="text-slate-500 dark:text-gray-400" />
             </button>
 
             {/* Dropdown de Modelos */}
             {showModelMenu && (
-                <div className="absolute top-full left-0 mt-2 w-64 bg-[#0B0F19] backdrop-blur-xl border border-white/10 rounded-xl shadow-lg overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 duration-200">
-                    <div className="p-2 border-b border-white/10">
-                        <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider pl-2">Selecione o Modelo</p>
+                <div className="absolute top-full left-0 mt-2 w-64 bg-slate-50 dark:bg-slate-50 dark:bg-[#0B0F19] backdrop-blur-xl border border-slate-200 dark:border-slate-200 dark:border-white/10 rounded-xl shadow-lg overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 duration-200">
+                    <div className="p-2 border-b border-slate-200 dark:border-slate-200 dark:border-white/10">
+                        <p className="text-xs font-semibold text-slate-500 dark:text-gray-400 uppercase tracking-wider pl-2">Selecione o Modelo</p>
                     </div>
                     <div className="p-2 flex flex-col gap-1 max-h-[300px] overflow-y-auto scrollbar-thin scrollbar-thumb-blue-800 hover:scrollbar-thumb-blue-700">
                         {MODELS.map(model => (
@@ -618,12 +618,12 @@ let systemPrompt = `Você é o DRoweder IA, um assistente especialista em manufa
                                 className={`w-full flex items-center justify-between p-2 rounded-lg transition-colors text-left
                                     ${selectedModelId === model.id
                                         ? 'bg-blue-500/10 border border-blue-500/20'
-                                        : 'hover:bg-white/5 border border-transparent'
+                                        : 'hover:bg-white/60 dark:bg-white/5 border border-transparent'
                                     }
                                 `}
                             >
                                 <div className="flex items-center gap-3">
-                                    <div className={`p-1.5 rounded-md ${selectedModelId === model.id ? 'bg-blue-500/20 text-blue-400' : 'bg-white/5 text-gray-400'}`}>
+                                    <div className={`p-1.5 rounded-md ${selectedModelId === model.id ? 'bg-blue-500/20 text-blue-400' : 'bg-white/60 dark:bg-white/5 text-slate-500 dark:text-gray-400'}`}>
                                         <Bot size={16} />
                                     </div>
                                     <div className="flex flex-col">
@@ -647,27 +647,27 @@ let systemPrompt = `Você é o DRoweder IA, um assistente especialista em manufa
         <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-6 bg-transparent scrollbar-thin scrollbar-thumb-slate-300 dark:scrollbar-thumb-blue-800 hover:scrollbar-thumb-slate-400 dark:hover:scrollbar-thumb-blue-700 scrollbar-track-transparent ">
             {messages.length === 0 && !loading && (
                 <div className="flex flex-col items-center justify-center h-full text-slate-500 dark:text-gray-300 space-y-6">
-                    <div className="w-16 h-16 bg-white/10 backdrop-blur-md rounded-full flex items-center justify-center shadow-sm border border-white/20">
-                        <Bot size={32} className="text-slate-700 dark:text-white" />
+                    <div className="w-16 h-16 bg-white/10 backdrop-blur-md rounded-full flex items-center justify-center shadow-sm border border-slate-200 dark:border-white/20">
+                        <Bot size={32} className="text-slate-700 dark:text-slate-800 dark:text-white" />
                     </div>
                     {activeAssistant ? (
                         <div className="text-center max-w-md">
-                            <h2 className="text-xl font-semibold text-slate-800 dark:text-white mb-2">
+                            <h2 className="text-xl font-semibold text-slate-800 dark:text-slate-800 dark:text-white mb-2">
                                 Olá! Sou o {activeAssistant.name}
                             </h2>
-                            <p className="text-sm text-gray-400">
+                            <p className="text-sm text-slate-500 dark:text-gray-400">
                                 {activeAssistant.description || "Como posso ajudar você hoje?"}
                             </p>
                         </div>
                     ) : (
                         <div className="grid grid-cols-2 gap-4 max-w-lg w-full">
-                            <button onClick={() => setInput("Qual a previsão de demanda para o próximo mês?")} className="p-4 border border-white/10 rounded-xl hover:bg-white/10 bg-white/5 backdrop-blur-sm text-left transition-colors shadow-sm">
-                                <h3 className="text-sm font-medium text-slate-800 dark:text-white mb-1">Previsão de Demanda</h3>
-                                <p className="text-xs text-gray-400">Analise tendências futuras</p>
+                            <button onClick={() => setInput("Qual a previsão de demanda para o próximo mês?")} className="p-4 border border-slate-200 dark:border-slate-200 dark:border-white/10 rounded-xl hover:bg-white/10 bg-white/60 dark:bg-white/5 backdrop-blur-sm text-left transition-colors shadow-sm">
+                                <h3 className="text-sm font-medium text-slate-800 dark:text-slate-800 dark:text-white mb-1">Previsão de Demanda</h3>
+                                <p className="text-xs text-slate-500 dark:text-gray-400">Analise tendências futuras</p>
                             </button>
-                             <button onClick={() => setInput("Quais ordens estão atrasadas?")} className="p-4 border border-white/10 rounded-xl hover:bg-white/10 bg-white/5 backdrop-blur-sm text-left transition-colors shadow-sm">
-                                <h3 className="text-sm font-medium text-slate-800 dark:text-white mb-1">Ordens Atrasadas</h3>
-                                <p className="text-xs text-gray-400">Liste gargalos na produção</p>
+                             <button onClick={() => setInput("Quais ordens estão atrasadas?")} className="p-4 border border-slate-200 dark:border-slate-200 dark:border-white/10 rounded-xl hover:bg-white/10 bg-white/60 dark:bg-white/5 backdrop-blur-sm text-left transition-colors shadow-sm">
+                                <h3 className="text-sm font-medium text-slate-800 dark:text-slate-800 dark:text-white mb-1">Ordens Atrasadas</h3>
+                                <p className="text-xs text-slate-500 dark:text-gray-400">Liste gargalos na produção</p>
                             </button>
                         </div>
                     )}
@@ -690,7 +690,7 @@ let systemPrompt = `Você é o DRoweder IA, um assistente especialista em manufa
 
             {messages.map((msg) => (
                 <div key={msg.id} className={`flex gap-4 max-w-3xl mx-auto w-full animate-in fade-in slide-in-from-bottom-2 duration-300 group`}>
-                    <div className={`w-8 h-8 rounded-sm flex items-center justify-center flex-shrink-0 ${msg.role === 'user' ? 'bg-white/10 text-gray-300' : 'bg-[#7e639f] text-white shadow-sm'}`}>
+                    <div className={`w-8 h-8 rounded-sm flex items-center justify-center flex-shrink-0 ${msg.role === 'user' ? 'bg-white/10 text-gray-300' : 'bg-[#7e639f] text-slate-800 dark:text-white shadow-sm'}`}>
                         {msg.role === 'user' ? <User size={16} /> : <Bot size={16} />}
                     </div>
 
@@ -718,7 +718,7 @@ let systemPrompt = `Você é o DRoweder IA, um assistente especialista em manufa
                             <div className="flex items-center gap-2 mt-2">
                                 <button
                                     onClick={() => handleCopyMessage(msg.content, msg.id)}
-                                    className="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-gray-300 rounded-md hover:bg-slate-100 dark:hover:bg-white/5 transition-colors"
+                                    className="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-gray-300 rounded-md hover:bg-slate-100 dark:hover:bg-white/60 dark:bg-white/5 transition-colors"
                                     title="Copiar mensagem"
                                 >
                                     {copiedMessages[msg.id] ? <Check size={16} className="text-green-500" /> : <Copy size={16} />}
@@ -729,7 +729,7 @@ let systemPrompt = `Você é o DRoweder IA, um assistente especialista em manufa
                                     <button
                                         onClick={handleRegenerate}
                                         disabled={loading}
-                                        className="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-gray-300 rounded-md hover:bg-slate-100 dark:hover:bg-white/5 transition-colors disabled:opacity-50"
+                                        className="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-gray-300 rounded-md hover:bg-slate-100 dark:hover:bg-white/60 dark:bg-white/5 transition-colors disabled:opacity-50"
                                         title="Regerar resposta"
                                     >
                                         <RefreshCcw size={16} className={loading ? "animate-spin" : ""} />
@@ -743,13 +743,13 @@ let systemPrompt = `Você é o DRoweder IA, um assistente especialista em manufa
                             <div className="mt-2">
                                 <button
                                     onClick={() => toggleSql(msg.id)}
-                                    className="flex items-center gap-1 text-xs text-slate-500 hover:text-slate-700 dark:text-gray-400 dark:hover:text-gray-300 transition-colors"
+                                    className="flex items-center gap-1 text-xs text-slate-500 hover:text-slate-700 dark:text-slate-500 dark:text-gray-400 dark:hover:text-gray-300 transition-colors"
                                 >
                                     <Database size={12} />
                                     <span>{showSql === msg.id ? 'Ocultar SQL' : 'Debug SQL'}</span>
                                 </button>
                                 {showSql === msg.id && (
-                                    <div className="mt-2 p-3 bg-white/5 rounded-md border border-white/10 font-mono text-xs overflow-x-auto text-gray-400 backdrop-blur-sm">
+                                    <div className="mt-2 p-3 bg-white/60 dark:bg-white/5 rounded-md border border-slate-200 dark:border-slate-200 dark:border-white/10 font-mono text-xs overflow-x-auto text-slate-500 dark:text-gray-400 backdrop-blur-sm">
                                         SELECT * FROM planintex.ordens ...
                                     </div>
                                 )}
@@ -765,12 +765,12 @@ let systemPrompt = `Você é o DRoweder IA, um assistente especialista em manufa
         {/* Input Area */}
         <div className="p-4 bg-transparent backdrop-blur-md">
             <div className="max-w-3xl mx-auto relative">
-                <div className="relative flex flex-col group bg-white/5 border border-white/10 backdrop-blur-xl rounded-[26px] transition-all overflow-hidden focus-within:ring-2 focus-within:ring-blue-500/50 shadow-lg">
+                <div className="relative flex flex-col group bg-white/60 dark:bg-white/5 border border-slate-200 dark:border-slate-200 dark:border-white/10 backdrop-blur-xl rounded-[26px] transition-all overflow-hidden focus-within:ring-2 focus-within:ring-blue-500/50 shadow-lg">
                     {/* Attachments Preview */}
                     {attachments.length > 0 && (
                         <div className="flex flex-wrap gap-2 p-3 pb-0">
                             {attachments.map((file, index) => (
-                                <div key={index} className="relative group/attachment flex items-center justify-center bg-white dark:bg-slate-700 rounded-xl border border-white/10 shadow-sm overflow-hidden h-16 w-16">
+                                <div key={index} className="relative group/attachment flex items-center justify-center bg-white dark:bg-slate-700 rounded-xl border border-slate-200 dark:border-slate-200 dark:border-white/10 shadow-sm overflow-hidden h-16 w-16">
                                     {file.type.startsWith('image/') ? (
                                         <img src={URL.createObjectURL(file)} alt="preview" className="h-full w-full object-cover" />
                                     ) : (
@@ -781,7 +781,7 @@ let systemPrompt = `Você é o DRoweder IA, um assistente especialista em manufa
                                     )}
                                     <button
                                         onClick={() => removeAttachment(index)}
-                                        className="absolute -top-1 -right-1 bg-white/5 backdrop-blur-xl text-gray-200 rounded-full p-0.5 opacity-0 group-hover/attachment:opacity-100 transition-opacity border border-white/10 shadow-sm hover:bg-slate-700"
+                                        className="absolute -top-1 -right-1 bg-white/60 dark:bg-white/5 backdrop-blur-xl text-gray-200 rounded-full p-0.5 opacity-0 group-hover/attachment:opacity-100 transition-opacity border border-slate-200 dark:border-slate-200 dark:border-white/10 shadow-sm hover:bg-slate-700"
                                     >
                                         <X size={12} />
                                     </button>
@@ -794,7 +794,7 @@ let systemPrompt = `Você é o DRoweder IA, um assistente especialista em manufa
                         <div className="flex items-center justify-center p-2 pl-3 pb-[10px]">
                             <button
                                 onClick={() => fileInputRef.current?.click()}
-                                className="w-8 h-8 rounded-full flex items-center justify-center text-slate-500 hover:text-slate-800 dark:text-gray-400 dark:hover:text-gray-200 transition-colors border border-transparent hover:bg-black/5 dark:hover:bg-white/10"
+                                className="w-8 h-8 rounded-full flex items-center justify-center text-slate-500 hover:text-slate-800 dark:text-slate-500 dark:text-gray-400 dark:hover:text-gray-200 transition-colors border border-transparent hover:bg-black/5 dark:hover:bg-white/10"
                             >
                                 <Plus size={20} strokeWidth={2.5} />
                             </button>
@@ -818,13 +818,13 @@ let systemPrompt = `Você é o DRoweder IA, um assistente especialista em manufa
                         placeholder="Pergunte alguma coisa"
                         disabled={loading}
                         rows={isInputExpanded ? 10 : 1}
-                        className={`flex-1 py-3.5 bg-transparent resize-none focus:outline-none text-base text-white placeholder-gray-400 disabled:opacity-50 transition-all ${isInputExpanded ? "min-h-[240px] max-h-[50vh]" : "min-h-[52px] max-h-[200px]"}`}
+                        className={`flex-1 py-3.5 bg-transparent resize-none focus:outline-none text-base text-slate-800 dark:text-white placeholder-gray-400 disabled:opacity-50 transition-all ${isInputExpanded ? "min-h-[240px] max-h-[50vh]" : "min-h-[52px] max-h-[200px]"}`}
                         style={{ overflowY: "auto" }}
                     />
                     <div className="p-2 pr-3 flex items-center gap-2 pb-[10px]">
                         <button
                             onClick={() => setIsInputExpanded(!isInputExpanded)}
-                            className="w-8 h-8 rounded-full flex items-center justify-center transition-colors text-gray-400 hover:text-white hover:bg-white/10"
+                            className="w-8 h-8 rounded-full flex items-center justify-center transition-colors text-slate-500 hover:text-slate-800 dark:text-slate-500 dark:text-gray-400 dark:hover:text-slate-800 dark:text-white hover:bg-white/10"
                             title={isInputExpanded ? "Reduzir" : "Expandir"}
                         >
                             {isInputExpanded ? <Minimize2 size={16} /> : <Maximize2 size={16} />}
@@ -833,8 +833,8 @@ let systemPrompt = `Você é o DRoweder IA, um assistente especialista em manufa
                             onClick={toggleRecording}
                             className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors border border-transparent
                                 ${isRecording
-                                    ? 'bg-red-500 text-white animate-pulse'
-                                    : 'text-slate-500 hover:text-slate-800 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-black/5 dark:hover:bg-white/10'
+                                    ? 'bg-red-500 text-slate-800 dark:text-white animate-pulse'
+                                    : 'text-slate-500 hover:text-slate-800 dark:text-slate-500 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-black/5 dark:hover:bg-white/10'
                                 }
                             `}
                             title={isRecording ? "Parar gravação" : "Gravar áudio"}
@@ -846,8 +846,8 @@ let systemPrompt = `Você é o DRoweder IA, um assistente especialista em manufa
                             disabled={(!input.trim() && attachments.length === 0) || loading}
                             className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors
                                 ${(!input.trim() && attachments.length === 0)
-                                    ? 'bg-black text-white dark:bg-white dark:text-black opacity-100 hover:opacity-80'
-                                    : 'bg-black text-white dark:bg-white dark:text-black hover:opacity-80'
+                                    ? 'bg-black text-slate-800 dark:text-white dark:bg-white dark:text-black opacity-100 hover:opacity-80'
+                                    : 'bg-black text-slate-800 dark:text-white dark:bg-white dark:text-black hover:opacity-80'
                                 }
                                 ${loading ? 'opacity-50 cursor-not-allowed' : ''}
                             `}
@@ -867,7 +867,7 @@ let systemPrompt = `Você é o DRoweder IA, um assistente especialista em manufa
                 </div>
                 </div>
                 <div className="text-center mt-3">
-                    <p className="text-xs text-gray-400">A AI pode cometer erros. Considere verificar informações importantes.</p>
+                    <p className="text-xs text-slate-500 dark:text-gray-400">A AI pode cometer erros. Considere verificar informações importantes.</p>
                 </div>
             </div>
         </div>
