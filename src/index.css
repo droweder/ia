@@ -3,8 +3,9 @@
 @tailwind utilities;
 
 @layer base {
-  body {
+  html, body {
     @apply antialiased transition-colors duration-300;
+    min-height: 100vh;
 
     /* Light Mode (Default/Fallback) - Soft, clean light theme */
     background: radial-gradient(
@@ -19,7 +20,8 @@
   }
 
   /* Dark Mode Aurora */
-  .dark body {
+  html.dark, html.dark body {
+    background-color: #000000;
     color-scheme: dark;
         /* Aurora Gradient Background */
     background: radial-gradient(
