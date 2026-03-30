@@ -63,7 +63,7 @@ export const RenameChatModal: React.FC<RenameChatModalProps> = ({
 
         <form onSubmit={handleSubmit} className="p-6 space-y-6">
           <div>
-            <label htmlFor="name" className="block text-sm font-medium text-gray-300 mb-2">
+            <label htmlFor="name" className="block text-sm font-medium text-slate-600 dark:text-gray-300 mb-2">
               Nome do chat
             </label>
             <input
@@ -82,7 +82,7 @@ export const RenameChatModal: React.FC<RenameChatModalProps> = ({
             <button
               type="button"
               onClick={onClose}
-              className="px-5 py-2.5 text-sm font-medium text-gray-300 hover:bg-slate-100 dark:hover:bg-white/5 rounded-xl transition-colors"
+              className="px-5 py-2.5 text-sm font-medium text-slate-600 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-white/5 rounded-xl transition-colors"
             >
               Cancelar
             </button>

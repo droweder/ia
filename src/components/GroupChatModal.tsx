@@ -80,7 +80,7 @@ export const GroupChatModal: React.FC<GroupChatModalProps> = ({
                     className={`flex items-center justify-between p-3 rounded-xl cursor-pointer border transition-colors ${selectedUsers.includes(user.id) ? 'bg-emerald-900/20 border-emerald-800/50' : 'bg-transparent border-transparent hover:bg-slate-100 dark:hover:bg-white/5'}`}
                 >
                     <div className="flex items-center gap-3">
-                        <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm ${selectedUsers.includes(user.id) ? 'bg-emerald-800 text-emerald-200' : 'bg-white/10 text-gray-300'}`}>
+                        <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm ${selectedUsers.includes(user.id) ? 'bg-emerald-800 text-emerald-200' : 'bg-white/10 text-slate-600 dark:text-gray-300'}`}>
                             {user.name.charAt(0)}
                         </div>
                         <div>
@@ -110,7 +110,7 @@ export const GroupChatModal: React.FC<GroupChatModalProps> = ({
                 <button
                 type="button"
                 onClick={onClose}
-                className="px-4 py-2 text-sm font-medium text-gray-300 hover:bg-slate-100 dark:hover:bg-white/5 rounded-xl transition-colors"
+                className="px-4 py-2 text-sm font-medium text-slate-600 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-white/5 rounded-xl transition-colors"
                 >
                 Cancelar
                 </button>

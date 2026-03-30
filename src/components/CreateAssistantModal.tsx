@@ -71,7 +71,7 @@ export function CreateAssistantModal({ isOpen, onClose, onCreate, assistantToEdi
           {/* Inputs */}
           <div className="space-y-4">
             <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1">Nome do Assistente <span className="text-red-500">*</span></label>
+                <label className="block text-sm font-medium text-slate-600 dark:text-gray-300 mb-1">Nome do Assistente <span className="text-red-500">*</span></label>
                 <div className="relative group">
                     <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-slate-800 dark:group-focus-within:text-slate-800 dark:text-white transition-colors">
                     <Bot size={20} className="rounded-full border-2 border-current p-[2px]" />
@@ -88,7 +88,7 @@ export function CreateAssistantModal({ isOpen, onClose, onCreate, assistantToEdi
             </div>
 
             <div>
-                 <label className="block text-sm font-medium text-gray-300 mb-1">Descrição</label>
+                 <label className="block text-sm font-medium text-slate-600 dark:text-gray-300 mb-1">Descrição</label>
                  <input
                     type="text"
                     value={assistantDescription}
@@ -99,7 +99,7 @@ export function CreateAssistantModal({ isOpen, onClose, onCreate, assistantToEdi
             </div>
 
             <div>
-                 <label className="block text-sm font-medium text-gray-300 mb-1">Instruções Personalizadas</label>
+                 <label className="block text-sm font-medium text-slate-600 dark:text-gray-300 mb-1">Instruções Personalizadas</label>
                  <textarea
                     value={assistantInstructions}
                     onChange={(e) => setAssistantInstructions(e.target.value)}
@@ -140,8 +140,8 @@ export function CreateAssistantModal({ isOpen, onClose, onCreate, assistantToEdi
 
           {/* Info Box */}
           <div className="flex items-start gap-4 p-4 rounded-xl bg-white/5 border border-white/5">
-            <Lightbulb size={24} className="text-amber-500 dark:text-gray-300 shrink-0 mt-1" />
-            <p className="text-sm text-gray-300 leading-relaxed">
+            <Lightbulb size={24} className="text-amber-500 dark:text-slate-600 dark:text-gray-300 shrink-0 mt-1" />
+            <p className="text-sm text-slate-600 dark:text-gray-300 leading-relaxed">
               Os assistentes são versões personalizadas da IA. Você pode dar a eles instruções específicas e conhecimentos para ajudá-lo com tarefas particulares.
             </p>
           </div>

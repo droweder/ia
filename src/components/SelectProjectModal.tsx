@@ -43,7 +43,7 @@ export function SelectProjectModal({ isOpen, onClose, projects, onSelectProject 
 
         <form onSubmit={handleSelect}>
           <div className="mb-6">
-            <label className="mb-2 block text-sm font-medium text-gray-300">
+            <label className="mb-2 block text-sm font-medium text-slate-600 dark:text-gray-300">
               Selecione o projeto de destino
             </label>
             <select
@@ -52,11 +52,11 @@ export function SelectProjectModal({ isOpen, onClose, projects, onSelectProject 
               className="w-full rounded-xl border bg-transparent px-4 py-2 focus:border-blue-500 focus:outline-none border-slate-200 dark:border-white/10 text-slate-800 dark:text-white"
               required
             >
-              <option value="" disabled className="bg-slate-800">
+              <option value="" disabled className="bg-white dark:bg-slate-800">
                 Escolha um projeto...
               </option>
               {projects.map((project) => (
-                <option key={project.id} value={project.id} className="bg-slate-800">
+                <option key={project.id} value={project.id} className="bg-white dark:bg-slate-800">
                   {project.name}
                 </option>
               ))}
@@ -67,7 +67,7 @@ export function SelectProjectModal({ isOpen, onClose, projects, onSelectProject 
             <button
               type="button"
               onClick={onClose}
-              className="px-5 py-2.5 rounded-xl font-medium text-sm text-gray-300 hover:bg-slate-100 dark:hover:bg-white/5 transition-colors"
+              className="px-5 py-2.5 rounded-xl font-medium text-sm text-slate-600 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-white/5 transition-colors"
             >
               Cancelar
             </button>

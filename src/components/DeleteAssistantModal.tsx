@@ -22,7 +22,7 @@ export function DeleteAssistantModal({ isOpen, onClose, onConfirm, assistantName
             </div>
             <h2 className="text-xl font-semibold">Excluir Assistente</h2>
           </div>
-          <p className="text-gray-300">
+          <p className="text-slate-600 dark:text-gray-300">
             Tem certeza de que deseja excluir o assistente <strong>"{assistantName}"</strong>? Esta ação não pode ser desfeita.
           </p>
         </div>
@@ -30,7 +30,7 @@ export function DeleteAssistantModal({ isOpen, onClose, onConfirm, assistantName
         <div className="p-4 border-t border-white/10 shrink-0 bg-black/20 flex justify-end gap-3 rounded-b-2xl">
           <button
             onClick={onClose}
-            className="px-4 py-2 rounded-xl border border-white/10 bg-white/5 backdrop-blur-xl text-gray-300 font-medium text-sm hover:bg-white/5 transition-colors"
+            className="px-4 py-2 rounded-xl border border-white/10 bg-white/5 backdrop-blur-xl text-slate-600 dark:text-gray-300 font-medium text-sm hover:bg-white/5 transition-colors"
           >
             Cancelar
           </button>

@@ -63,7 +63,7 @@ export const RenameProjectModal: React.FC<RenameProjectModalProps> = ({
 
         <form onSubmit={handleSubmit} className="p-6 flex flex-col gap-6">
           <div>
-            <label htmlFor="projectName" className="block text-sm font-medium text-gray-300 mb-2">
+            <label htmlFor="projectName" className="block text-sm font-medium text-slate-600 dark:text-gray-300 mb-2">
               Nome do projeto
             </label>
             <input
@@ -82,7 +82,7 @@ export const RenameProjectModal: React.FC<RenameProjectModalProps> = ({
             <button
               type="button"
               onClick={onClose}
-              className="px-5 py-2.5 rounded-xl font-medium text-sm text-gray-300 hover:bg-slate-100 dark:hover:bg-white/5 transition-colors"
+              className="px-5 py-2.5 rounded-xl font-medium text-sm text-slate-600 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-white/5 transition-colors"
             >
               Cancelar
             </button>

@@ -43,7 +43,7 @@ export function CreateProjectModal({ isOpen, onClose, onCreate }: CreateProjectM
 
           {/* Input */}
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">Nome do projeto</label>
+            <label className="block text-sm font-medium text-slate-600 dark:text-gray-300 mb-2">Nome do projeto</label>
             <div className="relative group">
               <input
                 type="text"
@@ -65,25 +65,25 @@ export function CreateProjectModal({ isOpen, onClose, onCreate }: CreateProjectM
             <div className="flex flex-wrap gap-2">
               <button
                   onClick={() => handleSuggestionClick('Investimentos')}
-                  className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-white/10 hover:bg-slate-50 dark:hover:bg-white/10 bg-white/5 backdrop-blur-xl transition-colors text-sm text-gray-300 shadow-sm">
+                  className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-white/10 hover:bg-slate-50 dark:hover:bg-white/10 bg-white/5 backdrop-blur-xl transition-colors text-sm text-slate-600 dark:text-gray-300 shadow-sm">
                 <CircleDollarSign size={14} className="text-emerald-500" />
                 Investimentos
               </button>
               <button
                    onClick={() => handleSuggestionClick('Dever de casa')}
-                   className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-white/10 hover:bg-slate-50 dark:hover:bg-white/10 bg-white/5 backdrop-blur-xl transition-colors text-sm text-gray-300 shadow-sm">
+                   className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-white/10 hover:bg-slate-50 dark:hover:bg-white/10 bg-white/5 backdrop-blur-xl transition-colors text-sm text-slate-600 dark:text-gray-300 shadow-sm">
                 <GraduationCap size={14} className="text-blue-500" />
                 Dever de casa
               </button>
               <button
                   onClick={() => handleSuggestionClick('Escrita')}
-                  className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-white/10 hover:bg-slate-50 dark:hover:bg-white/10 bg-white/5 backdrop-blur-xl transition-colors text-sm text-gray-300 shadow-sm">
+                  className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-white/10 hover:bg-slate-50 dark:hover:bg-white/10 bg-white/5 backdrop-blur-xl transition-colors text-sm text-slate-600 dark:text-gray-300 shadow-sm">
                 <PenTool size={14} className="text-blue-500" />
                 Escrita
               </button>
               <button
                   onClick={() => handleSuggestionClick('Viagem')}
-                  className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-white/10 hover:bg-slate-50 dark:hover:bg-white/10 bg-white/5 backdrop-blur-xl transition-colors text-sm text-gray-300 shadow-sm">
+                  className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-white/10 hover:bg-slate-50 dark:hover:bg-white/10 bg-white/5 backdrop-blur-xl transition-colors text-sm text-slate-600 dark:text-gray-300 shadow-sm">
                 <Plane size={14} className="text-amber-500" />
                 Viagem
               </button>
@@ -104,7 +104,7 @@ export function CreateProjectModal({ isOpen, onClose, onCreate }: CreateProjectM
         <div className="p-4 bg-black/20 flex justify-end gap-3 border-t border-white/10">
           <button
             onClick={onClose}
-            className="px-5 py-2.5 rounded-xl font-medium text-sm text-gray-300 hover:bg-slate-100 dark:hover:bg-white/5 transition-colors"
+            className="px-5 py-2.5 rounded-xl font-medium text-sm text-slate-600 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-white/5 transition-colors"
           >
             Cancelar
           </button>
