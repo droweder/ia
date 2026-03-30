@@ -37,18 +37,18 @@ export const ShareChatModal: React.FC<ShareChatModalProps> = ({
       >
         <AuroraModalBackground />
         <div className="flex items-center justify-between p-6 border-b border-white/10">
-          <h2 className="text-xl font-semibold text-white">Compartilhar Chat</h2>
+          <h2 className="text-xl font-semibold text-slate-800 dark:text-white">Compartilhar Chat</h2>
           <button
             onClick={onClose}
-            className="p-2 text-gray-400 hover:text-white rounded-full hover:bg-white/5 transition-colors"
+            className="p-2 text-gray-400 hover:text-slate-800 dark:text-white rounded-full hover:bg-slate-100 dark:hover:bg-white/5 transition-colors"
           >
             <X size={20} />
           </button>
         </div>
 
         <div className="p-6 space-y-4">
-          <p className="text-sm text-gray-300">
-            Qualquer pessoa com este link poderá ver as mensagens desta conversa: <strong className="text-white">{chatTitle}</strong>.
+          <p className="text-sm text-slate-600 dark:text-gray-300">
+            Qualquer pessoa com este link poderá ver as mensagens desta conversa: <strong className="text-slate-800 dark:text-white">{chatTitle}</strong>.
           </p>
 
           <div className="flex items-center gap-2 mt-4">
@@ -56,11 +56,11 @@ export const ShareChatModal: React.FC<ShareChatModalProps> = ({
               type="text"
               readOnly
               value={shareUrl}
-              className="flex-1 px-4 py-3 bg-white/5 border border-white/10 rounded-xl outline-none text-white text-sm"
+              className="flex-1 px-4 py-3 bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl outline-none text-slate-800 dark:text-white text-sm"
             />
             <button
               onClick={handleCopy}
-              className="flex items-center justify-center p-3 bg-white/5 hover:bg-white/10 text-gray-200 rounded-xl transition-colors"
+              className="flex items-center justify-center p-3 bg-slate-50 dark:bg-white/5 hover:bg-slate-200 dark:hover:bg-white/10 text-slate-700 dark:text-gray-200 rounded-xl transition-colors"
               title="Copiar link"
             >
               {copied ? <Check size={20} className="text-emerald-500" /> : <Copy size={20} />}
@@ -71,7 +71,7 @@ export const ShareChatModal: React.FC<ShareChatModalProps> = ({
         <div className="p-6 border-t border-white/10 flex justify-end">
              <button
               onClick={onClose}
-              className="px-5 py-2.5 text-sm font-medium text-gray-300 hover:bg-white/5 rounded-xl transition-colors"
+              className="px-5 py-2.5 text-sm font-medium text-slate-600 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-white/5 rounded-xl transition-colors"
             >
               Fechar
             </button>

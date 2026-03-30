@@ -26,7 +26,7 @@ export default function Search() {
   return (
     <div className="flex-1 flex flex-col min-w-0 min-h-0 bg-transparent transition-colors duration-200">
       {/* Header */}
-      <div className="h-14 border-b border-white/10 flex items-center justify-between bg-white/5 backdrop-blur-md px-4 shadow-sm z-10 shrink-0">
+      <div className="h-14 border-b border-slate-200 dark:border-white/10 flex items-center justify-between bg-white/50 dark:bg-white/5 backdrop-blur-md px-4 shadow-sm z-10 shrink-0">
         <div className="flex items-center gap-3 flex-1">
           <SearchIcon size={20} className="text-gray-400 shrink-0" />
           <input
@@ -34,7 +34,7 @@ export default function Search() {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Buscar em todos os chats e projetos..."
-            className="flex-1 bg-transparent border-none focus:outline-none text-base text-white placeholder-gray-500"
+            className="flex-1 bg-transparent border-none focus:outline-none text-base text-slate-800 dark:text-white placeholder-gray-500"
             autoFocus
           />
         </div>
@@ -45,10 +45,10 @@ export default function Search() {
         <div className="max-w-4xl mx-auto">
             {results.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-20 text-center">
-                    <div className="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center mb-4 border border-white/10">
+                    <div className="w-16 h-16 bg-white dark:bg-white/5 rounded-full flex items-center justify-center mb-4 border border-slate-200 dark:border-white/10">
                         <SearchIcon size={24} className="text-gray-500" />
                     </div>
-                    <h3 className="text-lg font-medium text-white mb-2">Nenhum resultado encontrado</h3>
+                    <h3 className="text-lg font-medium text-slate-800 dark:text-white mb-2">Nenhum resultado encontrado</h3>
                     <p className="text-gray-400 max-w-md">Não encontramos nenhum chat ou projeto correspondente a "{query}".</p>
                 </div>
             ) : (
@@ -57,14 +57,14 @@ export default function Search() {
                     <button
                         key={chat.id}
                         onClick={() => navigate(`/chat/${chat.id}`)}
-                        className="flex items-center justify-between p-4 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 transition-colors text-left group"
+                        className="flex items-center justify-between p-4 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-white/5 hover:bg-slate-50 dark:hover:bg-white/10 transition-colors text-left group"
                     >
                         <div className="flex items-center gap-4 min-w-0">
                             <div className="w-12 h-12 rounded-full bg-blue-500/20 text-blue-400 flex items-center justify-center shrink-0 border border-blue-500/30">
                                 <MessageSquare size={20} />
                             </div>
                             <div className="flex flex-col min-w-0">
-                                <span className="text-base font-medium text-white truncate">
+                                <span className="text-base font-medium text-slate-800 dark:text-white truncate">
                                     {chat.title}
                                 </span>
                                 {chat.project && (
