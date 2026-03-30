@@ -60,7 +60,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // Attempt login on DRoweder
     const { data: drowederData, error: drowederError } = await drowederClient.auth.signInWithPassword({ email, password });
 
-    if (drowederError && drowederError.message === "Invalid login credentials") {
+    if (drowederError && (drowederError.message.toLowerCase().includes("invalid login credentials") || drowederError.status === 400 || drowederError.status === 403)) {
         // Try Particular if invalid credentials on DRoweder
         const particularClient = createClient(particularUrl, particularAnonKey);
         const { data: particularData, error: particularError } = await particularClient.auth.signInWithPassword({ email, password });

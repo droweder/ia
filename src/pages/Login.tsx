@@ -85,7 +85,7 @@ const Login: React.FC = () => {
               </div>
             </div>
 
-            <div>
+                        <div>
               <label htmlFor="password" className="block text-sm font-medium text-gray-200">
                 Senha
               </label>
@@ -104,11 +104,10 @@ const Login: React.FC = () => {
                   className="focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 pr-10 sm:text-sm border-slate-300 dark:border-white/10 rounded-md py-2.5 border bg-white dark:bg-white/5 text-slate-900 dark:text-white placeholder-gray-400 backdrop-blur-sm transition-all"
                   placeholder="••••••••"
                 />
-                <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
-                  <button
+                <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="text-gray-400 hover:text-gray-300 focus:outline-none"
+                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-300 focus:outline-none"
                     aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
                   >
                     {showPassword ? (
@@ -116,8 +115,7 @@ const Login: React.FC = () => {
                     ) : (
                       <Eye className="h-5 w-5" aria-hidden="true" />
                     )}
-                  </button>
-                </div>
+                </button>
               </div>
             </div>
 
