@@ -203,22 +203,22 @@ const Files: React.FC = () => {
     return (
         <div className="flex h-full w-full bg-transparent dark:bg-transparent">
             {/* Left Sidebar for Sectors */}
-            <div className="w-64 border-r border-white/10 flex flex-col bg-white/5 backdrop-blur-xl">
-                <div className="p-4 border-b border-white/10">
+            <div className="w-64 border-r border-slate-200 dark:border-white/10 flex flex-col bg-black/5 dark:bg-white/5 backdrop-blur-xl">
+                <div className="p-4 border-b border-slate-200 dark:border-white/10">
                     <h2 className="text-lg font-semibold text-slate-800 dark:text-gray-100 flex items-center gap-2">
                         <Folder className="text-[#7e639f]" size={20} />
                         Setores
                     </h2>
                 </div>
 
-                <div className="p-4 border-b border-white/10">
+                <div className="p-4 border-b border-slate-200 dark:border-white/10">
                     <form onSubmit={handleCreateSector} className="flex gap-2">
                         <input
                             type="text"
                             value={newSectorName}
                             onChange={(e) => setNewSectorName(e.target.value)}
                             placeholder="Novo setor..."
-                            className="flex-1 bg-white/5 backdrop-blur-sm border border-white/10 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#7e639f]"
+                            className="flex-1 bg-black/5 dark:bg-white/5 backdrop-blur-sm border border-slate-200 dark:border-white/10 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#7e639f]"
                         />
                         <button
                             type="submit"
@@ -237,8 +237,8 @@ const Files: React.FC = () => {
                             onClick={() => setSelectedSector(sector)}
                             className={`w-full text-left px-3 py-2 rounded-lg text-sm flex items-center gap-2 transition-colors ${
                                 selectedSector === sector
-                                    ? 'bg-white/10 text-white font-medium'
-                                    : 'text-gray-300 hover:bg-slate-100 dark:hover:bg-white/5'
+                                    ? 'bg-black/10 dark:bg-white/10 text-slate-800 dark:text-white font-medium'
+                                    : 'text-slate-600 dark:text-gray-300 hover:bg-black/5 dark:hover:bg-black/5 dark:bg-white/5'
                             }`}
                         >
                             <Folder size={16} className={selectedSector === sector ? 'text-[#7e639f]' : 'text-slate-400'} />
@@ -246,7 +246,7 @@ const Files: React.FC = () => {
                         </button>
                     ))}
                     {sectors.length === 0 && !isLoading && (
-                        <p className="text-sm text-gray-400 p-2 text-center">
+                        <p className="text-sm text-slate-500 dark:text-gray-400 p-2 text-center">
                             Nenhum setor criado.
                         </p>
                     )}
@@ -256,12 +256,12 @@ const Files: React.FC = () => {
             {/* Main Content Area */}
             <div className="flex-1 flex flex-col h-full overflow-hidden relative">
                 {/* Header */}
-                <header className="h-16 border-b border-white/10 bg-white/5 backdrop-blur-xl flex items-center justify-between px-6 z-10 shrink-0">
+                <header className="h-16 border-b border-slate-200 dark:border-white/10 bg-black/5 dark:bg-white/5 backdrop-blur-xl flex items-center justify-between px-6 z-10 shrink-0">
                     <div>
                         <h1 className="text-xl font-semibold text-slate-800 dark:text-gray-100">
                             {selectedSector ? `Arquivos: ${selectedSector}` : 'Gerenciador de Arquivos'}
                         </h1>
-                        <p className="text-sm text-gray-400">
+                        <p className="text-sm text-slate-500 dark:text-gray-400">
                             {selectedSector
                                 ? 'Gerencie os documentos e dados da empresa deste setor.'
                                 : 'Selecione ou crie um setor para começar.'}
@@ -277,7 +277,7 @@ const Files: React.FC = () => {
                                     placeholder="Buscar arquivo..."
                                     value={searchTerm}
                                     onChange={(e) => setSearchTerm(e.target.value)}
-                                    className="pl-9 pr-4 py-2 bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#7e639f] w-64"
+                                    className="pl-9 pr-4 py-2 bg-black/5 dark:bg-white/5 backdrop-blur-sm border border-slate-200 dark:border-white/10 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#7e639f] w-64"
                                 />
                             </div>
 
@@ -304,13 +304,13 @@ const Files: React.FC = () => {
                 <main className="flex-1 overflow-y-auto p-6">
                     {!selectedSector ? (
                         <div className="h-full flex flex-col items-center justify-center text-center">
-                            <div className="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center mb-4">
+                            <div className="w-16 h-16 bg-black/5 dark:bg-white/5 rounded-full flex items-center justify-center mb-4">
                                 <Folder className="text-slate-400" size={32} />
                             </div>
                             <h3 className="text-lg font-medium text-slate-700 dark:text-gray-200 mb-1">
                                 Nenhum setor selecionado
                             </h3>
-                            <p className="text-sm text-gray-400 max-w-sm">
+                            <p className="text-sm text-slate-500 dark:text-gray-400 max-w-sm">
                                 Selecione um setor no menu lateral para visualizar os arquivos ou crie um novo setor para começar a organizar os dados da sua empresa.
                             </p>
                         </div>
@@ -320,13 +320,13 @@ const Files: React.FC = () => {
                         </div>
                     ) : filteredFiles.length === 0 ? (
                         <div className="h-full flex flex-col items-center justify-center text-center">
-                            <div className="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center mb-4">
+                            <div className="w-16 h-16 bg-black/5 dark:bg-white/5 rounded-full flex items-center justify-center mb-4">
                                 <FileIcon className="text-slate-400" size={32} />
                             </div>
                             <h3 className="text-lg font-medium text-slate-700 dark:text-gray-200 mb-1">
                                 Este setor está vazio
                             </h3>
-                            <p className="text-sm text-gray-400 mb-6">
+                            <p className="text-sm text-slate-500 dark:text-gray-400 mb-6">
                                 Faça o upload de documentos para disponibilizá-los neste setor.
                             </p>
                             <button
@@ -341,10 +341,10 @@ const Files: React.FC = () => {
                             {filteredFiles.map(file => (
                                 <div
                                     key={file.name}
-                                    className="bg-white/5 border border-white/10 rounded-xl p-4 flex flex-col gap-3 group hover:border-[#7e639f]/50 transition-colors backdrop-blur-sm"
+                                    className="bg-black/5 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl p-4 flex flex-col gap-3 group hover:border-[#7e639f]/50 transition-colors backdrop-blur-sm"
                                 >
                                     <div className="flex items-start justify-between">
-                                        <div className="w-10 h-10 bg-white/5 rounded-lg flex items-center justify-center shrink-0">
+                                        <div className="w-10 h-10 bg-black/5 dark:bg-white/5 rounded-lg flex items-center justify-center shrink-0">
                                             <FileIcon className="text-[#7e639f]" size={20} />
                                         </div>
                                         <button
@@ -360,11 +360,11 @@ const Files: React.FC = () => {
                                             {file.name}
                                         </p>
                                         <div className="flex items-center gap-2 mt-1">
-                                            <p className="text-xs text-gray-400">
+                                            <p className="text-xs text-slate-500 dark:text-gray-400">
                                                 {formatFileSize(file.metadata?.size)}
                                             </p>
                                             <span className="w-1 h-1 bg-slate-300 dark:bg-gray-600 rounded-full"></span>
-                                            <p className="text-xs text-gray-400">
+                                            <p className="text-xs text-slate-500 dark:text-gray-400">
                                                 {new Date(file.created_at).toLocaleDateString('pt-BR')}
                                             </p>
                                         </div>
