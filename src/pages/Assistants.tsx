@@ -47,7 +47,7 @@ export default function Assistants() {
   return (
     <div className="flex-1 flex flex-col min-w-0 min-h-0 bg-transparent transition-colors duration-200">
       {/* Header */}
-      <div className="h-14 border-b border-white/10 flex justify-between items-center bg-white/5 backdrop-blur-md px-6 shadow-sm z-10 shrink-0">
+      <div className="h-14 border-b border-slate-200 dark:border-white/10 flex justify-between items-center bg-white/50 dark:bg-white/5 backdrop-blur-md px-6 shadow-sm z-10 shrink-0">
         <h2 className="text-xl font-semibold flex items-center gap-2 text-slate-800 dark:text-white">
           <Bot size={24} className="text-blue-500" />
           Assistentes
@@ -73,7 +73,7 @@ export default function Assistants() {
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
                   placeholder="Buscar assistentes..."
-                  className="w-full bg-white/5 border border-white/10 rounded-xl py-3 pl-11 pr-4 text-slate-800 dark:text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 transition-colors"
+                  className="w-full bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl py-3 pl-11 pr-4 text-slate-800 dark:text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 transition-colors"
               />
          </div>
       </div>
@@ -91,7 +91,7 @@ export default function Assistants() {
                    {results.map((assistant) => (
                       <div
                           key={assistant.id}
-                          className="flex flex-col p-5 rounded-xl border border-white/10 bg-white/5 hover:border-blue-500/50 hover:shadow-md transition-all group"
+                          className="flex flex-col p-5 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-white/5 hover:border-blue-500/50 hover:shadow-md transition-all group"
                       >
                           <div className="flex items-center justify-between mb-3">
                               <div className="flex items-center gap-3 overflow-hidden">
