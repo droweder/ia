@@ -77,7 +77,7 @@ export default function ArchivedChats() {
   return (
     <div className="flex-1 flex flex-col min-w-0 min-h-0 bg-transparent transition-colors duration-200">
       {/* Header */}
-      <div className="h-14 border-b border-white/10 flex justify-between items-center bg-white/5 backdrop-blur-md px-6 shadow-sm z-10 shrink-0">
+      <div className="h-14 border-b border-slate-200 dark:border-white/10 flex justify-between items-center bg-white dark:bg-white/5 backdrop-blur-md px-6 shadow-sm z-10 shrink-0">
         <h2 className="text-xl font-semibold flex items-center gap-2 text-slate-800 dark:text-white">
           <Archive size={24} className="text-blue-500" />
           Chats Arquivados
@@ -98,7 +98,7 @@ export default function ArchivedChats() {
             </div>
             ) : (
             archivedChats.map(chat => (
-                <div key={chat.id} className="flex items-center justify-between p-5 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 transition-colors group">
+                <div key={chat.id} className="flex items-center justify-between p-5 rounded-xl border border-slate-200 dark:border-slate-200 dark:border-white/10 bg-white dark:bg-white/5 hover:bg-slate-50 dark:hover:bg-white/10 transition-colors group">
                 <div className="flex flex-col truncate pr-4">
                     <h3 className="text-lg font-medium text-slate-800 dark:text-white truncate">{chat.title}</h3>
                     <span className="text-sm text-gray-500 mt-1">{new Date(chat.updated_at).toLocaleDateString()}</span>

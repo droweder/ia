@@ -179,7 +179,7 @@ export default function Projects() {
             <div className="flex items-center gap-4">
               <button
                 onClick={() => setActiveProject(null)}
-                className="p-2 -ml-2 rounded-lg text-slate-500 hover:text-slate-800 dark:text-gray-400 dark:hover:text-slate-800 dark:text-white hover:bg-white/10 transition-colors"
+                className="p-2 -ml-2 rounded-lg text-slate-500 hover:text-slate-800 dark:text-gray-400 dark:hover:text-slate-800 dark:text-white hover:bg-slate-100 dark:hover:bg-white/10 transition-colors"
               >
                 <ChevronLeft size={24} />
               </button>
@@ -228,7 +228,7 @@ export default function Projects() {
                   <div
                     key={chat.id}
                     onClick={() => handleOpenChat(chat.id)}
-                    className="group flex flex-col p-4 rounded-xl bg-white/5 border border-white/10 hover:border-blue-500/50 cursor-pointer transition-all shadow-sm hover:shadow-md"
+                    className="group flex flex-col p-4 rounded-xl bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 hover:border-blue-500/50 cursor-pointer transition-all shadow-sm hover:shadow-md"
                   >
                     <div className="flex items-start justify-between mb-3">
                       <div className="w-10 h-10 rounded-lg bg-blue-500/10 flex items-center justify-center shrink-0">
@@ -298,7 +298,7 @@ export default function Projects() {
             {/* Create New Card */}
             <button
               onClick={() => setIsCreateOpen(true)}
-              className="group flex flex-col items-center justify-center min-h-[160px] rounded-2xl border-2 border-dashed border-white/20 bg-transparent hover:bg-white/5 transition-colors"
+              className="group flex flex-col items-center justify-center min-h-[160px] rounded-2xl border-2 border-dashed border-slate-300 dark:border-white/20 bg-transparent hover:bg-slate-50 dark:hover:bg-white/5 transition-colors"
             >
               <div className="w-10 h-10 rounded-full bg-slate-100 dark:bg-white/5 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
                 <Plus size={20} className="text-gray-300" />
@@ -311,7 +311,7 @@ export default function Projects() {
               <div
                 key={project.id}
                 onClick={() => loadProjectChats(project)}
-                className="group relative flex flex-col p-5 cursor-pointer min-h-[160px] rounded-2xl bg-white/5 backdrop-blur-md border border-white/10 hover:border-blue-500/50 transition-all shadow-sm hover:shadow-md overflow-hidden"
+                className="group relative flex flex-col p-5 cursor-pointer min-h-[160px] rounded-2xl bg-white dark:bg-white/5 backdrop-blur-md border border-slate-200 dark:border-white/10 hover:border-blue-500/50 transition-all shadow-sm hover:shadow-md overflow-hidden"
               >
                 <div className="flex items-start justify-between mb-4">
                   <div className="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center shrink-0">
@@ -329,7 +329,7 @@ export default function Projects() {
                         setOpenMenuId(project.id);
                       }
                     }}
-                    className="p-1.5 text-slate-400 hover:text-slate-700 dark:hover:text-slate-800 dark:text-white hover:bg-white/10 rounded-lg transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100"
+                    className="p-1.5 text-slate-400 hover:text-slate-700 dark:hover:text-slate-800 dark:text-white hover:bg-slate-100 dark:hover:bg-white/10 rounded-lg transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100"
                   >
                     <MoreVertical size={18} />
                   </button>
@@ -363,7 +363,7 @@ export default function Projects() {
                       transform: 'translateX(-100%)',
                       zIndex: 9999
                     }}
-                    className="w-48 bg-white/5 backdrop-blur-xl border border-white/10 rounded-xl shadow-xl py-2 animate-in fade-in slide-in-from-top-2 duration-200"
+                    className="w-48 bg-white dark:bg-[#0B0F19] backdrop-blur-xl border border-slate-200 dark:border-white/10 rounded-xl shadow-xl py-2 animate-in fade-in slide-in-from-top-2 duration-200"
                   >
                     <button
                       onClick={(e) => {
@@ -373,7 +373,7 @@ export default function Projects() {
                         setSelectedProjectName(project.name);
                         setIsRenameOpen(true);
                       }}
-                      className="w-full flex items-center gap-3 px-4 py-2 text-sm text-gray-200 hover:bg-white/10 transition-colors"
+                      className="w-full flex items-center gap-3 px-4 py-2 text-sm text-gray-200 hover:bg-slate-100 dark:hover:bg-white/10 transition-colors"
                     >
                       <Pencil size={16} />
                       Renomear
@@ -386,7 +386,7 @@ export default function Projects() {
                         setSelectedProjectId(project.id);
                         setIsDeleteOpen(true);
                       }}
-                      className="w-full flex items-center gap-3 px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-white/10 transition-colors"
+                      className="w-full flex items-center gap-3 px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-slate-100 dark:hover:bg-white/10 transition-colors"
                     >
                       <Trash2 size={16} />
                       Excluir
