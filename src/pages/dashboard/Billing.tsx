@@ -30,7 +30,9 @@ const Billing: React.FC = () => {
             .select('*')
             .order('transaction_date', { ascending: false });
 
-        if (error) throw error;
+        if (error) {
+          console.warn("billing_logs table might not exist or no access:", error);
+        }
         setLogs(data || []);
     } catch (error) {
         console.error('Error fetching billing logs:', error);

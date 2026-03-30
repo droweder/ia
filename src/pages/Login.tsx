@@ -24,6 +24,7 @@ const Login: React.FC = () => {
 
     try {
       await signIn(email, password);
+      // navigate is handled by page reload in AuthContext.tsx
       navigate('/chat');
     } catch (err: any) {
       if (err.message === "Invalid login credentials") {

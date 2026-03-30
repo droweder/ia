@@ -2,7 +2,7 @@ import { AuroraModalBackground } from './AuroraModalBackground';
 import React, { useState, useEffect, useRef } from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { createPortal } from 'react-dom';
-import { Sun, Moon, LogOut, ChevronDown, Plus, Sidebar, Search, FileText, Bot, MoreVertical, Share, UserPlus, Pencil, Folder, Pin, Archive, Trash2, ChevronRight } from 'lucide-react';
+import { Sun, Moon, LogOut, CreditCard, Building2, ChevronDown, Plus, Sidebar, Search, FileText, Bot, MoreVertical, Share, UserPlus, Pencil, Folder, Pin, Archive, Trash2, ChevronRight } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
 import { supabase } from '../lib/supabaseClient';
@@ -88,6 +88,7 @@ const Layout: React.FC = () => {
   const [isNoProjectsWarningOpen, setIsNoProjectsWarningOpen] = useState(false);
   const [isSelectProjectModalOpen, setIsSelectProjectModalOpen] = useState(false);
   const [chatToTransferId, setChatToTransferId] = useState<string | null>(null);
+  const [userProfile, setUserProfile] = useState<any>(null);
 
 
 
@@ -229,11 +230,12 @@ const Layout: React.FC = () => {
       const { data: userRecord, error: userError } = await supabase
         .schema('planintex')
         .from('profiles')
-        .select('empresa_id')
+        .select('empresa_id, role, is_superadmin')
         .eq('id', user.id)
         .single();
 
       if (userRecord && !userError) {
+        setUserProfile(userRecord);
           setCompanyId(userRecord.empresa_id);
       }
 
@@ -645,8 +647,31 @@ const Layout: React.FC = () => {
 
         </div>
 
+
+        {/* Admin Links */}
+        <div className="px-3 pt-3 pb-2 space-y-1 border-t border-slate-200 dark:border-slate-200 dark:border-white/10 mt-auto">
+            <button
+            onClick={() => navigate('/dashboard/billing')}
+            className={`w-full flex items-center gap-3 h-8 px-3 rounded-md transition-all duration-200 text-sm font-medium ${isActive('/dashboard/billing') ? 'bg-slate-100 text-blue-600 border-r-2 border-blue-500 dark:bg-white/10 dark:text-white dark:border-white/50' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-gray-300 dark:hover:bg-white/10 dark:hover:text-white'}`}
+            title="Faturamento"
+            >
+            <CreditCard size={20} className={isActive('/dashboard/billing') ? 'text-blue-600 dark:text-white' : ''} />
+            {isEffectivelyExpanded && <span>Faturamento</span>}
+            </button>
+            {(userProfile?.role === 'Admin' || userProfile?.is_superadmin) && (
+                <button
+                onClick={() => navigate('/super-admin/companies')}
+                className={`w-full flex items-center gap-3 h-8 px-3 rounded-md transition-all duration-200 text-sm font-medium ${isActive('/super-admin/companies') ? 'bg-slate-100 text-blue-600 border-r-2 border-blue-500 dark:bg-white/10 dark:text-white dark:border-white/50' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-gray-300 dark:hover:bg-white/10 dark:hover:text-white'}`}
+                title="Empresas (Admin)"
+                >
+                <Building2 size={20} className={isActive('/super-admin/companies') ? 'text-blue-600 dark:text-white' : ''} />
+                {isEffectivelyExpanded && <span>Empresas</span>}
+                </button>
+            )}
+        </div>
+
         {/* User Menu (Bottom) */}
-        <div className="p-3 border-t border-slate-200 dark:border-slate-200 dark:border-white/10">
+        <div className="p-3">
           <div className="relative" ref={userMenuRef}>
              <button
                 onClick={() => setShowUserMenu(!showUserMenu)}

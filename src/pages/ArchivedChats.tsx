@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Archive, RotateCcw, Trash2 } from 'lucide-react';
+import { DeleteChatModal } from '../components/DeleteChatModal';
 import { supabase } from '../lib/supabaseClient';
 import { useOutletContext } from 'react-router-dom';
 
@@ -11,6 +12,8 @@ export default function ArchivedChats() {
   const [archivedChats, setArchivedChats] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const { loadConversations } = useOutletContext<OutletContextType>();
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [chatToDelete, setChatToDelete] = useState<string | null>(null);
 
   useEffect(() => {
     loadArchivedChats();
@@ -55,22 +58,28 @@ export default function ArchivedChats() {
     }
   };
 
-  const handleDelete = async (chatId: string) => {
-    // Implement custom toast/modal later if needed, prompt temporarily fine or omit, let's just use confirm per standard but rules say no window.confirm.
-    // Rule: "user confirmations (e.g., deletions) must use custom React modal components."
-    // Let's just delete it directly or leave a comment for a future modal.
+  const confirmDelete = (chatId: string) => {
+    setChatToDelete(chatId);
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleDelete = async () => {
+    if (!chatToDelete) return;
     try {
       const { error } = await supabase
         .schema('droweder_ia')
         .from('conversations')
         .delete()
-        .eq('id', chatId);
+        .eq('id', chatToDelete);
 
       if (!error) {
-        setArchivedChats(prev => prev.filter(c => c.id !== chatId));
+        setArchivedChats(prev => prev.filter(c => c.id !== chatToDelete));
       }
     } catch (err) {
       console.error('Exception deleting archived chat:', err);
+    } finally {
+        setIsDeleteModalOpen(false);
+        setChatToDelete(null);
     }
   };
 
@@ -113,7 +122,7 @@ export default function ArchivedChats() {
                         <span className="text-sm font-medium">Restaurar</span>
                     </button>
                     <button
-                        onClick={() => handleDelete(chat.id)}
+                        onClick={() => confirmDelete(chat.id)}
                         className="flex items-center gap-2 px-3 py-2 text-red-400 hover:text-slate-800 dark:text-white hover:bg-red-500/20 rounded-lg transition-colors border border-red-500/20"
                         title="Excluir permanentemente"
                     >
@@ -125,6 +134,11 @@ export default function ArchivedChats() {
             )}
         </div>
       </div>
+      <DeleteChatModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        onConfirm={handleDelete}
+      />
     </div>
   );
 }
