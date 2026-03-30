@@ -52,10 +52,10 @@ export const RenameChatModal: React.FC<RenameChatModalProps> = ({
       >
         <AuroraModalBackground />
         <div className="flex items-center justify-between p-6 border-b border-white/10">
-          <h2 className="text-xl font-semibold text-white">Renomear Chat</h2>
+          <h2 className="text-xl font-semibold text-slate-800 dark:text-white">Renomear Chat</h2>
           <button
             onClick={onClose}
-            className="p-2 text-gray-400 hover:text-white rounded-full hover: hover:bg-white/5 transition-colors"
+            className="p-2 text-gray-400 hover:text-slate-800 dark:text-white rounded-full hover:bg-slate-100 dark:hover:bg-white/5 transition-colors"
           >
             <X size={20} />
           </button>
@@ -71,7 +71,7 @@ export const RenameChatModal: React.FC<RenameChatModalProps> = ({
               id="name"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all text-white placeholder-slate-400 dark:placeholder-gray-500"
+              className="w-full px-4 py-3 bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all text-slate-800 dark:text-white placeholder-slate-400 dark:placeholder-gray-500"
               placeholder="Ex: Análise de Vendas Q3"
               autoFocus
               required
@@ -82,14 +82,14 @@ export const RenameChatModal: React.FC<RenameChatModalProps> = ({
             <button
               type="button"
               onClick={onClose}
-              className="px-5 py-2.5 text-sm font-medium text-gray-300 hover: hover:bg-white/5 rounded-xl transition-colors"
+              className="px-5 py-2.5 text-sm font-medium text-gray-300 hover:bg-slate-100 dark:hover:bg-white/5 rounded-xl transition-colors"
             >
               Cancelar
             </button>
             <button
               type="submit"
               disabled={isLoading || !name.trim()}
-              className="flex items-center justify-center px-5 py-2.5 bg-blue-600 dark:bg-blue-500 hover:bg-blue-700 dark:hover:bg-blue-600 text-white text-sm font-medium rounded-xl transition-all shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed min-w-[100px]"
+              className="flex items-center justify-center px-5 py-2.5 bg-blue-600 dark:bg-blue-500 hover:bg-blue-700 dark:hover:bg-blue-600 text-slate-800 dark:text-white text-sm font-medium rounded-xl transition-all shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed min-w-[100px]"
             >
               {isLoading ? (
                 <Loader2 size={18} className="animate-spin" />

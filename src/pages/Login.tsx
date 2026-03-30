@@ -37,13 +37,13 @@ const Login: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-black flex flex-col justify-center py-12 sm:px-6 lg:px-8 relative overflow-hidden text-gray-100">
+    <div className="min-h-screen bg-white dark:bg-black flex flex-col justify-center py-12 sm:px-6 lg:px-8 relative overflow-hidden text-slate-800 dark:text-gray-100">
 
       {/* Background Aurora Effect */}
       <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
-          <div className="absolute -top-[20%] -left-[10%] w-[50%] h-[50%] bg-red-600/20 blur-[120px] rounded-full mix-blend-screen animate-pulse duration-[10000ms]" />
-          <div className="absolute top-[30%] -right-[20%] w-[60%] h-[60%] bg-blue-600/20 blur-[120px] rounded-full mix-blend-screen animate-pulse duration-[7000ms]" />
-          <div className="absolute -bottom-[20%] left-[20%] w-[50%] h-[50%] bg-yellow-500/20 blur-[120px] rounded-full mix-blend-screen animate-pulse duration-[10000ms]" />
+          <div className="absolute -top-[20%] -left-[10%] w-[50%] h-[50%] bg-red-600/20 blur-[120px] rounded-full mix-blend-multiply dark:mix-blend-screen animate-pulse duration-[10000ms]" />
+          <div className="absolute top-[30%] -right-[20%] w-[60%] h-[60%] bg-blue-600/20 blur-[120px] rounded-full mix-blend-multiply dark:mix-blend-screen animate-pulse duration-[7000ms]" />
+          <div className="absolute -bottom-[20%] left-[20%] w-[50%] h-[50%] bg-yellow-500/20 blur-[120px] rounded-full mix-blend-multiply dark:mix-blend-screen animate-pulse duration-[10000ms]" />
 
       </div>
 
@@ -78,7 +78,7 @@ const Login: React.FC = () => {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 sm:text-sm border-white/10 rounded-md py-2.5 border bg-white/5 text-white placeholder-gray-400 backdrop-blur-sm transition-all"
+                  className="focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 sm:text-sm border-slate-300 dark:border-white/10 rounded-md py-2.5 border bg-white dark:bg-white/5 text-slate-900 dark:text-white placeholder-gray-400 backdrop-blur-sm transition-all"
                   placeholder="voce@empresa.com"
                 />
               </div>
@@ -100,7 +100,7 @@ const Login: React.FC = () => {
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 pr-10 sm:text-sm border-white/10 rounded-md py-2.5 border bg-white/5 text-white placeholder-gray-400 backdrop-blur-sm transition-all"
+                  className="focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 pr-10 sm:text-sm border-slate-300 dark:border-white/10 rounded-md py-2.5 border bg-white dark:bg-white/5 text-slate-900 dark:text-white placeholder-gray-400 backdrop-blur-sm transition-all"
                   placeholder="••••••••"
                 />
                 <div className="absolute inset-y-0 right-0 pr-3 flex items-center">

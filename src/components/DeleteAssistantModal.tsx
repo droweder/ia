@@ -13,7 +13,7 @@ export function DeleteAssistantModal({ isOpen, onClose, onConfirm, assistantName
 
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/50 dark:bg-slate-900/50 dark:bg-black/60 backdrop-blur-sm p-4">
-      <div className="relative bg-white/5 border border-white/10 text-gray-200 w-full max-w-[400px] rounded-2xl shadow-2xl flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+      <div className="relative bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-800 dark:text-gray-200 w-full max-w-[400px] rounded-2xl shadow-2xl flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200">
         <AuroraModalBackground />
         <div className="p-6 pb-4">
           <div className="flex items-center gap-3 text-red-500 mb-4">

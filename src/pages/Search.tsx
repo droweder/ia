@@ -34,7 +34,7 @@ export default function Search() {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Buscar em todos os chats e projetos..."
-            className="flex-1 bg-transparent border-none focus:outline-none text-base text-white placeholder-gray-500"
+            className="flex-1 bg-transparent border-none focus:outline-none text-base text-slate-800 dark:text-white placeholder-gray-500"
             autoFocus
           />
         </div>
@@ -48,7 +48,7 @@ export default function Search() {
                     <div className="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center mb-4 border border-white/10">
                         <SearchIcon size={24} className="text-gray-500" />
                     </div>
-                    <h3 className="text-lg font-medium text-white mb-2">Nenhum resultado encontrado</h3>
+                    <h3 className="text-lg font-medium text-slate-800 dark:text-white mb-2">Nenhum resultado encontrado</h3>
                     <p className="text-gray-400 max-w-md">Não encontramos nenhum chat ou projeto correspondente a "{query}".</p>
                 </div>
             ) : (
@@ -64,7 +64,7 @@ export default function Search() {
                                 <MessageSquare size={20} />
                             </div>
                             <div className="flex flex-col min-w-0">
-                                <span className="text-base font-medium text-white truncate">
+                                <span className="text-base font-medium text-slate-800 dark:text-white truncate">
                                     {chat.title}
                                 </span>
                                 {chat.project && (

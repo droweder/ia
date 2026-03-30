@@ -179,12 +179,12 @@ export default function Projects() {
             <div className="flex items-center gap-4">
               <button
                 onClick={() => setActiveProject(null)}
-                className="p-2 -ml-2 rounded-lg text-slate-500 hover:text-slate-800 dark:text-gray-400 dark:hover:text-white hover:bg-white/10 transition-colors"
+                className="p-2 -ml-2 rounded-lg text-slate-500 hover:text-slate-800 dark:text-gray-400 dark:hover:text-slate-800 dark:text-white hover:bg-white/10 transition-colors"
               >
                 <ChevronLeft size={24} />
               </button>
               <div>
-                <h1 className="text-2xl font-semibold text-white flex items-center gap-3">
+                <h1 className="text-2xl font-semibold text-slate-800 dark:text-white flex items-center gap-3">
                   <Folder className="text-blue-500" size={28} />
                   {activeProject.name}
                 </h1>
@@ -200,7 +200,7 @@ export default function Projects() {
                 // For now, they can create a new chat and move it, or we can use local storage.
                 localStorage.setItem('droweder_ia_new_chat_project', activeProject.id);
               }}
-              className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 rounded-xl text-sm font-medium transition-all shadow-sm hover:shadow-md"
+              className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-slate-800 dark:text-white px-4 py-2.5 rounded-xl text-sm font-medium transition-all shadow-sm hover:shadow-md"
             >
               <Plus size={18} />
               Nova Conversa
@@ -217,7 +217,7 @@ export default function Projects() {
                 <div className="w-16 h-16 bg-blue-900/20 rounded-full flex items-center justify-center mb-6">
                   <MessageSquare size={32} className="text-blue-500" />
                 </div>
-                <h3 className="text-xl font-semibold text-white mb-2">Nenhuma conversa neste projeto</h3>
+                <h3 className="text-xl font-semibold text-slate-800 dark:text-white mb-2">Nenhuma conversa neste projeto</h3>
                 <p className="text-gray-400 mb-6 text-sm leading-relaxed">
                   Crie uma nova conversa para começar a trabalhar neste projeto.
                 </p>
@@ -235,7 +235,7 @@ export default function Projects() {
                         <MessageSquare size={20} className="text-blue-400" />
                       </div>
                     </div>
-                    <h4 className="font-semibold text-white mb-1 truncate">{chat.title}</h4>
+                    <h4 className="font-semibold text-slate-800 dark:text-white mb-1 truncate">{chat.title}</h4>
                     <p className="text-xs text-gray-400 flex items-center gap-1 mt-auto">
                       <Clock size={12} />
                       {new Date(chat.updated_at).toLocaleDateString('pt-BR')}
@@ -251,7 +251,7 @@ export default function Projects() {
       {/* Header */}
       <div className="flex-shrink-0 flex items-center justify-between p-6 border-b border-slate-200 dark:border-white/5">
         <div>
-          <h1 className="text-2xl font-semibold text-white flex items-center gap-3">
+          <h1 className="text-2xl font-semibold text-slate-800 dark:text-white flex items-center gap-3">
             <Folder className="text-blue-500" size={28} />
             Meus Projetos
           </h1>
@@ -261,7 +261,7 @@ export default function Projects() {
         </div>
         <button
           onClick={() => setIsCreateOpen(true)}
-          className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 rounded-xl text-sm font-medium transition-all shadow-sm hover:shadow-md"
+          className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-slate-800 dark:text-white px-4 py-2.5 rounded-xl text-sm font-medium transition-all shadow-sm hover:shadow-md"
         >
           <Plus size={18} />
           Novo Projeto
@@ -280,13 +280,13 @@ export default function Projects() {
             <div className="w-16 h-16 bg-blue-900/20 rounded-full flex items-center justify-center mb-6">
                <Folder size={32} className="text-blue-500" />
             </div>
-            <h3 className="text-xl font-semibold text-white mb-2">Nenhum projeto ainda</h3>
+            <h3 className="text-xl font-semibold text-slate-800 dark:text-white mb-2">Nenhum projeto ainda</h3>
             <p className="text-gray-400 mb-6 text-sm leading-relaxed">
               Projetos ajudam você a organizar conversas específicas em um só lugar. Crie seu primeiro projeto para começar.
             </p>
             <button
               onClick={() => setIsCreateOpen(true)}
-              className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl text-sm font-medium transition-all shadow-md"
+              className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-slate-800 dark:text-white px-5 py-2.5 rounded-xl text-sm font-medium transition-all shadow-md"
             >
               <Plus size={18} />
               Criar Projeto
@@ -329,14 +329,14 @@ export default function Projects() {
                         setOpenMenuId(project.id);
                       }
                     }}
-                    className="p-1.5 text-slate-400 hover:text-slate-700 dark:hover:text-white hover:bg-white/10 rounded-lg transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100"
+                    className="p-1.5 text-slate-400 hover:text-slate-700 dark:hover:text-slate-800 dark:text-white hover:bg-white/10 rounded-lg transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100"
                   >
                     <MoreVertical size={18} />
                   </button>
                 </div>
 
                 <div className="flex-1 min-h-0">
-                  <h3 className="text-base font-semibold text-white truncate mb-1" title={project.name}>
+                  <h3 className="text-base font-semibold text-slate-800 dark:text-white truncate mb-1" title={project.name}>
                     {project.name}
                   </h3>
 

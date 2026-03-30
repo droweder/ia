@@ -9,10 +9,10 @@
     /* Light Mode (Default/Fallback) - Soft, clean light theme */
     background: radial-gradient(
       circle at 50% 50%,
-      #f8fafc 0%,
-      #e2e8f0 100%
+      #ffffff 0%,
+      #f8fafc 100%
     );
-    background-color: #f8fafc;
+    background-color: #ffffff;
     background-image: none;
     background-attachment: fixed;
     color: #1e293b;

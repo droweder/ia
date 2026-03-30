@@ -371,13 +371,13 @@ const Layout: React.FC = () => {
   const companyName = user?.user_metadata?.company_name || 'Minha Empresa'; // In a real app, fetch from relation
 
   return (
-    <div className="relative flex h-screen font-sans bg-slate-50 dark:bg-white dark:bg-[#0B0F19] selection:bg-blue-500/30 overflow-hidden">
+    <div className="relative flex h-screen font-sans bg-slate-50 dark:bg-[#0B0F19] selection:bg-blue-500/30 overflow-hidden">
       <AuroraModalBackground />
       {/* Sidebar - Multiplier AI Style */}
       <aside
       onMouseEnter={() => setIsSidebarHovered(true)}
       onMouseLeave={() => setIsSidebarHovered(false)}
-      className={`${!isEffectivelyExpanded ? 'w-20' : 'w-72'} border-r border-slate-200 bg-white/80 dark:border-slate-200 dark:border-slate-200 dark:border-white/10 dark:bg-slate-50 dark:bg-white/5 backdrop-blur-xl border-slate-200 dark:border-slate-200 dark:border-white/10 hidden md:flex flex-col z-10 transition-all duration-300 shrink-0`}>
+      className={`${!isEffectivelyExpanded ? 'w-20' : 'w-72'} border-r border-slate-200 bg-white/80 dark:border-white/10 dark:bg-white/5 backdrop-blur-xl border-slate-200 dark:border-white/10 hidden md:flex flex-col z-10 transition-all duration-300 shrink-0`}>
 
         {/* Header da Sidebar */}
         <div className={`h-12 flex items-center px-4 border-b border-slate-200 dark:border-slate-200 dark:border-white/10 ${!isEffectivelyExpanded ? 'justify-center' : 'justify-between'}`}>
@@ -404,14 +404,14 @@ const Layout: React.FC = () => {
           <div className="p-3 space-y-1">
               <button
                 onClick={handleNewChat}
-                className="w-full flex items-center gap-3 h-10 px-3 mb-2 rounded-xl bg-blue-600 bg-blue-600 hover:bg-blue-700 text-slate-800 dark:text-white shadow-sm transition-all text-sm font-medium"
+                className="w-full flex items-center gap-3 h-10 px-3 mb-2 rounded-xl bg-blue-600 bg-blue-600 hover:bg-blue-700 text-white shadow-sm transition-all text-sm font-medium"
               >
                 <Plus size={20} />
                 {isEffectivelyExpanded && <span>Novo Chat</span>}
               </button>
               <button
                 onClick={() => navigate("/search")}
-                className={`w-full flex items-center gap-3 h-8 px-3 rounded-md transition-all duration-200 text-sm font-medium ${isActive("/search") ? "bg-slate-100 text-blue-600 border-r-2 border-blue-500 dark:bg-white/10 dark:text-slate-800 dark:text-white dark:border-white/50" : "text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-gray-300 dark:hover:bg-white/10 dark:hover:text-slate-800 dark:text-white"}`}
+                className={`w-full flex items-center gap-3 h-8 px-3 rounded-md transition-all duration-200 text-sm font-medium ${isActive("/search") ? "bg-slate-100 text-blue-600 border-r-2 border-blue-500 dark:bg-white/10 dark:text-white dark:border-white/50" : "text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-gray-300 dark:hover:bg-white/10 dark:hover:text-white"}`}
                 title="Buscar em chats"
               >
                 <Search size={20} />
@@ -419,23 +419,23 @@ const Layout: React.FC = () => {
               </button>
               <button
                 onClick={() => navigate('/files')}
-                className={`w-full flex items-center gap-3 h-8 px-3 rounded-md transition-all duration-200 text-sm font-medium ${isActive('/files') ? 'bg-slate-100 text-blue-600 border-r-2 border-blue-500 dark:bg-white/10 dark:text-slate-800 dark:text-white dark:border-white/50' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-gray-300 dark:hover:bg-white/10 dark:hover:text-slate-800 dark:text-white'}`}
+                className={`w-full flex items-center gap-3 h-8 px-3 rounded-md transition-all duration-200 text-sm font-medium ${isActive('/files') ? 'bg-slate-100 text-blue-600 border-r-2 border-blue-500 dark:bg-white/10 dark:text-white dark:border-white/50' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-gray-300 dark:hover:bg-white/10 dark:hover:text-white'}`}
                 title="Arquivos"
               >
-                <FileText size={20} className={isActive('/files') ? 'text-slate-800 dark:text-white' : ''} />
+                <FileText size={20} className={isActive('/files') ? 'text-blue-600 dark:text-white' : ''} />
                 {isEffectivelyExpanded && <span>Arquivos</span>}
               </button>
               <button
                 onClick={() => navigate('/projects')}
-                className={`w-full flex items-center gap-3 h-8 px-3 rounded-md transition-all duration-200 text-sm font-medium ${isActive('/projects') ? 'bg-slate-100 text-blue-600 border-r-2 border-blue-500 dark:bg-white/10 dark:text-slate-800 dark:text-white dark:border-white/50' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-gray-300 dark:hover:bg-white/10 dark:hover:text-slate-800 dark:text-white'}`}
+                className={`w-full flex items-center gap-3 h-8 px-3 rounded-md transition-all duration-200 text-sm font-medium ${isActive('/projects') ? 'bg-slate-100 text-blue-600 border-r-2 border-blue-500 dark:bg-white/10 dark:text-white dark:border-white/50' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-gray-300 dark:hover:bg-white/10 dark:hover:text-white'}`}
                 title="Projetos"
               >
-                <Folder size={20} className={isActive('/projects') ? 'text-slate-800 dark:text-white' : ''} />
+                <Folder size={20} className={isActive('/projects') ? 'text-blue-600 dark:text-white' : ''} />
                 {isEffectivelyExpanded && <span>Projetos</span>}
               </button>
               <button
                 onClick={() => navigate("/assistants")}
-                className={`w-full flex items-center gap-3 h-8 px-3 rounded-md transition-all duration-200 text-sm font-medium ${isActive("/assistants") ? "bg-slate-100 text-blue-600 border-r-2 border-blue-500 dark:bg-white/10 dark:text-slate-800 dark:text-white dark:border-white/50" : "text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-gray-300 dark:hover:bg-white/10 dark:hover:text-slate-800 dark:text-white"}`}
+                className={`w-full flex items-center gap-3 h-8 px-3 rounded-md transition-all duration-200 text-sm font-medium ${isActive("/assistants") ? "bg-slate-100 text-blue-600 border-r-2 border-blue-500 dark:bg-white/10 dark:text-white dark:border-white/50" : "text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-gray-300 dark:hover:bg-white/10 dark:hover:text-white"}`}
                 title="Assistentes"
               >
                 <Bot size={20} />
@@ -443,7 +443,7 @@ const Layout: React.FC = () => {
               </button>
               <button
                 onClick={() => navigate("/archived")}
-                className={`w-full flex items-center gap-3 h-8 px-3 rounded-md transition-all duration-200 text-sm font-medium text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-gray-300 dark:hover:bg-white/10 dark:hover:text-slate-800 dark:text-white`}
+                className={`w-full flex items-center gap-3 h-8 px-3 rounded-md transition-all duration-200 text-sm font-medium text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-gray-300 dark:hover:bg-white/10 dark:hover:text-white`}
                 title="Chats Arquivados"
               >
                 <Archive size={20} />
@@ -472,7 +472,7 @@ const Layout: React.FC = () => {
                                         setActiveConversationId(chat.id);
                                         if (!isActive('/chat')) navigate('/chat');
                                     }}
-                                    className={`group relative flex items-center justify-between h-8 px-3 rounded-md cursor-pointer transition-colors ${activeConversationId === chat.id ? 'bg-white/10 text-slate-800 dark:text-white' : 'hover:bg-white/10 text-gray-300 hover:text-slate-800 dark:text-white'}`}
+                                    className={`group relative flex items-center justify-between h-8 px-3 rounded-md cursor-pointer transition-colors ${activeConversationId === chat.id ? 'bg-slate-200 text-slate-900 dark:bg-white/10 dark:text-white' : 'hover:bg-slate-100 dark:hover:bg-white/10 text-slate-600 dark:text-gray-300 hover:text-slate-900 dark:hover:text-white'}`}
                                 >
                                     <span className="text-sm truncate pr-6">{chat.title}</span>
                                     <button
@@ -489,7 +489,7 @@ const Layout: React.FC = () => {
                                                 setOpenChatMenuId(chat.id);
                                             }
                                         }}
-                                        className="absolute right-2 opacity-0 group-hover:opacity-100 p-1 hover: dark:hover: rounded dark: hover: hover:text-slate-800 dark:text-white transition-all"
+                                        className="absolute right-2 opacity-0 group-hover:opacity-100 p-1 hover: dark:hover: rounded dark: hover: hover:text-white transition-all"
                                     >
                                         <MoreVertical size={14} />
                                     </button>
@@ -652,13 +652,13 @@ const Layout: React.FC = () => {
                 onClick={() => setShowUserMenu(!showUserMenu)}
                 className={`w-full flex items-center ${!isEffectivelyExpanded ? 'justify-center' : 'gap-3'} hover:bg-white/10 p-2 rounded-md transition-colors text-left group`}
              >
-                <div className="w-8 h-8 bg-blue-600 bg-blue-500 rounded flex items-center justify-center text-xs text-slate-800 dark:text-white font-medium uppercase flex-shrink-0">
+                <div className="w-8 h-8 bg-blue-600 bg-blue-500 rounded flex items-center justify-center text-xs text-white font-medium uppercase flex-shrink-0">
                     {displayName.substring(0, 2)}
                 </div>
                 {isEffectivelyExpanded && (
                     <>
                         <div className="flex-1 min-w-0">
-                            <p className="text-sm font-medium dark: truncate group-hover: dark:group-hover:text-slate-800 dark:text-white">{displayName}</p>
+                            <p className="text-sm font-medium dark: truncate group-hover: dark:group-hover:text-white">{displayName}</p>
                             <p className="text-xs dark: truncate">{companyName}</p>
                         </div>
                         <ChevronDown size={14} className="dark: group-hover: dark:group-hover:" />

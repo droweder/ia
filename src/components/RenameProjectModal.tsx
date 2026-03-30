@@ -55,7 +55,7 @@ export const RenameProjectModal: React.FC<RenameProjectModalProps> = ({
           <h2 className="text-xl font-semibold">Renomear Projeto</h2>
           <button
             onClick={onClose}
-            className="p-2 hover: text-gray-400 dark:hover:text-white transition-colors rounded-lg hover: hover:bg-white/10"
+            className="p-2 hover: text-gray-400 dark:hover:text-slate-800 dark:text-white transition-colors rounded-lg hover: hover:bg-white/10"
           >
             <X size={20} />
           </button>
@@ -71,7 +71,7 @@ export const RenameProjectModal: React.FC<RenameProjectModalProps> = ({
               id="projectName"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full bg-white/40 bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-white placeholder-slate-400 dark:placeholder-gray-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/50 transition-colors shadow-sm"
+              className="w-full bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl py-3 px-4 text-slate-800 dark:text-white placeholder-slate-400 dark:placeholder-gray-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/50 transition-colors shadow-sm"
               placeholder="Ex: Novo Projeto de Vendas"
               autoFocus
               required
@@ -82,14 +82,14 @@ export const RenameProjectModal: React.FC<RenameProjectModalProps> = ({
             <button
               type="button"
               onClick={onClose}
-              className="px-5 py-2.5 rounded-xl font-medium text-sm text-gray-300 hover: hover:bg-white/5 transition-colors"
+              className="px-5 py-2.5 rounded-xl font-medium text-sm text-gray-300 hover:bg-slate-100 dark:hover:bg-white/5 transition-colors"
             >
               Cancelar
             </button>
             <button
               type="submit"
               disabled={isLoading || !name.trim()}
-              className="flex items-center justify-center px-5 py-2.5 bg-blue-600 dark:bg-blue-500 hover:bg-blue-700 dark:hover:bg-blue-500 text-white text-sm font-medium rounded-xl transition-all shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed min-w-[100px]"
+              className="flex items-center justify-center px-5 py-2.5 bg-blue-600 dark:bg-blue-500 hover:bg-blue-700 dark:hover:bg-blue-500 text-slate-800 dark:text-white text-sm font-medium rounded-xl transition-all shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed min-w-[100px]"
             >
               {isLoading ? (
                 <Loader2 size={18} className="animate-spin" />

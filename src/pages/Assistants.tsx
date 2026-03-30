@@ -48,7 +48,7 @@ export default function Assistants() {
     <div className="flex-1 flex flex-col min-w-0 min-h-0 bg-transparent transition-colors duration-200">
       {/* Header */}
       <div className="h-14 border-b border-white/10 flex justify-between items-center bg-white/5 backdrop-blur-md px-6 shadow-sm z-10 shrink-0">
-        <h2 className="text-xl font-semibold flex items-center gap-2 text-white">
+        <h2 className="text-xl font-semibold flex items-center gap-2 text-slate-800 dark:text-white">
           <Bot size={24} className="text-blue-500" />
           Assistentes
         </h2>
@@ -57,7 +57,7 @@ export default function Assistants() {
                 setAssistantToEdit(null);
                 setIsCreateAssistantModalOpen(true);
             }}
-            className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl text-sm font-medium transition-colors shadow-sm"
+            className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-slate-800 dark:text-white px-4 py-2 rounded-xl text-sm font-medium transition-colors shadow-sm"
         >
             <Plus size={16} />
             Criar Assistente
@@ -73,7 +73,7 @@ export default function Assistants() {
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
                   placeholder="Buscar assistentes..."
-                  className="w-full bg-white/5 border border-white/10 rounded-xl py-3 pl-11 pr-4 text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 transition-colors"
+                  className="w-full bg-white/5 border border-white/10 rounded-xl py-3 pl-11 pr-4 text-slate-800 dark:text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 transition-colors"
               />
          </div>
       </div>
@@ -95,10 +95,10 @@ export default function Assistants() {
                       >
                           <div className="flex items-center justify-between mb-3">
                               <div className="flex items-center gap-3 overflow-hidden">
-                                  <div className="w-12 h-12 rounded-xl bg-blue-500/10 text-blue-500 flex items-center justify-center shrink-0 group-hover:bg-blue-500 group-hover:text-white transition-colors border border-blue-500/20">
+                                  <div className="w-12 h-12 rounded-xl bg-blue-500/10 text-blue-500 flex items-center justify-center shrink-0 group-hover:bg-blue-500 group-hover:text-slate-800 dark:text-white transition-colors border border-blue-500/20">
                                       <Bot size={24} />
                                   </div>
-                                  <h3 className="font-semibold text-white truncate text-lg" title={assistant.name}>
+                                  <h3 className="font-semibold text-slate-800 dark:text-white truncate text-lg" title={assistant.name}>
                                       {assistant.name}
                                   </h3>
                               </div>
@@ -131,7 +131,7 @@ export default function Assistants() {
                               {assistant.description || 'Sem descrição fornecida.'}
                           </p>
                           <button
-                              className="w-full py-2.5 px-4 rounded-lg bg-blue-500/20 text-blue-400 font-medium text-sm hover:bg-blue-600 hover:text-white transition-colors border border-blue-500/20"
+                              className="w-full py-2.5 px-4 rounded-lg bg-blue-500/20 text-blue-400 font-medium text-sm hover:bg-blue-600 hover:text-slate-800 dark:text-white transition-colors border border-blue-500/20"
                               onClick={() => handleSelectAssistant(assistant.id)}
                           >
                               Usar Assistente

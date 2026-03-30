@@ -78,7 +78,7 @@ export default function ArchivedChats() {
     <div className="flex-1 flex flex-col min-w-0 min-h-0 bg-transparent transition-colors duration-200">
       {/* Header */}
       <div className="h-14 border-b border-white/10 flex justify-between items-center bg-white/5 backdrop-blur-md px-6 shadow-sm z-10 shrink-0">
-        <h2 className="text-xl font-semibold flex items-center gap-2 text-white">
+        <h2 className="text-xl font-semibold flex items-center gap-2 text-slate-800 dark:text-white">
           <Archive size={24} className="text-blue-500" />
           Chats Arquivados
         </h2>
@@ -100,13 +100,13 @@ export default function ArchivedChats() {
             archivedChats.map(chat => (
                 <div key={chat.id} className="flex items-center justify-between p-5 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 transition-colors group">
                 <div className="flex flex-col truncate pr-4">
-                    <h3 className="text-lg font-medium text-white truncate">{chat.title}</h3>
+                    <h3 className="text-lg font-medium text-slate-800 dark:text-white truncate">{chat.title}</h3>
                     <span className="text-sm text-gray-500 mt-1">{new Date(chat.updated_at).toLocaleDateString()}</span>
                 </div>
                 <div className="flex items-center gap-2 opacity-60 group-hover:opacity-100 transition-opacity">
                     <button
                         onClick={() => handleUnarchive(chat.id)}
-                        className="flex items-center gap-2 px-3 py-2 text-blue-400 hover:text-white hover:bg-blue-500/20 rounded-lg transition-colors border border-blue-500/20"
+                        className="flex items-center gap-2 px-3 py-2 text-blue-400 hover:text-slate-800 dark:text-white hover:bg-blue-500/20 rounded-lg transition-colors border border-blue-500/20"
                         title="Desarquivar"
                     >
                         <RotateCcw size={16} />
@@ -114,7 +114,7 @@ export default function ArchivedChats() {
                     </button>
                     <button
                         onClick={() => handleDelete(chat.id)}
-                        className="flex items-center gap-2 px-3 py-2 text-red-400 hover:text-white hover:bg-red-500/20 rounded-lg transition-colors border border-red-500/20"
+                        className="flex items-center gap-2 px-3 py-2 text-red-400 hover:text-slate-800 dark:text-white hover:bg-red-500/20 rounded-lg transition-colors border border-red-500/20"
                         title="Excluir permanentemente"
                     >
                         <Trash2 size={16} />
