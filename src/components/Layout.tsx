@@ -2,7 +2,7 @@ import { AuroraModalBackground } from './AuroraModalBackground';
 import React, { useState, useEffect, useRef } from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { createPortal } from 'react-dom';
-import { Sun, Moon, LogOut, ChevronDown, Plus, Sidebar, Search, FileText, Bot, MoreVertical, Share, UserPlus, Pencil, Folder, Pin, Archive, Trash2, ChevronRight } from 'lucide-react';
+import { Sun, Moon, LogOut, CreditCard, Building2, User, Settings as SettingsIcon, HelpCircle, Palette, ChevronDown, Plus, Sidebar, Search, FileText, Bot, MoreVertical, Share, UserPlus, Pencil, Folder, Pin, Archive, Trash2, ChevronRight } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
 import { supabase } from '../lib/supabaseClient';
@@ -88,6 +88,7 @@ const Layout: React.FC = () => {
   const [isNoProjectsWarningOpen, setIsNoProjectsWarningOpen] = useState(false);
   const [isSelectProjectModalOpen, setIsSelectProjectModalOpen] = useState(false);
   const [chatToTransferId, setChatToTransferId] = useState<string | null>(null);
+  const [userProfile, setUserProfile] = useState<any>(null);
 
 
 
@@ -229,11 +230,12 @@ const Layout: React.FC = () => {
       const { data: userRecord, error: userError } = await supabase
         .schema('planintex')
         .from('profiles')
-        .select('empresa_id')
+        .select('empresa_id, role, is_superadmin')
         .eq('id', user.id)
         .single();
 
       if (userRecord && !userError) {
+        setUserProfile(userRecord);
           setCompanyId(userRecord.empresa_id);
       }
 
@@ -645,8 +647,31 @@ const Layout: React.FC = () => {
 
         </div>
 
+
+        {/* Admin Links */}
+        <div className="px-3 pt-3 pb-2 space-y-1 border-t border-slate-200 dark:border-slate-200 dark:border-white/10 mt-auto">
+            <button
+            onClick={() => navigate('/dashboard/billing')}
+            className={`w-full flex items-center gap-3 h-8 px-3 rounded-md transition-all duration-200 text-sm font-medium ${isActive('/dashboard/billing') ? 'bg-slate-100 text-blue-600 border-r-2 border-blue-500 dark:bg-white/10 dark:text-white dark:border-white/50' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-gray-300 dark:hover:bg-white/10 dark:hover:text-white'}`}
+            title="Faturamento"
+            >
+            <CreditCard size={20} className={isActive('/dashboard/billing') ? 'text-blue-600 dark:text-white' : ''} />
+            {isEffectivelyExpanded && <span>Faturamento</span>}
+            </button>
+            {(userProfile?.role === 'Admin' || userProfile?.is_superadmin) && (
+                <button
+                onClick={() => navigate('/super-admin/companies')}
+                className={`w-full flex items-center gap-3 h-8 px-3 rounded-md transition-all duration-200 text-sm font-medium ${isActive('/super-admin/companies') ? 'bg-slate-100 text-blue-600 border-r-2 border-blue-500 dark:bg-white/10 dark:text-white dark:border-white/50' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-gray-300 dark:hover:bg-white/10 dark:hover:text-white'}`}
+                title="Empresas (Admin)"
+                >
+                <Building2 size={20} className={isActive('/super-admin/companies') ? 'text-blue-600 dark:text-white' : ''} />
+                {isEffectivelyExpanded && <span>Empresas</span>}
+                </button>
+            )}
+        </div>
+
         {/* User Menu (Bottom) */}
-        <div className="p-3 border-t border-slate-200 dark:border-slate-200 dark:border-white/10">
+        <div className="p-3">
           <div className="relative" ref={userMenuRef}>
              <button
                 onClick={() => setShowUserMenu(!showUserMenu)}
@@ -666,22 +691,70 @@ const Layout: React.FC = () => {
                 )}
              </button>
 
-             {/* User Menu Dropdown */}
+                          {/* User Menu Dropdown */}
              {showUserMenu && (
-                <div className="absolute bottom-full left-0 w-full mb-2 dark: backdrop-blur-xl border border-slate-200 dark:border-slate-200 dark:border-white/10 rounded-lg shadow-xl py-1 overflow-hidden animate-in fade-in slide-in-from-bottom-2 duration-200 z-50">
+                <div className="absolute bottom-full left-0 w-full mb-2 bg-white dark:bg-[#1C1C1E] border border-slate-200 dark:border-[#2C2C2E] rounded-xl shadow-xl py-1.5 overflow-hidden animate-in fade-in zoom-in-95 duration-200 z-50 text-slate-700 dark:text-gray-200">
+                    <div className="px-4 py-3 flex items-center gap-3 border-b border-slate-100 dark:border-[#2C2C2E] mb-1">
+                         <div className="w-9 h-9 bg-blue-600 rounded-full flex items-center justify-center text-sm text-white font-medium uppercase flex-shrink-0">
+                             {displayName.substring(0, 2)}
+                         </div>
+                         <div className="flex-1 min-w-0">
+                             <p className="text-sm font-medium text-slate-900 dark:text-white truncate">{displayName}</p>
+                             <p className="text-xs text-slate-500 dark:text-gray-400 truncate">{user?.email}</p>
+                         </div>
+                    </div>
+
+                    <button
+                        onClick={() => { navigate('/customization'); setShowUserMenu(false); }}
+                        className="w-full text-left px-4 py-2.5 text-sm hover:bg-slate-50 dark:hover:bg-white/5 flex items-center gap-3 transition-colors"
+                    >
+                        <Palette size={16} className="text-slate-400 dark:text-gray-400" />
+                        <span>Personalização</span>
+                    </button>
+
+                    <button
+                        onClick={() => { navigate('/profile'); setShowUserMenu(false); }}
+                        className="w-full text-left px-4 py-2.5 text-sm hover:bg-slate-50 dark:hover:bg-white/5 flex items-center gap-3 transition-colors"
+                    >
+                        <User size={16} className="text-slate-400 dark:text-gray-400" />
+                        <span>Perfil</span>
+                    </button>
+
+                    <button
+                        onClick={() => { navigate('/settings'); setShowUserMenu(false); }}
+                        className="w-full text-left px-4 py-2.5 text-sm hover:bg-slate-50 dark:hover:bg-white/5 flex items-center gap-3 transition-colors"
+                    >
+                        <SettingsIcon size={16} className="text-slate-400 dark:text-gray-400" />
+                        <span>Configurações</span>
+                    </button>
+
+                    <div className="border-t border-slate-100 dark:border-[#2C2C2E] my-1"></div>
+
                     <button
                         onClick={() => { toggleTheme(); setShowUserMenu(false); }}
-                        className="w-full text-left px-4 py-2.5 text-sm dark: hover: dark:hover: flex items-center gap-2"
+                        className="w-full text-left px-4 py-2.5 text-sm hover:bg-slate-50 dark:hover:bg-white/5 flex items-center justify-between transition-colors"
                     >
-                        {theme === 'light' ? <Moon size={16} /> : <Sun size={16} />}
-                        <span>{theme === 'light' ? 'Modo Escuro' : 'Modo Claro'}</span>
+                        <div className="flex items-center gap-3">
+                           {theme === 'light' ? <Moon size={16} className="text-slate-400 dark:text-gray-400" /> : <Sun size={16} className="text-slate-400 dark:text-gray-400" />}
+                           <span>{theme === 'light' ? 'Modo Escuro' : 'Modo Claro'}</span>
+                        </div>
                     </button>
-                    <div className="border-t border-slate-200 dark:border-slate-200 dark:border-white/10 my-1"></div>
+
+                    <button
+                        onClick={() => { setShowUserMenu(false); }}
+                        className="w-full text-left px-4 py-2.5 text-sm hover:bg-slate-50 dark:hover:bg-white/5 flex items-center gap-3 transition-colors"
+                    >
+                        <HelpCircle size={16} className="text-slate-400 dark:text-gray-400" />
+                        <span>Ajuda</span>
+                    </button>
+
+                    <div className="border-t border-slate-100 dark:border-[#2C2C2E] my-1"></div>
+
                     <button
                         onClick={() => signOut()}
-                        className="w-full text-left px-4 py-2.5 text-sm text-red-600 dark:text-red-400 hover: dark:hover: flex items-center gap-2"
+                        className="w-full text-left px-4 py-2.5 text-sm hover:bg-slate-50 dark:hover:bg-white/5 flex items-center gap-3 transition-colors"
                     >
-                        <LogOut size={16} />
+                        <LogOut size={16} className="text-slate-400 dark:text-gray-400" />
                         <span>Sair</span>
                     </button>
                 </div>

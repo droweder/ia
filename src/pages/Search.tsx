@@ -17,7 +17,7 @@ export default function Search() {
     results = conversations.filter(
       (c) =>
         c.title?.toLowerCase().includes(lowerQuery) ||
-        c.project?.name?.toLowerCase().includes(lowerQuery)
+        (c.project && c.project.name && c.project.name.toLowerCase().includes(lowerQuery))
     );
   } else {
     results = conversations;
@@ -67,7 +67,7 @@ export default function Search() {
                                 <span className="text-base font-medium text-slate-800 dark:text-white truncate">
                                     {chat.title}
                                 </span>
-                                {chat.project && (
+                                {chat.project?.name && (
                                     <div className="flex items-center gap-1.5 mt-1">
                                         <FolderArchive size={14} className="text-gray-400" />
                                         <span className="text-sm text-gray-400 truncate">

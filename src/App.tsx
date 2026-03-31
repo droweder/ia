@@ -8,6 +8,9 @@ import Files from './pages/Files';
 import Projects from './pages/Projects';
 import Billing from './pages/dashboard/Billing';
 import Companies from './pages/admin/Companies';
+import Profile from './pages/Profile';
+import Settings from './pages/Settings';
+import Customization from './pages/Customization';
 import Login from './pages/Login';
 import { AuthProvider } from './contexts/AuthContext';
 import { ThemeProvider } from './contexts/ThemeContext';
@@ -32,6 +35,9 @@ function App() {
                 <Route path="projects" element={<Projects />} />
                 <Route path="dashboard/billing" element={<Billing />} />
                 <Route path="super-admin/companies" element={<Companies />} />
+                <Route path="profile" element={<Profile />} />
+                <Route path="settings" element={<Settings />} />
+                <Route path="customization" element={<Customization />} />
               </Route>
             </Route>
           </Routes>
