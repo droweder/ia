@@ -49,20 +49,26 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return;
     }
 
-    // Login with password. Try DRoweder first, then Particular.
+    // Attempt login on DRoweder first, then Particular.
     const drowederUrl = import.meta.env.VITE_SUPABASE_URL || 'https://your-supabase-url.supabase.co';
     const drowederAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'your-anon-key';
     const particularUrl = import.meta.env.VITE_SUPABASE_PARTICULAR_URL || 'https://particular-supabase-url.supabase.co';
     const particularAnonKey = import.meta.env.VITE_SUPABASE_PARTICULAR_ANON_KEY || 'your-anon-key';
 
-    const drowederClient = createClient(drowederUrl, drowederAnonKey);
+    // We instantiate temp clients with isolated storage keys to avoid "Multiple GoTrueClient instances" warning
+    // and overlapping session caches during the test.
+    const drowederClient = createClient(drowederUrl, drowederAnonKey, {
+        auth: { storageKey: 'temp-auth-droweder', persistSession: false }
+    });
 
     // Attempt login on DRoweder
     const { data: drowederData, error: drowederError } = await drowederClient.auth.signInWithPassword({ email, password });
 
     if (drowederError && (drowederError.message.toLowerCase().includes("invalid login credentials") || drowederError.status === 400 || drowederError.status === 403)) {
         // Try Particular if invalid credentials on DRoweder
-        const particularClient = createClient(particularUrl, particularAnonKey);
+        const particularClient = createClient(particularUrl, particularAnonKey, {
+            auth: { storageKey: 'temp-auth-particular', persistSession: false }
+        });
         const { data: particularData, error: particularError } = await particularClient.auth.signInWithPassword({ email, password });
 
         if (particularError) {
@@ -70,14 +76,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         } else {
             // Success on Particular
             localStorage.setItem('active_project', 'particular');
-            // We need to set the session on our main exported client manually just in case, but reloading is safer
             await supabase.auth.setSession({
                 access_token: particularData.session.access_token,
                 refresh_token: particularData.session.refresh_token
             });
-            window.location.reload();
-            // Prevents further execution before reload
-            await new Promise(resolve => setTimeout(resolve, 5000));
+            window.location.href = '/chat';
         }
     } else if (drowederError) {
         // Other DRoweder error (e.g. rate limit, network)
@@ -89,8 +92,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             access_token: drowederData.session.access_token,
             refresh_token: drowederData.session.refresh_token
         });
-        window.location.reload();
-        await new Promise(resolve => setTimeout(resolve, 5000));
+        window.location.href = '/chat';
     }
   };
 

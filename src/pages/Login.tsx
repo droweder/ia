@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { Mail, Lock, ShieldCheck, Loader2, AlertCircle, Eye, EyeOff } from 'lucide-react';
 
@@ -10,7 +9,6 @@ const Login: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const { signIn } = useAuth();
-  const navigate = useNavigate();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -24,13 +22,12 @@ const Login: React.FC = () => {
 
     try {
       await signIn(email, password);
-      // navigate is handled by page reload in AuthContext.tsx
-      navigate('/chat');
+      // navigation is handled by AuthContext.tsx
     } catch (err: any) {
-      if (err.message === "Invalid login credentials") {
+      if (err.message?.toLowerCase().includes("invalid login credentials")) {
           setError("E-mail ou senha incorretos.");
       } else {
-          setError('Erro ao fazer login: ' + err.message);
+          setError('Erro ao fazer login: ' + (err.message || "Erro desconhecido."));
       }
     } finally {
       setLoading(false);
