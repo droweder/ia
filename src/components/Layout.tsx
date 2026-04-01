@@ -15,6 +15,8 @@ import { ShareChatModal } from './ShareChatModal';
 import { GroupChatModal } from './GroupChatModal';
 import { DeleteAssistantModal } from './DeleteAssistantModal';
 import ProfileModal from './ProfileModal';
+import { CustomizationModal } from './CustomizationModal';
+import { SettingsModal } from './SettingsModal';
 import { DeleteChatModal } from './DeleteChatModal';
 
 
@@ -106,6 +108,8 @@ const Layout: React.FC = () => {
     const [assistantToEdit, setAssistantToEdit] = useState<any>(null);
   const [assistantToDelete, setAssistantToDelete] = useState<any>(null);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [isCustomizationOpen, setIsCustomizationOpen] = useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
   const loadAssistants = async () => {
     try {
@@ -699,7 +703,7 @@ const Layout: React.FC = () => {
                     </div>
 
                     <button
-                        onClick={() => { navigate('/customization'); setShowUserMenu(false); }}
+                        onClick={() => { setIsCustomizationOpen(true); setShowUserMenu(false); }}
                         className="w-full text-left px-4 py-2.5 text-sm hover:bg-slate-50 dark:hover:bg-white/5 flex items-center gap-3 transition-colors"
                     >
                         <Palette size={16} className="text-slate-400 dark:text-gray-400" />
@@ -715,7 +719,7 @@ const Layout: React.FC = () => {
                     </button>
 
                     <button
-                        onClick={() => { navigate('/settings'); setShowUserMenu(false); }}
+                        onClick={() => { setIsSettingsOpen(true); setShowUserMenu(false); }}
                         className="w-full text-left px-4 py-2.5 text-sm hover:bg-slate-50 dark:hover:bg-white/5 flex items-center gap-3 transition-colors"
                     >
                         <SettingsIcon size={16} className="text-slate-400 dark:text-gray-400" />
@@ -774,6 +778,8 @@ const Layout: React.FC = () => {
           onCreate={handleCreateProject}
       />
 
+      <CustomizationModal isOpen={isCustomizationOpen} onClose={() => setIsCustomizationOpen(false)} />
+      <SettingsModal isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} />
       <ProfileModal isOpen={isProfileOpen} onClose={() => setIsProfileOpen(false)} />
       <CreateAssistantModal
         isOpen={isCreateAssistantModalOpen}
