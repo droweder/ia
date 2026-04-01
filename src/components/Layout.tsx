@@ -14,6 +14,7 @@ import { RenameChatModal } from './RenameChatModal';
 import { ShareChatModal } from './ShareChatModal';
 import { GroupChatModal } from './GroupChatModal';
 import { DeleteAssistantModal } from './DeleteAssistantModal';
+import ProfileModal from './ProfileModal';
 import { DeleteChatModal } from './DeleteChatModal';
 
 
@@ -104,6 +105,7 @@ const Layout: React.FC = () => {
   const [isCreateAssistantModalOpen, setIsCreateAssistantModalOpen] = useState(false);
     const [assistantToEdit, setAssistantToEdit] = useState<any>(null);
   const [assistantToDelete, setAssistantToDelete] = useState<any>(null);
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
 
   const loadAssistants = async () => {
     try {
@@ -705,7 +707,7 @@ const Layout: React.FC = () => {
                     </button>
 
                     <button
-                        onClick={() => { navigate('/profile'); setShowUserMenu(false); }}
+                        onClick={() => { setIsProfileOpen(true); setShowUserMenu(false); }}
                         className="w-full text-left px-4 py-2.5 text-sm hover:bg-slate-50 dark:hover:bg-white/5 flex items-center gap-3 transition-colors"
                     >
                         <User size={16} className="text-slate-400 dark:text-gray-400" />
@@ -772,6 +774,7 @@ const Layout: React.FC = () => {
           onCreate={handleCreateProject}
       />
 
+      <ProfileModal isOpen={isProfileOpen} onClose={() => setIsProfileOpen(false)} />
       <CreateAssistantModal
         isOpen={isCreateAssistantModalOpen}
         onClose={() => {
