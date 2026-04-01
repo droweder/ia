@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { CreditCard, Zap, TrendingUp, Loader2, Download, FileText, AlertCircle } from 'lucide-react';
 import { supabase } from '../../lib/supabaseClient';
-import { useAuth } from '../../contexts/AuthContext';
+import { useAuth } from '../../contexts/useAuth';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';

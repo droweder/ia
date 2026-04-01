@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { MoreHorizontal, Plus, Search, Building2, Loader2, AlertTriangle } from 'lucide-react';
 import { supabase } from '../../lib/supabaseClient';
-import { useAuth } from '../../contexts/AuthContext';
+import { useAuth } from '../../contexts/useAuth';
 import { useNavigate } from 'react-router-dom';
 
 interface Company {
@@ -20,6 +20,7 @@ const Companies: React.FC = () => {
 
   useEffect(() => {
     checkAuthorization();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
   const checkAuthorization = async () => {

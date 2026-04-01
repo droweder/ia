@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useOutletContext } from 'react-router-dom';
 import { supabase } from '../lib/supabaseClient';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth } from '../contexts/useAuth';
 import { Folder, Plus, MoreVertical, Pencil, Trash2, Calendar, MessageSquare, ChevronLeft, Clock } from 'lucide-react';
 import { CreateProjectModal } from '../components/CreateProjectModal';
 import { RenameProjectModal } from '../components/RenameProjectModal';

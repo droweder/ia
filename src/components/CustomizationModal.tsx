@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Palette, Wand2, Type, X } from 'lucide-react';
 import { AuroraModalBackground } from './AuroraModalBackground';
-import { useTheme } from '../contexts/ThemeContext';
+import { useTheme } from '../contexts/useTheme';
 
 interface CustomizationModalProps {
   isOpen: boolean;

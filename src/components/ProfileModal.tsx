@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { User, Mail, Shield, X, Loader2, Save } from 'lucide-react';
 import { supabase } from '../lib/supabaseClient';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth } from '../contexts/useAuth';
 import { AuroraModalBackground } from './AuroraModalBackground';
 
 interface ProfileModalProps {

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Folder, File as FileIcon, Upload, Plus, Trash2, Search, Loader2 } from 'lucide-react';
 import { supabase } from '../lib/supabaseClient';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth } from '../contexts/useAuth';
 
 interface StorageFile {
     name: string;

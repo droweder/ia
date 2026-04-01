@@ -34,7 +34,7 @@ Deno.serve(async (req: Request) => {
         throw new Error('Invalid JSON request body');
     });
 
-    const { messages, systemPrompt, model } = data;
+    const { messages, systemPrompt } = data;
 
     if (!messages || !Array.isArray(messages)) {
       throw new Error('Messages array is required');
@@ -64,7 +64,12 @@ Deno.serve(async (req: Request) => {
       'openrouter/free'
     ];
 
-        const requestBody: any = {
+        interface OpenRouterRequest {
+      model: string;
+      messages: any[];
+      stream: boolean;
+    }
+    const requestBody: OpenRouterRequest = {
       model: fallbackModels.join(','),
       messages: payloadMessages,
       stream: true
@@ -106,9 +111,9 @@ Deno.serve(async (req: Request) => {
       },
     });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Function error:", error);
-    return new Response(JSON.stringify({ error: error.message || 'Unknown error' }), {
+    return new Response(JSON.stringify({ error: error instanceof Error ? error.message : 'Unknown error' }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       status: 400,
     });
