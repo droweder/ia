@@ -650,14 +650,6 @@ const Layout: React.FC = () => {
 
         {/* Admin Links */}
         <div className="px-3 pt-3 pb-2 space-y-1 border-t border-slate-200 dark:border-slate-200 dark:border-white/10 mt-auto">
-            <button
-            onClick={() => navigate('/dashboard/billing')}
-            className={`w-full flex items-center gap-3 h-8 px-3 rounded-md transition-all duration-200 text-sm font-medium ${isActive('/dashboard/billing') ? 'bg-slate-100 text-blue-600 border-r-2 border-blue-500 dark:bg-white/10 dark:text-white dark:border-white/50' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-gray-300 dark:hover:bg-white/10 dark:hover:text-white'}`}
-            title="Faturamento"
-            >
-            <CreditCard size={20} className={isActive('/dashboard/billing') ? 'text-blue-600 dark:text-white' : ''} />
-            {isEffectivelyExpanded && <span>Faturamento</span>}
-            </button>
             {(userProfile?.role === 'Admin' || userProfile?.is_superadmin) && (
                 <button
                 onClick={() => navigate('/super-admin/companies')}
@@ -726,6 +718,16 @@ const Layout: React.FC = () => {
                     >
                         <SettingsIcon size={16} className="text-slate-400 dark:text-gray-400" />
                         <span>Configurações</span>
+                    </button>
+
+                    <div className="border-t border-slate-100 dark:border-[#2C2C2E] my-1"></div>
+
+                    <button
+                        onClick={() => { navigate('/dashboard/billing'); setShowUserMenu(false); }}
+                        className="w-full text-left px-4 py-2.5 text-sm hover:bg-slate-50 dark:hover:bg-white/5 flex items-center gap-3 transition-colors"
+                    >
+                        <CreditCard size={16} className="text-slate-400 dark:text-gray-400" />
+                        <span>Faturamento</span>
                     </button>
 
                     <div className="border-t border-slate-100 dark:border-[#2C2C2E] my-1"></div>
