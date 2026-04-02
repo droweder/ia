@@ -14,7 +14,7 @@ import mammoth from 'mammoth';
 pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.mjs`;
 
 import { chatWithOpenRouterStream } from '../lib/openRouterClient';
-import { useOutletContext } from 'react-router-dom';
+import { useOutletContext, useLocation } from 'react-router-dom';
 import type { LayoutContextType } from '../components/Layout';
 import type { OpenRouterMessage } from '../types';
 
@@ -119,6 +119,26 @@ const Chat: React.FC = () => {
   const [isInputExpanded, setIsInputExpanded] = useState(false);
 
   const { conversations, setConversations, activeConversationId, setActiveConversationId, activeAssistantId, setActiveAssistantId, assistants } = useOutletContext<LayoutContextType>();
+
+  const location = useLocation();
+
+  useEffect(() => {
+    // If navigated from Assistants page with an assistant ID
+    if (location.state && location.state.assistantId) {
+      setActiveAssistantId(location.state.assistantId);
+      setSelectedModelId(''); // clear standard model
+      // Clear the state so it doesn't re-trigger on refresh if navigated away and back normally
+      window.history.replaceState({}, document.title);
+
+      // If we are currently in an old conversation, we should clear it to start a fresh chat with the new assistant
+      if (activeConversationId) {
+        setActiveConversationId(null);
+        setMessages([]);
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location.state]);
+
   const [isRecording, setIsRecording] = useState(false);
   const recognitionRef = useRef<any>(null);
 
