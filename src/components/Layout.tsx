@@ -385,7 +385,7 @@ const Layout: React.FC = () => {
       <aside
       onMouseEnter={() => setIsSidebarHovered(true)}
       onMouseLeave={() => setIsSidebarHovered(false)}
-      className={`${!isEffectivelyExpanded ? 'w-20' : 'w-72'} border-r border-slate-200 bg-white/80 dark:border-white/10 dark:bg-white/5 backdrop-blur-xl border-slate-200 dark:border-white/10 hidden md:flex flex-col z-10 transition-all duration-300 shrink-0`}>
+      className={`${!isEffectivelyExpanded ? 'w-20' : 'w-72'} border-r border-slate-200 bg-white/80 dark:bg-[#0B0F19]/80 dark:border-white/10 backdrop-blur-xl border-slate-200 dark:border-white/10 hidden md:flex flex-col z-10 transition-all duration-300 shrink-0`}>
 
         {/* Header da Sidebar */}
         <div className={`h-12 flex items-center px-4 border-b border-slate-200 dark:border-slate-200 dark:border-white/10 ${!isEffectivelyExpanded ? 'justify-center' : 'justify-between'}`}>
@@ -412,7 +412,7 @@ const Layout: React.FC = () => {
           <div className="p-3 space-y-1">
               <button
                 onClick={handleNewChat}
-                className="w-full flex items-center gap-3 h-10 px-3 mb-2 rounded-xl bg-blue-600 bg-blue-600 hover:bg-blue-700 text-white shadow-sm transition-all text-sm font-medium"
+                className="w-full flex items-center gap-3 h-10 px-3 mb-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white shadow-sm transition-all text-sm font-medium"
               >
                 <Plus size={20} />
                 {isEffectivelyExpanded && <span>Novo Chat</span>}
@@ -673,7 +673,7 @@ const Layout: React.FC = () => {
           <div className="relative" ref={userMenuRef}>
              <button
                 onClick={() => setShowUserMenu(!showUserMenu)}
-                className={`w-full flex items-center ${!isEffectivelyExpanded ? 'justify-center' : 'gap-3'} hover:bg-white/10 p-2 rounded-md transition-colors text-left group`}
+                className={`w-full flex items-center ${!isEffectivelyExpanded ? 'justify-center' : 'gap-3'} hover:bg-slate-100 dark:hover:bg-white/10 p-2 rounded-md transition-colors text-left group`}
              >
                 <div className="w-8 h-8 bg-blue-600 bg-blue-500 rounded flex items-center justify-center text-xs text-white font-medium uppercase flex-shrink-0">
                     {displayName.substring(0, 2)}
@@ -691,7 +691,7 @@ const Layout: React.FC = () => {
 
                           {/* User Menu Dropdown */}
              {showUserMenu && (
-                <div className="absolute bottom-full left-0 w-full mb-2 bg-white dark:bg-[#1C1C1E] border border-slate-200 dark:border-[#2C2C2E] rounded-xl shadow-xl py-1.5 overflow-hidden animate-in fade-in zoom-in-95 duration-200 z-50 text-slate-700 dark:text-gray-200">
+                <div className="absolute bottom-full left-0 w-full mb-2 bg-white dark:bg-[#0B0F19]/90 backdrop-blur-xl border border-slate-200 dark:border-white/10 rounded-xl shadow-xl py-1.5 overflow-hidden animate-in fade-in zoom-in-95 duration-200 z-50 text-slate-700 dark:text-gray-200">
                     <div className="px-4 py-3 flex items-center gap-3 border-b border-slate-100 dark:border-[#2C2C2E] mb-1">
                          <div className="w-9 h-9 bg-blue-600 rounded-full flex items-center justify-center text-sm text-white font-medium uppercase flex-shrink-0">
                              {displayName.substring(0, 2)}

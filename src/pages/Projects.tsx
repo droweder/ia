@@ -228,7 +228,7 @@ export default function Projects() {
                   <div
                     key={chat.id}
                     onClick={() => handleOpenChat(chat.id)}
-                    className="group flex flex-col p-4 rounded-xl bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 hover:border-blue-500/50 cursor-pointer transition-all shadow-sm hover:shadow-md"
+                    className="group flex flex-col p-4 rounded-xl bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 dark:hover:border-blue-500/50 hover:border-blue-500/50 cursor-pointer transition-all shadow-sm hover:shadow-md"
                   >
                     <div className="flex items-start justify-between mb-3">
                       <div className="w-10 h-10 rounded-lg bg-blue-500/10 flex items-center justify-center shrink-0">
