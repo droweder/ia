@@ -43,7 +43,7 @@ const CodeBlock = ({ inline, className, children, ...props }: any) => {
 
     if (inline || !match) {
         return (
-            <code {...props} className={`${className || ''} bg-white/10 px-1.5 py-0.5 rounded-md font-mono text-sm text-pink-400`}>
+            <code {...props} className={`${className || ''} bg-white/10 dark:bg-white/5 px-1.5 py-0.5 rounded-md font-mono text-sm text-pink-400 dark:text-pink-300`}>
                 {children}
             </code>
         );
@@ -52,9 +52,9 @@ const CodeBlock = ({ inline, className, children, ...props }: any) => {
     const language = match[1];
 
     return (
-        <div className="relative group/code mt-4 mb-4 rounded-xl overflow-hidden bg-gray-100 dark:bg-[#1E1E1E] border border-gray-700/50 shadow-sm">
+        <div className="relative group/code mt-4 mb-4 rounded-xl overflow-hidden bg-gray-100 dark:bg-white/5 border border-gray-700/50 shadow-sm">
             <div
-                className={`flex items-center justify-between px-4 py-2.5 bg-gray-200 dark:bg-[#2D2D2D] text-xs font-medium text-slate-500 dark:text-gray-400 transition-colors ${language === 'sql' ? 'cursor-pointer hover:bg-gray-300 dark:hover:bg-[#3D3D3D]' : ''}`}
+                className={`flex items-center justify-between px-4 py-2.5 bg-gray-200 dark:bg-white/10 text-xs font-medium text-slate-500 dark:text-gray-400 transition-colors ${language === 'sql' ? 'cursor-pointer hover:bg-gray-300 dark:hover:bg-white/20' : ''}`}
                 onClick={() => language === 'sql' && setIsExpanded(!isExpanded)}
             >
                 <div className="flex items-center gap-2">
@@ -623,7 +623,7 @@ let systemPrompt = `Você é o DRoweder IA, um assistente especialista em manufa
 
             {/* Dropdown de Modelos */}
             {showModelMenu && (
-                <div className="absolute top-full left-0 mt-2 w-64 bg-white dark:bg-[#0B0F19] dark:bg-transparent backdrop-blur-xl border border-slate-200 dark:border-white/10 rounded-xl shadow-lg overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 duration-200">
+                <div className="absolute top-full left-0 mt-2 w-64 bg-white dark:bg-[#0B0F19]/90 backdrop-blur-xl border border-slate-200 dark:border-white/10 rounded-xl shadow-lg overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 duration-200">
                     <div className="p-2 border-b border-slate-200 dark:border-white/10">
                         <p className="text-xs font-semibold text-slate-500 dark:text-slate-500 dark:text-gray-400 uppercase tracking-wider pl-2">Selecione o Modelo</p>
                     </div>
