@@ -866,8 +866,8 @@ let systemPrompt = `Você é o DRoweder IA, um assistente especialista em manufa
                             disabled={(!input.trim() && attachments.length === 0) || loading}
                             className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors
                                 ${(!input.trim() && attachments.length === 0)
-                                    ? 'bg-black text-white dark:bg-white dark:text-black opacity-100 hover:opacity-80'
-                                    : 'bg-black text-white dark:bg-white dark:text-black hover:opacity-80'
+                                    ? 'bg-blue-600 text-white opacity-100 hover:bg-blue-700'
+                                    : 'bg-blue-600 text-white hover:bg-blue-700'
                                 }
                                 ${loading ? 'opacity-50 cursor-not-allowed' : ''}
                             `}

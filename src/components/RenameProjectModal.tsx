@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { X, Loader2 } from 'lucide-react';
-import { AuroraModalBackground } from './AuroraModalBackground';
 
 interface RenameProjectModalProps {
   isOpen: boolean;
@@ -45,12 +44,12 @@ export const RenameProjectModal: React.FC<RenameProjectModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 dark:bg-black/60 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-50 flex items-center justify-center  dark:  p-4 animate-in fade-in duration-200 bg-[#0B0F19]/80 backdrop-blur-sm">
       <div
         className="relative w-full max-w-md rounded-2xl shadow-2xl border border-white/10 overflow-hidden transform transition-all scale-100 animate-in zoom-in-95 duration-200 text-gray-200"
         onClick={(e) => e.stopPropagation()}
       >
-        <AuroraModalBackground />
+        {/* Removed Aurora background */}
         <div className="flex items-center justify-between p-6 border-b border-white/10">
           <h2 className="text-xl font-semibold">Renomear Projeto</h2>
           <button

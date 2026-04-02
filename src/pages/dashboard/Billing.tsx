@@ -263,12 +263,12 @@ const Billing: React.FC = () => {
 
       {/* Table */}
       <div className="bg-white/40 dark:bg-white/5 backdrop-blur-xl rounded-xl border border-slate-200 dark:border-white/10 shadow-sm overflow-hidden">
-        <div className="px-6 py-4 border-b border-slate-200 dark:border-white/10 flex items-center justify-between bg-white/50 dark:bg-black/60">
+        <div className="px-6 py-4 border-b border-slate-200 dark:border-white/10 flex items-center justify-between bg-white/50 dark:bg-white/5">
             <h3 className="font-semibold text-slate-800 dark:text-slate-200">Histórico de Transações</h3>
         </div>
         <div className="overflow-x-auto">
             <table className="w-full text-sm text-left">
-                <thead className="bg-white/50 dark:bg-black/60 text-slate-500 dark:text-slate-400 font-medium border-b border-slate-200 dark:border-white/10">
+                <thead className="bg-white/50 dark:bg-white/5 text-slate-500 dark:text-slate-400 font-medium border-b border-slate-200 dark:border-white/10">
                     <tr>
                         <th className="px-6 py-3 font-semibold uppercase text-xs tracking-wider">Data/Hora</th>
                         <th className="px-6 py-3 font-semibold uppercase text-xs tracking-wider">Descrição</th>

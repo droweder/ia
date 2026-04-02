@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { Settings as SettingsIcon, Bell, Lock, Globe, Database, X } from 'lucide-react';
-import { AuroraModalBackground } from './AuroraModalBackground';
 
 interface SettingsModalProps {
   isOpen: boolean;
@@ -13,9 +12,9 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6   animate-in fade-in duration-200 bg-[#0B0F19]/80 backdrop-blur-sm">
       <div className="bg-[#0B0F19] w-full max-w-5xl rounded-2xl shadow-2xl border border-white/10 overflow-hidden flex flex-col max-h-[90vh] relative">
-        <AuroraModalBackground />
+        {/* Removed Aurora background */}
 
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-white/10 relative z-10 shrink-0">
@@ -73,7 +72,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                                         <p className="font-medium text-white">Idioma do Sistema</p>
                                         <p className="text-sm text-slate-400">Defina o idioma principal da interface.</p>
                                     </div>
-                                    <select className="bg-black/40 border border-white/10 rounded-lg px-3 py-2.5 text-white focus:outline-none focus:border-blue-500 disabled:opacity-50">
+                                    <select className="bg-white/10 border border-white/10 rounded-lg px-3 py-2.5 text-white focus:outline-none focus:border-blue-500 disabled:opacity-50">
                                         <option value="pt-br" className="bg-slate-900">Português (Brasil)</option>
                                         <option value="en" className="bg-slate-900" disabled>English</option>
                                     </select>
@@ -83,7 +82,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                                         <p className="font-medium text-white">Fuso Horário</p>
                                         <p className="text-sm text-slate-400">Usado para timestamps de mensagens.</p>
                                     </div>
-                                    <select className="bg-black/40 border border-white/10 rounded-lg px-3 py-2.5 text-white focus:outline-none focus:border-blue-500 disabled:opacity-50">
+                                    <select className="bg-white/10 border border-white/10 rounded-lg px-3 py-2.5 text-white focus:outline-none focus:border-blue-500 disabled:opacity-50">
                                         <option value="America/Sao_Paulo" className="bg-slate-900">Brasília (BRT)</option>
                                     </select>
                                 </div>
@@ -102,7 +101,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
         </div>
 
         {/* Footer */}
-        <div className="p-6 border-t border-white/10 bg-black/20 flex justify-end relative z-10 shrink-0">
+        <div className="p-6 border-t border-white/10 bg-white/5 flex justify-end relative z-10 shrink-0">
           <button
             onClick={onClose}
             className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition-colors shadow-lg shadow-blue-500/20"
