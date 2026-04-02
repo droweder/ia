@@ -6,7 +6,7 @@ import remarkGfm from 'remark-gfm';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { supabase } from '../lib/supabaseClient';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth } from '../contexts/useAuth';
 import * as pdfjsLib from 'pdfjs-dist';
 import mammoth from 'mammoth';
 
@@ -14,7 +14,7 @@ import mammoth from 'mammoth';
 pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.mjs`;
 
 import { chatWithOpenRouterStream } from '../lib/openRouterClient';
-import { useOutletContext } from 'react-router-dom';
+import { useOutletContext, useLocation } from 'react-router-dom';
 import type { LayoutContextType } from '../components/Layout';
 import type { OpenRouterMessage } from '../types';
 
@@ -27,7 +27,7 @@ interface Message {
 }
 
 
-const CodeBlock = ({ node, inline, className, children, ...props }: any) => {
+const CodeBlock = ({ inline, className, children, ...props }: any) => {
     const match = /language-(\w+)/.exec(className || '');
     const codeString = String(children).replace(/\n$/, '');
 
@@ -119,6 +119,26 @@ const Chat: React.FC = () => {
   const [isInputExpanded, setIsInputExpanded] = useState(false);
 
   const { conversations, setConversations, activeConversationId, setActiveConversationId, activeAssistantId, setActiveAssistantId, assistants } = useOutletContext<LayoutContextType>();
+
+  const location = useLocation();
+
+  useEffect(() => {
+    // If navigated from Assistants page with an assistant ID
+    if (location.state && location.state.assistantId) {
+      setActiveAssistantId(location.state.assistantId);
+      setSelectedModelId(''); // clear standard model
+      // Clear the state so it doesn't re-trigger on refresh if navigated away and back normally
+      window.history.replaceState({}, document.title);
+
+      // If we are currently in an old conversation, we should clear it to start a fresh chat with the new assistant
+      if (activeConversationId) {
+        setActiveConversationId(null);
+        setMessages([]);
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location.state]);
+
   const [isRecording, setIsRecording] = useState(false);
   const recognitionRef = useRef<any>(null);
 
@@ -846,8 +866,8 @@ let systemPrompt = `Você é o DRoweder IA, um assistente especialista em manufa
                             disabled={(!input.trim() && attachments.length === 0) || loading}
                             className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors
                                 ${(!input.trim() && attachments.length === 0)
-                                    ? 'bg-black text-white dark:bg-white dark:text-black opacity-100 hover:opacity-80'
-                                    : 'bg-black text-white dark:bg-white dark:text-black hover:opacity-80'
+                                    ? 'bg-blue-600 text-white opacity-100 hover:bg-blue-700'
+                                    : 'bg-blue-600 text-white hover:bg-blue-700'
                                 }
                                 ${loading ? 'opacity-50 cursor-not-allowed' : ''}
                             `}

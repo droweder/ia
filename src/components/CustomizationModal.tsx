@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Palette, Wand2, Type, X } from 'lucide-react';
-import { AuroraModalBackground } from './AuroraModalBackground';
-import { useTheme } from '../contexts/ThemeContext';
+import { useTheme } from '../contexts/useTheme';
 
 interface CustomizationModalProps {
   isOpen: boolean;
@@ -15,9 +14,9 @@ export const CustomizationModal: React.FC<CustomizationModalProps> = ({ isOpen, 
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6   animate-in fade-in duration-200 bg-[#0B0F19]/80 backdrop-blur-sm">
       <div className="bg-[#0B0F19] w-full max-w-4xl rounded-2xl shadow-2xl border border-white/10 overflow-hidden flex flex-col max-h-[90vh] relative">
-        <AuroraModalBackground />
+        {/* Removed Aurora background */}
 
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-white/10 relative z-10">
@@ -79,7 +78,7 @@ export const CustomizationModal: React.FC<CustomizationModalProps> = ({ isOpen, 
                         <p className="text-sm text-slate-400 leading-relaxed">
                             Ajuste o tamanho base do texto para melhor leitura durante os bate-papos e leitura de relatórios.
                         </p>
-                        <div className="flex items-center gap-4 bg-black/20 p-4 rounded-xl border border-white/10">
+                        <div className="flex items-center gap-4 bg-white/5 p-4 rounded-xl border border-white/10">
                             <span className="text-sm font-medium text-slate-400">A</span>
                             <input
                                 type="range"

@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { X } from 'lucide-react';
-import { AuroraModalBackground } from './AuroraModalBackground';
 
 interface Project {
   id: string;
@@ -28,9 +27,9 @@ export function SelectProjectModal({ isOpen, onClose, projects, onSelectProject 
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 dark:bg-black/60 backdrop-blur-sm p-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center  dark:  p-4 bg-[#0B0F19]/80 backdrop-blur-sm">
       <div className="relative w-full max-w-md rounded-2xl shadow-2xl border border-white/10 overflow-hidden transform transition-all scale-100 animate-in zoom-in-95 duration-200 p-6 text-gray-200">
-        <AuroraModalBackground />
+        {/* Removed Aurora background */}
         <div className="mb-4 flex items-center justify-between">
           <h2 className="text-xl font-semibold text-slate-800 dark:text-white">Transferir para Projeto</h2>
           <button
@@ -52,11 +51,11 @@ export function SelectProjectModal({ isOpen, onClose, projects, onSelectProject 
               className="w-full rounded-xl border bg-transparent px-4 py-2 focus:border-blue-500 focus:outline-none border-slate-200 dark:border-white/10 text-slate-800 dark:text-white"
               required
             >
-              <option value="" disabled className="bg-white dark:bg-slate-800">
+              <option value="" disabled className="bg-white dark:bg-[#151B2B]">
                 Escolha um projeto...
               </option>
               {projects.map((project) => (
-                <option key={project.id} value={project.id} className="bg-white dark:bg-slate-800">
+                <option key={project.id} value={project.id} className="bg-white dark:bg-[#151B2B]">
                   {project.name}
                 </option>
               ))}

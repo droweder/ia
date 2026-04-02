@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { MoreHorizontal, Plus, Search, Building2, Loader2, AlertTriangle } from 'lucide-react';
 import { supabase } from '../../lib/supabaseClient';
-import { useAuth } from '../../contexts/AuthContext';
+import { useAuth } from '../../contexts/useAuth';
 import { useNavigate } from 'react-router-dom';
 
 interface Company {
@@ -20,6 +20,7 @@ const Companies: React.FC = () => {
 
   useEffect(() => {
     checkAuthorization();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
   const checkAuthorization = async () => {
@@ -103,7 +104,7 @@ const Companies: React.FC = () => {
       </div>
 
       <div className="bg-white/40 dark:bg-white/5 backdrop-blur-xl rounded-xl border border-slate-200 dark:border-white/10 shadow-sm overflow-hidden">
-        <div className="px-6 py-4 border-b border-slate-200 dark:border-white/10 flex items-center gap-4 bg-white/50 dark:bg-black/60">
+        <div className="px-6 py-4 border-b border-slate-200 dark:border-white/10 flex items-center gap-4 bg-white/50 dark:bg-white/5">
             <div className="relative flex-1 max-w-md">
                 <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
                 <input
@@ -115,7 +116,7 @@ const Companies: React.FC = () => {
         </div>
         <div className="overflow-x-auto">
             <table className="w-full text-sm text-left">
-                <thead className="bg-white/50 dark:bg-black/60 text-slate-500 dark:text-slate-400 font-medium border-b border-slate-200 dark:border-white/10">
+                <thead className="bg-white/50 dark:bg-white/5 text-slate-500 dark:text-slate-400 font-medium border-b border-slate-200 dark:border-white/10">
                     <tr>
                         <th className="px-6 py-3 font-semibold uppercase text-xs tracking-wider">Empresa</th>
                         <th className="px-6 py-3 font-semibold uppercase text-xs tracking-wider">CNPJ</th>
@@ -132,7 +133,7 @@ const Companies: React.FC = () => {
                         companies.map((company) => (
                             <tr key={company.id} className="hover:bg-white/60 dark:hover:bg-slate-800/60 transition-colors group">
                                 <td className="px-6 py-4 font-medium text-slate-900 dark:text-slate-100 flex items-center gap-3">
-                                    <div className="w-8 h-8 rounded-lg bg-white/60 dark:bg-black/50 flex items-center justify-center text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-white/10">
+                                    <div className="w-8 h-8 rounded-lg bg-white/60 dark:bg-white/5 flex items-center justify-center text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-white/10">
                                         <Building2 size={16} />
                                     </div>
                                     {company.name}

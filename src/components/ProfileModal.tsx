@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { User, Mail, Shield, X, Loader2, Save } from 'lucide-react';
 import { supabase } from '../lib/supabaseClient';
-import { useAuth } from '../contexts/AuthContext';
-import { AuroraModalBackground } from './AuroraModalBackground';
+import { useAuth } from '../contexts/useAuth';
 
 interface ProfileModalProps {
   isOpen: boolean;
@@ -125,9 +124,9 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose }) => {
   const displaySystemRole = profile?.is_superadmin ? 'Super Admin' : (profile?.role || 'Usuário');
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6   animate-in fade-in duration-200 bg-[#0B0F19]/80 backdrop-blur-sm">
       <div className="bg-[#0B0F19] w-full max-w-2xl rounded-2xl shadow-2xl border border-white/10 overflow-hidden flex flex-col max-h-[90vh] relative">
-        <AuroraModalBackground />
+        {/* Removed Aurora background */}
 
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-white/10 relative z-10">
@@ -187,7 +186,7 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose }) => {
                                     type="text"
                                     value={fullName}
                                     onChange={(e) => setFullName(e.target.value)}
-                                    className="w-full bg-black/20 border border-white/10 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all placeholder:text-slate-600"
+                                    className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all placeholder:text-slate-600"
                                     placeholder="Seu nome completo"
                                 />
                             </div>
@@ -197,7 +196,7 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose }) => {
                                     type="text"
                                     value={jobRole}
                                     onChange={(e) => setJobRole(e.target.value)}
-                                    className="w-full bg-black/20 border border-white/10 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all placeholder:text-slate-600"
+                                    className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all placeholder:text-slate-600"
                                     placeholder="Seu cargo na empresa"
                                 />
                             </div>
@@ -208,7 +207,7 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose }) => {
         </div>
 
         {/* Footer */}
-        <div className="p-6 border-t border-white/10 bg-black/20 flex justify-end gap-3 relative z-10 shrink-0">
+        <div className="p-6 border-t border-white/10 bg-white/5 flex justify-end gap-3 relative z-10 shrink-0">
           <button
             onClick={onClose}
             className="px-4 py-2 rounded-lg text-sm font-medium text-slate-300 hover:text-white hover:bg-white/10 transition-colors"

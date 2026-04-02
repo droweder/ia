@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Search, Bot, Pencil, Trash2, Plus } from 'lucide-react';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth } from '../contexts/useAuth';
 import { useNavigate, useOutletContext } from 'react-router-dom';
 
 interface OutletContextType {
