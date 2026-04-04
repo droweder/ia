@@ -64,15 +64,11 @@ Deno.serve(async (req: Request) => {
       'openrouter/free'
     ];
 
-        interface OpenRouterRequest {
-      model: string;
-      messages: any[];
-      stream: boolean;
-    }
-    const requestBody: OpenRouterRequest = {
+        const requestBody = {
       model: fallbackModels.join(','),
       messages: payloadMessages,
-      stream: true
+      stream: true,
+      include_usage: true
     };
 
     const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {

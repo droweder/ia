@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Search as SearchIcon, MessageSquare, Calendar, FolderArchive } from 'lucide-react';
 import { useNavigate, useOutletContext } from 'react-router-dom';
+import { PageHeader } from '../components/common/PageHeader';
 
 interface OutletContextType {
   conversations: any[];
@@ -25,20 +26,24 @@ export default function Search() {
 
   return (
     <div className="flex-1 flex flex-col min-w-0 min-h-0 bg-transparent transition-colors duration-200">
-      {/* Header */}
-      <div className="h-14 border-b border-slate-200 dark:border-white/10 flex items-center justify-between bg-white/50 dark:bg-white/5 backdrop-blur-md px-4 shadow-sm z-10 shrink-0">
-        <div className="flex items-center gap-3 flex-1">
-          <SearchIcon size={20} className="text-gray-400 shrink-0" />
-          <input
-            type="text"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Buscar em todos os chats e projetos..."
-            className="flex-1 bg-transparent border-none focus:outline-none text-base text-slate-800 dark:text-white placeholder-gray-500"
-            autoFocus
-          />
-        </div>
-      </div>
+      <PageHeader
+        title="Busca Global"
+        description="Encontre conversas e projetos em todo o histórico."
+        icon={SearchIcon}
+        actions={
+          <div className="relative w-64 md:w-80">
+            <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
+            <input
+              type="text"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Buscar..."
+              className="w-full bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl py-2 pl-9 pr-4 text-sm text-slate-800 dark:text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 transition-colors"
+              autoFocus
+            />
+          </div>
+        }
+      />
 
       {/* Content */}
       <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-blue-800 p-6">

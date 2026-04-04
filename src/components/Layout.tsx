@@ -2,7 +2,7 @@ import { AuroraModalBackground } from './AuroraModalBackground';
 import React, { useState, useEffect, useRef } from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { createPortal } from 'react-dom';
-import { Sun, Moon, LogOut, CreditCard, Building2, User, Settings as SettingsIcon, HelpCircle, Palette, ChevronDown, Plus, Sidebar, Search, FileText, Bot, MoreVertical, Share, UserPlus, Pencil, Folder, Pin, Archive, Trash2, ChevronRight } from 'lucide-react';
+import { Sun, Moon, LogOut, CreditCard, Building2, User, Settings as SettingsIcon, HelpCircle, Palette, ChevronDown, Plus, Search, FileText, Bot, MoreVertical, Share, UserPlus, Pencil, Folder, Pin, Archive, Trash2, ChevronRight } from 'lucide-react';
 import { useAuth } from '../contexts/useAuth';
 import { useTheme } from '../contexts/useTheme';
 import { supabase } from '../lib/supabaseClient';
@@ -39,9 +39,14 @@ const Layout: React.FC = () => {
   const { user, signOut } = useAuth();
   const { theme, toggleTheme } = useTheme();
   const [showUserMenu, setShowUserMenu] = useState(false);
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(true);
   const [isSidebarHovered, setIsSidebarHovered] = useState(false);
-  const isEffectivelyExpanded = !isSidebarCollapsed || isSidebarHovered;
+  const isEffectivelyExpanded = isSidebarHovered;
+
+  useEffect(() => {
+    if (!isEffectivelyExpanded) {
+      setShowUserMenu(false);
+    }
+  }, [isEffectivelyExpanded]);
 
   const [isRecentChatsOpen, setIsRecentChatsOpen] = useState(true);
   const [openChatMenuId, setOpenChatMenuId] = useState<string | null>(null);
@@ -257,7 +262,8 @@ const Layout: React.FC = () => {
       if (convError) console.error('Error fetching conversations:', convError);
       if (convData) {
           setConversations(convData);
-          if (convData.length > 0 && !activeConversationId) {
+          // Don't auto-select the first conversation on initial load if we are at root
+          if (convData.length > 0 && !activeConversationId && location.pathname !== '/') {
               setActiveConversationId(convData[0].id);
           }
       }
@@ -388,70 +394,79 @@ const Layout: React.FC = () => {
       className={`${!isEffectivelyExpanded ? 'w-20' : 'w-72'} border-r border-slate-200 bg-white/80 dark:border-white/10 dark:bg-white/5 backdrop-blur-xl border-slate-200 dark:border-white/10 hidden md:flex flex-col z-10 transition-all duration-300 shrink-0`}>
 
         {/* Header da Sidebar */}
-        <div className={`h-12 flex items-center px-4 border-b border-slate-200 dark:border-slate-200 dark:border-white/10 ${!isEffectivelyExpanded ? 'justify-center' : 'justify-between'}`}>
-             {isEffectivelyExpanded && (
-                <>
-                  <div className="flex items-center">
-                      <img src="https://phofwpyxbeulodrzfdjq.supabase.co/storage/v1/object/public/imagens_app/logo_droweder_IA.png" alt="DRoweder IA" className="h-6 object-contain" />
-                  </div>
-                </>
+        <div className={`h-14 flex items-center px-4 border-b border-slate-200 dark:border-white/10 ${!isEffectivelyExpanded ? 'justify-center px-0' : 'justify-between'}`}>
+             {!isEffectivelyExpanded ? (
+                <div 
+                  onMouseEnter={() => setIsSidebarHovered(true)}
+                  className="cursor-pointer hover:scale-110 transition-transform"
+                >
+                  <img 
+                    src="https://phofwpyxbeulodrzfdjq.supabase.co/storage/v1/object/public/imagens_app/favicom_drowederAI.png" 
+                    alt="Rower AI" 
+                    className="h-8 w-8 object-contain shadow-sm" 
+                  />
+                </div>
+             ) : (
+                <div className="flex items-center gap-3">
+                    <img src="https://phofwpyxbeulodrzfdjq.supabase.co/storage/v1/object/public/imagens_app/favicom_drowederAI.png" alt="Rower AI" className="h-8 w-8 object-contain" />
+                    <span className="text-lg font-bold text-slate-800 dark:text-white tracking-tight">Rower AI</span>
+                </div>
              )}
-             <button
-                onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
-                className="p-1.5 rounded-lg hover: dark: dark:hover: transition-colors"
-                title={isSidebarCollapsed ? "Fixar Sidebar" : "Desafixar Sidebar"}
-             >
-                <Sidebar size={18} className={!isEffectivelyExpanded ? "rotate-180" : ""} />
-             </button>
         </div>
 
         {/* Menu Principal */}
         <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-slate-300 dark:scrollbar-thumb-blue-800 hover:scrollbar-thumb-slate-400 dark:hover:scrollbar-thumb-blue-700">
 
           {/* Menu Principal */}
-          <div className="p-3 space-y-1">
+          <div className="p-3 space-y-2">
               <button
                 onClick={handleNewChat}
-                className="w-full flex items-center gap-3 h-10 px-3 mb-2 rounded-xl bg-blue-600 bg-blue-600 hover:bg-blue-700 text-white shadow-sm transition-all text-sm font-medium"
+                className={`w-full flex items-center h-10 rounded-xl bg-blue-600 hover:bg-blue-700 text-white shadow-sm transition-all text-sm font-medium ${!isEffectivelyExpanded ? 'justify-center px-0' : 'px-3 gap-3'}`}
+                title="Novo Chat"
               >
                 <Plus size={20} />
                 {isEffectivelyExpanded && <span>Novo Chat</span>}
               </button>
+              
               <button
                 onClick={() => navigate("/search")}
-                className={`w-full flex items-center gap-3 h-8 px-3 rounded-md transition-all duration-200 text-sm font-medium ${isActive("/search") ? "bg-slate-100 text-blue-600 border-r-2 border-blue-500 dark:bg-white/10 dark:text-white dark:border-white/50" : "text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-gray-300 dark:hover:bg-white/10 dark:hover:text-white"}`}
+                className={`w-full flex items-center h-9 rounded-lg transition-all duration-200 text-sm font-medium ${!isEffectivelyExpanded ? 'justify-center px-0' : 'px-3 gap-3'} ${isActive("/search") ? "bg-blue-500/10 text-blue-600 dark:text-blue-400 border-r-2 border-blue-500" : "text-slate-600 hover:bg-slate-100 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-white"}`}
                 title="Buscar em chats"
               >
                 <Search size={20} />
                 {isEffectivelyExpanded && <span>Buscar em chats</span>}
               </button>
+
               <button
                 onClick={() => navigate('/files')}
-                className={`w-full flex items-center gap-3 h-8 px-3 rounded-md transition-all duration-200 text-sm font-medium ${isActive('/files') ? 'bg-slate-100 text-blue-600 border-r-2 border-blue-500 dark:bg-white/10 dark:text-white dark:border-white/50' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-gray-300 dark:hover:bg-white/10 dark:hover:text-white'}`}
+                className={`w-full flex items-center h-9 rounded-lg transition-all duration-200 text-sm font-medium ${!isEffectivelyExpanded ? 'justify-center px-0' : 'px-3 gap-3'} ${isActive('/files') ? 'bg-blue-500/10 text-blue-600 dark:text-blue-400 border-r-2 border-blue-500' : 'text-slate-600 hover:bg-slate-100 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-white'}`}
                 title="Arquivos"
               >
-                <FileText size={20} className={isActive('/files') ? 'text-blue-600 dark:text-white' : ''} />
+                <FileText size={20} />
                 {isEffectivelyExpanded && <span>Arquivos</span>}
               </button>
+
               <button
                 onClick={() => navigate('/projects')}
-                className={`w-full flex items-center gap-3 h-8 px-3 rounded-md transition-all duration-200 text-sm font-medium ${isActive('/projects') ? 'bg-slate-100 text-blue-600 border-r-2 border-blue-500 dark:bg-white/10 dark:text-white dark:border-white/50' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-gray-300 dark:hover:bg-white/10 dark:hover:text-white'}`}
+                className={`w-full flex items-center h-9 rounded-lg transition-all duration-200 text-sm font-medium ${!isEffectivelyExpanded ? 'justify-center px-0' : 'px-3 gap-3'} ${isActive('/projects') ? 'bg-blue-500/10 text-blue-600 dark:text-blue-400 border-r-2 border-blue-500' : 'text-slate-600 hover:bg-slate-100 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-white'}`}
                 title="Projetos"
               >
-                <Folder size={20} className={isActive('/projects') ? 'text-blue-600 dark:text-white' : ''} />
+                <Folder size={20} />
                 {isEffectivelyExpanded && <span>Projetos</span>}
               </button>
+
               <button
                 onClick={() => navigate("/assistants")}
-                className={`w-full flex items-center gap-3 h-8 px-3 rounded-md transition-all duration-200 text-sm font-medium ${isActive("/assistants") ? "bg-slate-100 text-blue-600 border-r-2 border-blue-500 dark:bg-white/10 dark:text-white dark:border-white/50" : "text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-gray-300 dark:hover:bg-white/10 dark:hover:text-white"}`}
+                className={`w-full flex items-center h-9 rounded-lg transition-all duration-200 text-sm font-medium ${!isEffectivelyExpanded ? 'justify-center px-0' : 'px-3 gap-3'} ${isActive("/assistants") ? "bg-blue-500/10 text-blue-600 dark:text-blue-400 border-r-2 border-blue-500" : "text-slate-600 hover:bg-slate-100 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-white"}`}
                 title="Assistentes"
               >
                 <Bot size={20} />
                 {isEffectivelyExpanded && <span>Assistentes</span>}
               </button>
+
               <button
                 onClick={() => navigate("/archived")}
-                className={`w-full flex items-center gap-3 h-8 px-3 rounded-md transition-all duration-200 text-sm font-medium text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-gray-300 dark:hover:bg-white/10 dark:hover:text-white`}
+                className={`w-full flex items-center h-9 rounded-lg transition-all duration-200 text-sm font-medium ${!isEffectivelyExpanded ? 'justify-center px-0' : 'px-3 gap-3'} ${isActive("/archived") ? "bg-blue-500/10 text-blue-600 dark:text-blue-400 border-r-2 border-blue-500" : "text-slate-600 hover:bg-slate-100 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-white"}`}
                 title="Chats Arquivados"
               >
                 <Archive size={20} />
@@ -653,46 +668,32 @@ const Layout: React.FC = () => {
 
         </div>
 
-
-        {/* Admin Links */}
-        <div className="px-3 pt-3 pb-2 space-y-1 border-t border-slate-200 dark:border-slate-200 dark:border-white/10 mt-auto">
-            {(userProfile?.role === 'Admin' || userProfile?.is_superadmin) && (
-                <button
-                onClick={() => navigate('/super-admin/companies')}
-                className={`w-full flex items-center gap-3 h-8 px-3 rounded-md transition-all duration-200 text-sm font-medium ${isActive('/super-admin/companies') ? 'bg-slate-100 text-blue-600 border-r-2 border-blue-500 dark:bg-white/10 dark:text-white dark:border-white/50' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-gray-300 dark:hover:bg-white/10 dark:hover:text-white'}`}
-                title="Empresas (Admin)"
-                >
-                <Building2 size={20} className={isActive('/super-admin/companies') ? 'text-blue-600 dark:text-white' : ''} />
-                {isEffectivelyExpanded && <span>Empresas</span>}
-                </button>
-            )}
-        </div>
-
         {/* User Menu (Bottom) */}
         <div className="p-3">
           <div className="relative" ref={userMenuRef}>
              <button
                 onClick={() => setShowUserMenu(!showUserMenu)}
-                className={`w-full flex items-center ${!isEffectivelyExpanded ? 'justify-center' : 'gap-3'} hover:bg-white/10 p-2 rounded-md transition-colors text-left group`}
+                className={`w-full flex items-center rounded-lg transition-all duration-200 text-left group ${!isEffectivelyExpanded ? 'justify-center h-10 px-0' : 'h-12 px-2 gap-3 hover:bg-white/10'}`}
+                title={displayName}
              >
-                <div className="w-8 h-8 bg-blue-600 bg-blue-500 rounded flex items-center justify-center text-xs text-white font-medium uppercase flex-shrink-0">
+                <div className="w-8 h-8 bg-blue-600 rounded flex items-center justify-center text-xs text-white font-medium uppercase flex-shrink-0 shadow-sm group-hover:scale-105 transition-transform">
                     {displayName.substring(0, 2)}
                 </div>
                 {isEffectivelyExpanded && (
                     <>
                         <div className="flex-1 min-w-0">
-                            <p className="text-sm font-medium dark: truncate group-hover: dark:group-hover:text-white">{displayName}</p>
-                            <p className="text-xs dark: truncate">{companyName}</p>
+                            <p className="text-sm font-medium text-slate-700 dark:text-gray-200 truncate group-hover:text-slate-900 dark:group-hover:text-white transition-colors">{displayName}</p>
+                            <p className="text-xs text-slate-500 dark:text-gray-400 truncate">{companyName}</p>
                         </div>
-                        <ChevronDown size={14} className="dark: group-hover: dark:group-hover:" />
+                        <ChevronDown size={14} className="text-slate-400 dark:text-gray-500 group-hover:text-slate-600 dark:group-hover:text-gray-300 transition-colors" />
                     </>
                 )}
              </button>
 
                           {/* User Menu Dropdown */}
              {showUserMenu && (
-                <div className="absolute bottom-full left-0 w-full mb-2 bg-white dark:bg-[#1C1C1E] border border-slate-200 dark:border-[#2C2C2E] rounded-xl shadow-xl py-1.5 overflow-hidden animate-in fade-in zoom-in-95 duration-200 z-50 text-slate-700 dark:text-gray-200">
-                    <div className="px-4 py-3 flex items-center gap-3 border-b border-slate-100 dark:border-[#2C2C2E] mb-1">
+                <div className="absolute bottom-full left-0 w-64 mb-2 bg-white/90 dark:bg-[#0B0F19]/90 backdrop-blur-xl border border-slate-200 dark:border-white/10 rounded-xl shadow-xl py-1.5 overflow-hidden animate-in fade-in zoom-in-95 duration-200 z-50 text-slate-700 dark:text-gray-200">
+                    <div className="px-4 py-3 flex items-center gap-3 border-b border-slate-100 dark:border-white/10 mb-1">
                          <div className="w-9 h-9 bg-blue-600 rounded-full flex items-center justify-center text-sm text-white font-medium uppercase flex-shrink-0">
                              {displayName.substring(0, 2)}
                          </div>
@@ -726,7 +727,17 @@ const Layout: React.FC = () => {
                         <span>Configurações</span>
                     </button>
 
-                    <div className="border-t border-slate-100 dark:border-[#2C2C2E] my-1"></div>
+                    <div className="border-t border-slate-100 dark:border-white/10 my-1"></div>
+
+                    {(userProfile?.role === 'Admin' || userProfile?.is_superadmin) && (
+                        <button
+                            onClick={() => { navigate('/super-admin/companies'); setShowUserMenu(false); }}
+                            className={`w-full text-left px-4 py-2.5 text-sm hover:bg-slate-50 dark:hover:bg-white/5 flex items-center gap-3 transition-colors ${isActive('/super-admin/companies') ? 'text-blue-600 dark:text-white' : ''}`}
+                        >
+                            <Building2 size={16} className={isActive('/super-admin/companies') ? 'text-blue-600 dark:text-white' : 'text-slate-400 dark:text-gray-400'} />
+                            <span>Empresas</span>
+                        </button>
+                    )}
 
                     <button
                         onClick={() => { navigate('/dashboard/billing'); setShowUserMenu(false); }}
@@ -736,7 +747,7 @@ const Layout: React.FC = () => {
                         <span>Faturamento</span>
                     </button>
 
-                    <div className="border-t border-slate-100 dark:border-[#2C2C2E] my-1"></div>
+                    <div className="border-t border-slate-100 dark:border-white/10 my-1"></div>
 
                     <button
                         onClick={() => { toggleTheme(); setShowUserMenu(false); }}
@@ -756,7 +767,7 @@ const Layout: React.FC = () => {
                         <span>Ajuda</span>
                     </button>
 
-                    <div className="border-t border-slate-100 dark:border-[#2C2C2E] my-1"></div>
+                    <div className="border-t border-slate-100 dark:border-white/10 my-1"></div>
 
                     <button
                         onClick={() => signOut()}

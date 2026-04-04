@@ -3,7 +3,7 @@ import { supabase } from './supabaseClient';
 export interface StreamCallbacks {
   onUpdate: (text: string) => void;
   onError: (error: string) => void;
-  onDone: (finalText: string) => void;
+  onDone: (finalText: string, usage?: { prompt_tokens: number; completion_tokens: number; total_tokens: number }) => void;
 }
 
 export const chatWithOpenRouterStream = async (
@@ -43,6 +43,7 @@ export const chatWithOpenRouterStream = async (
     const decoder = new TextDecoder();
     let accumulatedText = "";
     let buffer = "";
+    let usage: { prompt_tokens: number; completion_tokens: number; total_tokens: number } | undefined;
 
     while (true) {
       const { value, done } = await reader.read();
@@ -55,22 +56,44 @@ export const chatWithOpenRouterStream = async (
       buffer = lines.pop() || "";
 
       for (const line of lines) {
-        if (line.trim() === '' || line.trim() === 'data: [DONE]') continue;
-        if (line.startsWith('data: ')) {
+        const trimmedLine = line.trim();
+        if (trimmedLine === '' || trimmedLine === 'data: [DONE]') continue;
+        
+        if (trimmedLine.startsWith('data: ')) {
           try {
-            const data = JSON.parse(line.substring(6));
-            if (data.choices && data.choices[0] && data.choices[0].delta && data.choices[0].delta.content) {
+            const data = JSON.parse(trimmedLine.substring(6));
+            
+            // Check for usage info (usually in the last chunk)
+            if (data.usage) {
+              usage = {
+                prompt_tokens: data.usage.prompt_tokens,
+                completion_tokens: data.usage.completion_tokens,
+                total_tokens: data.usage.total_tokens
+              };
+            }
+
+            if (data.choices?.[0]?.delta?.content) {
                 accumulatedText += data.choices[0].delta.content;
                 callbacks.onUpdate(accumulatedText);
             }
           } catch (e) {
-            console.error("Error parsing stream chunk:", e, "Line was:", line);
+            console.error("Error parsing stream chunk:", e, "Line was:", trimmedLine);
+          }
+        } else if (trimmedLine.startsWith('{')) {
+          // Handle potential JSON error response instead of data stream
+          try {
+            const errorData = JSON.parse(trimmedLine);
+            if (errorData.error) {
+              throw new Error(errorData.error.message || "Erro retornado pela API");
+            }
+          } catch (e) {
+            // Not a JSON error, continue
           }
         }
       }
     }
 
-    callbacks.onDone(accumulatedText);
+    callbacks.onDone(accumulatedText, usage);
 
   } catch (error: any) {
     console.error("Streaming error:", error);

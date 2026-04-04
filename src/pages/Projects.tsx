@@ -8,6 +8,7 @@ import { RenameProjectModal } from '../components/RenameProjectModal';
 import { DeleteProjectModal } from '../components/DeleteProjectModal';
 import { Toast } from '../components/Toast';
 import type { ToastType } from '../components/Toast';
+import { PageHeader } from '../components/common/PageHeader';
 import { createPortal } from 'react-dom';
 
 export default function Projects() {
@@ -172,40 +173,27 @@ export default function Projects() {
 
   return (
     <div className="flex-1 flex flex-col min-w-0 min-h-0 bg-transparent overflow-hidden">
-
       {activeProject ? (
         <div className="flex-1 flex flex-col h-full overflow-hidden">
-          <div className="flex-shrink-0 flex items-center justify-between p-6 border-b border-slate-200 dark:border-white/5">
-            <div className="flex items-center gap-4">
+          <PageHeader
+            title={activeProject.name}
+            description="Conversas e arquivos do projeto"
+            icon={Folder}
+            onBack={() => setActiveProject(null)}
+            backIcon={ChevronLeft}
+            actions={
               <button
-                onClick={() => setActiveProject(null)}
-                className="p-2 -ml-2 rounded-lg text-slate-500 hover:text-slate-800 dark:text-gray-400 dark:hover:text-slate-800 dark:text-white hover:bg-slate-100 dark:hover:bg-white/10 transition-colors"
+                onClick={() => {
+                  localStorage.setItem('droweder_ia_new_chat_project', activeProject.id);
+                  navigate('/chat');
+                }}
+                className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl text-sm font-medium transition-all shadow-sm"
               >
-                <ChevronLeft size={24} />
+                <Plus size={18} />
+                Nova Conversa
               </button>
-              <div>
-                <h1 className="text-2xl font-semibold text-slate-800 dark:text-white flex items-center gap-3">
-                  <Folder className="text-blue-500" size={28} />
-                  {activeProject.name}
-                </h1>
-                <p className="text-sm text-gray-400 mt-1">
-                  Conversas e arquivos do projeto
-                </p>
-              </div>
-            </div>
-            <button
-              onClick={() => {
-                navigate('/chat');
-                // The new chat logic in Layout will need to know to assign to this project.
-                // For now, they can create a new chat and move it, or we can use local storage.
-                localStorage.setItem('droweder_ia_new_chat_project', activeProject.id);
-              }}
-              className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-slate-800 dark:text-white px-4 py-2.5 rounded-xl text-sm font-medium transition-all shadow-sm hover:shadow-md"
-            >
-              <Plus size={18} />
-              Nova Conversa
-            </button>
-          </div>
+            }
+          />
 
           <div className="flex-1 overflow-y-auto p-6 scrollbar-thin scrollbar-thumb-slate-300 dark:scrollbar-thumb-blue-800 hover:scrollbar-thumb-slate-400 dark:hover:scrollbar-thumb-blue-700">
             {isChatsLoading ? (
@@ -247,160 +235,148 @@ export default function Projects() {
           </div>
         </div>
       ) : (
-      <>
-      {/* Header */}
-      <div className="flex-shrink-0 flex items-center justify-between p-6 border-b border-slate-200 dark:border-white/5">
-        <div>
-          <h1 className="text-2xl font-semibold text-slate-800 dark:text-white flex items-center gap-3">
-            <Folder className="text-blue-500" size={28} />
-            Meus Projetos
-          </h1>
-          <p className="text-sm text-gray-400 mt-1">
-            Organize seus chats, arquivos e instruções em espaços de trabalho dedicados.
-          </p>
-        </div>
-        <button
-          onClick={() => setIsCreateOpen(true)}
-          className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-slate-800 dark:text-white px-4 py-2.5 rounded-xl text-sm font-medium transition-all shadow-sm hover:shadow-md"
-        >
-          <Plus size={18} />
-          Novo Projeto
-        </button>
-      </div>
-
-      {/* Main Content (Grid) */}
-      <div className="flex-1 overflow-y-auto p-6 scrollbar-thin scrollbar-thumb-slate-300 dark:scrollbar-thumb-blue-800 hover:scrollbar-thumb-slate-400 dark:hover:scrollbar-thumb-blue-700">
-
-        {isLoading ? (
-          <div className="flex items-center justify-center h-40">
-             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
-          </div>
-        ) : projects.length === 0 ? (
-          <div className="flex flex-col items-center justify-center h-[50vh] text-center max-w-md mx-auto">
-            <div className="w-16 h-16 bg-blue-900/20 rounded-full flex items-center justify-center mb-6">
-               <Folder size={32} className="text-blue-500" />
-            </div>
-            <h3 className="text-xl font-semibold text-slate-800 dark:text-white mb-2">Nenhum projeto ainda</h3>
-            <p className="text-gray-400 mb-6 text-sm leading-relaxed">
-              Projetos ajudam você a organizar conversas específicas em um só lugar. Crie seu primeiro projeto para começar.
-            </p>
-            <button
-              onClick={() => setIsCreateOpen(true)}
-              className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-slate-800 dark:text-white px-5 py-2.5 rounded-xl text-sm font-medium transition-all shadow-md"
-            >
-              <Plus size={18} />
-              Criar Projeto
-            </button>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-
-            {/* Create New Card */}
-            <button
-              onClick={() => setIsCreateOpen(true)}
-              className="group flex flex-col items-center justify-center min-h-[160px] rounded-2xl border-2 border-dashed border-slate-300 dark:border-white/20 bg-transparent hover:bg-slate-50 dark:hover:bg-white/5 transition-colors"
-            >
-              <div className="w-10 h-10 rounded-full bg-slate-100 dark:bg-white/5 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
-                <Plus size={20} className="text-gray-300" />
-              </div>
-              <span className="text-sm font-medium text-gray-300">Novo Projeto</span>
-            </button>
-
-            {/* Project Cards */}
-            {projects.map((project) => (
-              <div
-                key={project.id}
-                onClick={() => loadProjectChats(project)}
-                className="group relative flex flex-col p-5 cursor-pointer min-h-[160px] rounded-2xl bg-white dark:bg-white/5 backdrop-blur-md border border-slate-200 dark:border-white/10 hover:border-blue-500/50 transition-all shadow-sm hover:shadow-md overflow-hidden"
+        <div className="flex-1 flex flex-col h-full overflow-hidden">
+          <PageHeader
+            title="Meus Projetos"
+            description="Organize seus chats, arquivos e instruções em espaços de trabalho dedicados."
+            icon={Folder}
+            actions={
+              <button
+                onClick={() => setIsCreateOpen(true)}
+                className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl text-sm font-medium transition-all shadow-sm"
               >
-                <div className="flex items-start justify-between mb-4">
-                  <div className="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center shrink-0">
-                    <Folder size={20} className="text-blue-400" />
-                  </div>
+                <Plus size={18} />
+                Novo Projeto
+              </button>
+            }
+          />
 
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      if (openMenuId === project.id) {
-                        setOpenMenuId(null);
-                      } else {
-                        const rect = e.currentTarget.getBoundingClientRect();
-                        setMenuPosition({ top: rect.bottom, left: rect.right });
-                        setOpenMenuId(project.id);
-                      }
-                    }}
-                    className="p-1.5 text-slate-400 hover:text-slate-700 dark:hover:text-slate-800 dark:text-white hover:bg-slate-100 dark:hover:bg-white/10 rounded-lg transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100"
-                  >
-                    <MoreVertical size={18} />
-                  </button>
-                </div>
-
-                <div className="flex-1 min-h-0">
-                  <h3 className="text-base font-semibold text-slate-800 dark:text-white truncate mb-1" title={project.name}>
-                    {project.name}
-                  </h3>
-
-                  <div className="flex items-center gap-4 text-xs text-gray-400 mt-auto pt-4">
-                    <div className="flex items-center gap-1.5" title="Data de criação">
-                      <Calendar size={14} />
-                      <span>{new Date(project.created_at).toLocaleDateString('pt-BR')}</span>
-                    </div>
-                    <div className="flex items-center gap-1.5" title="Chats neste projeto">
-                      <MessageSquare size={14} />
-                      <span>{project.conversations?.[0]?.count || 0}</span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Dropdown Menu via Portal */}
-                {openMenuId === project.id && createPortal(
-                  <div
-                    ref={menuRef}
-                    style={{
-                      position: 'fixed',
-                      top: `${menuPosition.top + 4}px`,
-                      left: `${menuPosition.left}px`,
-                      transform: 'translateX(-100%)',
-                      zIndex: 9999
-                    }}
-                    className="w-48 bg-white dark:bg-[#0B0F19] backdrop-blur-xl border border-slate-200 dark:border-white/10 rounded-xl shadow-xl py-2 animate-in fade-in slide-in-from-top-2 duration-200"
-                  >
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setOpenMenuId(null);
-                        setSelectedProjectId(project.id);
-                        setSelectedProjectName(project.name);
-                        setIsRenameOpen(true);
-                      }}
-                      className="w-full flex items-center gap-3 px-4 py-2 text-sm text-gray-200 hover:bg-slate-100 dark:hover:bg-white/10 transition-colors"
-                    >
-                      <Pencil size={16} />
-                      Renomear
-                    </button>
-                    <div className="h-px bg-slate-200 dark:bg-white/10 my-1 mx-4"></div>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setOpenMenuId(null);
-                        setSelectedProjectId(project.id);
-                        setIsDeleteOpen(true);
-                      }}
-                      className="w-full flex items-center gap-3 px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-slate-100 dark:hover:bg-white/10 transition-colors"
-                    >
-                      <Trash2 size={16} />
-                      Excluir
-                    </button>
-                  </div>,
-                  document.body
-                )}
+          <div className="flex-1 overflow-y-auto p-6 scrollbar-thin scrollbar-thumb-slate-300 dark:scrollbar-thumb-blue-800 hover:scrollbar-thumb-slate-400 dark:hover:scrollbar-thumb-blue-700">
+            {isLoading ? (
+              <div className="flex items-center justify-center h-40">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
               </div>
-            ))}
-          </div>
-        )}
-      </div>
+            ) : projects.length === 0 ? (
+              <div className="flex flex-col items-center justify-center h-[50vh] text-center max-w-md mx-auto">
+                <div className="w-16 h-16 bg-blue-900/20 rounded-full flex items-center justify-center mb-6">
+                  <Folder size={32} className="text-blue-500" />
+                </div>
+                <h3 className="text-xl font-semibold text-slate-800 dark:text-white mb-2">Nenhum projeto ainda</h3>
+                <p className="text-gray-400 mb-6 text-sm leading-relaxed">
+                  Projetos ajudam você a organizar conversas específicas em um só lugar. Crie seu primeiro projeto para começar.
+                </p>
+                <button
+                  onClick={() => setIsCreateOpen(true)}
+                  className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl text-sm font-medium transition-all shadow-md"
+                >
+                  <Plus size={18} />
+                  Criar Projeto
+                </button>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                <button
+                  onClick={() => setIsCreateOpen(true)}
+                  className="group flex flex-col items-center justify-center min-h-[160px] rounded-2xl border-2 border-dashed border-slate-300 dark:border-white/20 bg-transparent hover:bg-slate-50 dark:hover:bg-white/5 transition-colors"
+                >
+                  <div className="w-10 h-10 rounded-full bg-slate-100 dark:bg-white/5 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+                    <Plus size={20} className="text-gray-300" />
+                  </div>
+                  <span className="text-sm font-medium text-gray-300">Novo Projeto</span>
+                </button>
 
-      </>
+                {projects.map((project) => (
+                  <div
+                    key={project.id}
+                    onClick={() => loadProjectChats(project)}
+                    className="group relative flex flex-col p-5 cursor-pointer min-h-[160px] rounded-2xl bg-white dark:bg-white/5 backdrop-blur-md border border-slate-200 dark:border-white/10 hover:border-blue-500/50 transition-all shadow-sm hover:shadow-md overflow-hidden"
+                  >
+                    <div className="flex items-start justify-between mb-4">
+                      <div className="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center shrink-0">
+                        <Folder size={20} className="text-blue-400" />
+                      </div>
+
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (openMenuId === project.id) {
+                            setOpenMenuId(null);
+                          } else {
+                            const rect = e.currentTarget.getBoundingClientRect();
+                            setMenuPosition({ top: rect.bottom, left: rect.right });
+                            setOpenMenuId(project.id);
+                          }
+                        }}
+                        className="p-1.5 text-slate-400 hover:text-slate-700 dark:hover:text-slate-800 dark:text-white hover:bg-slate-100 dark:hover:bg-white/10 rounded-lg transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100"
+                      >
+                        <MoreVertical size={18} />
+                      </button>
+                    </div>
+
+                    <div className="flex-1 min-h-0">
+                      <h3 className="text-base font-semibold text-slate-800 dark:text-white truncate mb-1" title={project.name}>
+                        {project.name}
+                      </h3>
+
+                      <div className="flex items-center gap-4 text-xs text-gray-400 mt-auto pt-4">
+                        <div className="flex items-center gap-1.5" title="Data de criação">
+                          <Calendar size={14} />
+                          <span>{new Date(project.created_at).toLocaleDateString('pt-BR')}</span>
+                        </div>
+                        <div className="flex items-center gap-1.5" title="Chats neste projeto">
+                          <MessageSquare size={14} />
+                          <span>{project.conversations?.[0]?.count || 0}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {openMenuId === project.id && createPortal(
+                      <div
+                        ref={menuRef}
+                        style={{
+                          position: 'fixed',
+                          top: `${menuPosition.top + 4}px`,
+                          left: `${menuPosition.left}px`,
+                          transform: 'translateX(-100%)',
+                          zIndex: 9999
+                        }}
+                        className="w-48 bg-white dark:bg-[#0B0F19] backdrop-blur-xl border border-slate-200 dark:border-white/10 rounded-xl shadow-xl py-2 animate-in fade-in slide-in-from-top-2 duration-200"
+                      >
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setOpenMenuId(null);
+                            setSelectedProjectId(project.id);
+                            setSelectedProjectName(project.name);
+                            setIsRenameOpen(true);
+                          }}
+                          className="w-full flex items-center gap-3 px-4 py-2 text-sm text-slate-700 dark:text-gray-200 hover:bg-slate-100 dark:hover:bg-white/10 transition-colors"
+                        >
+                          <Pencil size={16} />
+                          Renomear
+                        </button>
+                        <div className="h-px bg-slate-200 dark:bg-white/10 my-1 mx-4"></div>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setOpenMenuId(null);
+                            setSelectedProjectId(project.id);
+                            setIsDeleteOpen(true);
+                          }}
+                          className="w-full flex items-center gap-3 px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-slate-100 dark:hover:bg-white/10 transition-colors"
+                        >
+                          <Trash2 size={16} />
+                          Excluir
+                        </button>
+                      </div>,
+                      document.body
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
       )}
 
       {/* Modals */}

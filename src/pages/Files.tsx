@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Folder, File as FileIcon, Upload, Plus, Trash2, Search, Loader2 } from 'lucide-react';
+import { PageHeader } from '../components/common/PageHeader';
 import { supabase } from '../lib/supabaseClient';
 import { useAuth } from '../contexts/useAuth';
 
@@ -256,20 +257,14 @@ const Files: React.FC = () => {
             {/* Main Content Area */}
             <div className="flex-1 flex flex-col h-full overflow-hidden relative">
                 {/* Header */}
-                <header className="h-16 border-b border-slate-200 dark:border-white/10 bg-white/50 dark:bg-white/5 backdrop-blur-xl flex items-center justify-between px-6 z-10 shrink-0">
-                    <div>
-                        <h1 className="text-xl font-semibold text-slate-800 dark:text-gray-100">
-                            {selectedSector ? `Arquivos: ${selectedSector}` : 'Gerenciador de Arquivos'}
-                        </h1>
-                        <p className="text-sm text-gray-400">
-                            {selectedSector
-                                ? 'Gerencie os documentos e dados da empresa deste setor.'
-                                : 'Selecione ou crie um setor para começar.'}
-                        </p>
-                    </div>
-
-                    {selectedSector && (
-                        <div className="flex items-center gap-4">
+                <PageHeader
+                    title={selectedSector ? `Arquivos: ${selectedSector}` : 'Gerenciador de Arquivos'}
+                    description={selectedSector
+                        ? 'Gerencie os documentos e dados da empresa deste setor.'
+                        : 'Selecione ou crie um setor para começar.'}
+                    icon={FileIcon}
+                    actions={selectedSector && (
+                        <>
                             <div className="relative">
                                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
                                 <input
@@ -277,7 +272,7 @@ const Files: React.FC = () => {
                                     placeholder="Buscar arquivo..."
                                     value={searchTerm}
                                     onChange={(e) => setSearchTerm(e.target.value)}
-                                    className="pl-9 pr-4 py-2 bg-white dark:bg-white/5 backdrop-blur-sm border border-slate-200 dark:border-white/10 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#7e639f] w-64"
+                                    className="pl-9 pr-4 py-2 bg-white dark:bg-white/5 backdrop-blur-sm border border-slate-200 dark:border-white/10 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 w-64"
                                 />
                             </div>
 
@@ -291,14 +286,14 @@ const Files: React.FC = () => {
                             <button
                                 onClick={() => fileInputRef.current?.click()}
                                 disabled={isUploading}
-                                className="flex items-center gap-2 bg-[#7e639f] text-white px-4 py-2 rounded-xl text-sm font-medium hover:bg-[#6b5288] transition-colors disabled:opacity-50"
+                                className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-xl text-sm font-medium hover:bg-blue-700 transition-colors disabled:opacity-50"
                             >
                                 {isUploading ? <Loader2 size={16} className="animate-spin" /> : <Upload size={16} />}
                                 Upload
                             </button>
-                        </div>
+                        </>
                     )}
-                </header>
+                />
 
                 {/* File List */}
                 <main className="flex-1 overflow-y-auto p-6">

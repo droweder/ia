@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Search, Bot, Pencil, Trash2, Plus } from 'lucide-react';
 import { useAuth } from '../contexts/useAuth';
 import { useNavigate, useOutletContext } from 'react-router-dom';
+import { PageHeader } from '../components/common/PageHeader';
 
 interface OutletContextType {
   assistants: any[];
@@ -47,22 +48,23 @@ export default function Assistants() {
   return (
     <div className="flex-1 flex flex-col min-w-0 min-h-0 bg-transparent transition-colors duration-200">
       {/* Header */}
-      <div className="h-14 border-b border-slate-200 dark:border-white/10 flex justify-between items-center bg-white/50 dark:bg-white/5 backdrop-blur-md px-6 shadow-sm z-10 shrink-0">
-        <h2 className="text-xl font-semibold flex items-center gap-2 text-slate-800 dark:text-white">
-          <Bot size={24} className="text-blue-500" />
-          Assistentes
-        </h2>
-        <button
+      <PageHeader
+        title="Assistentes"
+        description="Configure assistentes especializados para diferentes tarefas."
+        icon={Bot}
+        actions={
+          <button
             onClick={() => {
                 setAssistantToEdit(null);
                 setIsCreateAssistantModalOpen(true);
             }}
-            className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-slate-800 dark:text-white px-4 py-2 rounded-xl text-sm font-medium transition-colors shadow-sm"
-        >
+            className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl text-sm font-medium transition-colors shadow-sm"
+          >
             <Plus size={16} />
             Criar Assistente
-        </button>
-      </div>
+          </button>
+        }
+      />
 
       {/* Search Input */}
       <div className="px-6 pt-6 pb-2 shrink-0">
