@@ -7,7 +7,7 @@ import { format } from 'sql-formatter';
 interface CodeBlockProps {
   inline?: boolean;
   className?: string;
-  children: React.ReactNode;
+  children?: React.ReactNode;
   [key: string]: any;
 }
 
