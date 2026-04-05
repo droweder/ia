@@ -47,10 +47,10 @@ const Login: React.FC = () => {
 
       <div className="relative z-10 sm:mx-auto sm:w-full sm:max-w-md">
         <div className="flex justify-center mb-6">
-            <img src="https://phofwpyxbeulodrzfdjq.supabase.co/storage/v1/object/public/imagens_app/favicom_drowederAI.png" alt="Rower AI" className="w-16 h-16 object-contain" />
+            <img src="https://phofwpyxbeulodrzfdjq.supabase.co/storage/v1/object/public/imagens_app/favicom_drowederAI.png" alt="DRoweder IA" className="w-16 h-16 object-contain" />
         </div>
         <h2 className="mt-6 text-center text-3xl font-extrabold text-white">
-          Entrar na Rower AI
+          Entrar na DRoweder IA
         </h2>
         <p className="mt-2 text-center text-sm text-gray-300">
           Acesso seguro para empresas conectadas ao Planintex

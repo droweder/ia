@@ -1,5 +1,5 @@
 import React from 'react';
-import { User, Copy, Check, RefreshCcw, Database } from 'lucide-react';
+import { User, Copy, Check, RefreshCcw, Database, RotateCw } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
@@ -17,6 +17,8 @@ interface MessageItemProps {
   onRegenerate: () => void;
   showSql: boolean;
   onToggleSql: (id: string) => void;
+  rerunningMessageId: string | null;
+  onRerunSql: (messageId: string, sql: string) => void;
 }
 
 export const MessageItem: React.FC<MessageItemProps> = ({
@@ -28,7 +30,10 @@ export const MessageItem: React.FC<MessageItemProps> = ({
   onRegenerate,
   showSql,
   onToggleSql,
+  rerunningMessageId,
+  onRerunSql,
 }) => {
+  const isRerunningSql = rerunningMessageId === message.id;
   return (
     <div className={`flex gap-4 max-w-3xl mx-auto w-full animate-in fade-in slide-in-from-bottom-2 duration-300 group`}>
       <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 overflow-hidden ${message.role === 'user' ? 'bg-gray-200 text-gray-700 dark:bg-white/10 dark:text-gray-300' : 'bg-white dark:bg-white/10 shadow-sm border border-slate-200 dark:border-white/10'}`}>
@@ -37,7 +42,7 @@ export const MessageItem: React.FC<MessageItemProps> = ({
         ) : (
           <img 
             src="https://phofwpyxbeulodrzfdjq.supabase.co/storage/v1/object/public/imagens_app/favicom_drowederAI.png" 
-            alt="Rower AI" 
+            alt="DRoweder IA" 
             className="w-full h-full object-contain p-1"
           />
         )}
@@ -45,7 +50,7 @@ export const MessageItem: React.FC<MessageItemProps> = ({
 
       <div className="flex-1 space-y-2 overflow-hidden">
         <div className="text-sm font-semibold text-slate-800 dark:text-gray-200">
-          {message.role === 'user' ? 'Você' : 'Rower AI'}
+          {message.role === 'user' ? 'Você' : 'DRoweder IA'}
         </div>
         <div className="prose prose-sm prose-slate dark:prose-invert max-w-none text-slate-800 dark:text-gray-300 leading-relaxed break-words overflow-x-auto scrollbar-thin scrollbar-thumb-slate-300 dark:scrollbar-thumb-blue-800 hover:scrollbar-thumb-slate-400 dark:hover:scrollbar-thumb-blue-700 scrollbar-track-transparent ">
           {message.role === 'user' ? (
@@ -88,13 +93,31 @@ export const MessageItem: React.FC<MessageItemProps> = ({
 
               {/* SQL Query Toggle Button */}
               {message.sql_query && (
-                <button
-                  onClick={() => onToggleSql(message.id)}
-                  className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-blue-500/5 hover:bg-blue-500/10 text-xs font-medium text-blue-600 dark:text-blue-400 transition-colors border border-blue-500/10 ml-1"
-                >
-                  <Database size={12} />
-                  <span>{showSql ? 'Ocultar Script SQL' : 'Ver Script SQL Gerado'}</span>
-                </button>
+                <>
+                  <button
+                    type="button"
+                    onClick={() => onRerunSql(message.id, message.sql_query!)}
+                    disabled={isLoading || isRerunningSql || rerunningMessageId !== null}
+                    className="p-1.5 text-emerald-600/85 dark:text-emerald-400/90 hover:text-emerald-700 dark:hover:text-emerald-300 rounded-md hover:bg-emerald-500/10 transition-colors disabled:opacity-50"
+                    title={isRerunningSql ? 'Atualizando dados…' : 'Atualizar dados (reexecutar a mesma SQL)'}
+                    aria-label={isRerunningSql ? 'Atualizando dados' : 'Atualizar dados'}
+                  >
+                    <RotateCw size={16} className={isRerunningSql ? 'animate-spin' : ''} />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => onToggleSql(message.id)}
+                    className={`p-1.5 rounded-md transition-colors ${
+                      showSql
+                        ? 'text-blue-500 dark:text-blue-400 bg-blue-500/15'
+                        : 'text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-slate-100 dark:hover:bg-white/10'
+                    }`}
+                    title={showSql ? 'Ocultar SQL gerado' : 'Ver SQL gerado'}
+                    aria-label={showSql ? 'Ocultar script SQL' : 'Ver script SQL gerado'}
+                  >
+                    <Database size={16} />
+                  </button>
+                </>
               )}
             </div>
 

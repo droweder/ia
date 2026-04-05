@@ -1,4 +1,4 @@
-# DRoweder AI - SaaS B2B Multi-tenant
+# DRoweder IA - SaaS B2B Multi-tenant
 
 Aplicação de Inteligência Artificial conectada ao ERP Planintex.
 

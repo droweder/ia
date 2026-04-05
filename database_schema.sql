@@ -1,12 +1,12 @@
--- Script de Criação do Banco de Dados - DRoweder AI + Mock Planintex
--- Script de Criação do Banco de Dados - DRoweder AI
+-- Script de Criação do Banco de Dados - DRoweder IA + Mock Planintex
+-- Script de Criação do Banco de Dados - DRoweder IA
 -- Autor: Jules (Full-Stack & Data Engineer)
 -- O Schema planintex já existe e é gerenciado pelo ERP principal, este script gerencia apenas o app droweder_ia
 
 -- 1. Estrutura de Schemas
 CREATE SCHEMA IF NOT EXISTS droweder_ia;
 
--- 2. Tabelas do Schema DRoweder AI
+-- 2. Tabelas do Schema DRoweder IA
 
 -- Adicionando coluna project_id na tabela conversations caso ela já exista
 DO $$
@@ -121,6 +121,42 @@ CREATE TABLE IF NOT EXISTS droweder_ia.billing_logs (
     transaction_date TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 
+CREATE TABLE IF NOT EXISTS droweder_ia.token_usage_events (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    company_id UUID NOT NULL REFERENCES planintex.empresas(id),
+    user_id UUID NOT NULL,
+    conversation_id UUID REFERENCES droweder_ia.conversations(id) ON DELETE SET NULL,
+    message_id UUID REFERENCES droweder_ia.messages(id) ON DELETE SET NULL,
+    model_used TEXT,
+    prompt_tokens INTEGER NOT NULL DEFAULT 0,
+    completion_tokens INTEGER NOT NULL DEFAULT 0,
+    total_tokens INTEGER NOT NULL DEFAULT 0,
+    cost_brl NUMERIC(10, 4) NOT NULL DEFAULT 0,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS droweder_ia.token_quotas (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    company_id UUID REFERENCES planintex.empresas(id),
+    user_id UUID,
+    period TEXT NOT NULL DEFAULT 'monthly',
+    token_limit INTEGER NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
+    created_by UUID,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS droweder_ia.token_admin_audit (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    admin_user_id UUID NOT NULL,
+    admin_email TEXT,
+    action TEXT NOT NULL,
+    entity TEXT NOT NULL,
+    entity_id UUID,
+    details JSONB NOT NULL DEFAULT '{}'::jsonb,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
 -- 4. Segurança e Roles (CRÍTICO - Text-to-SQL)
 
 -- Criar a role ai_reader_role se não existir
@@ -169,6 +205,9 @@ ALTER TABLE droweder_ia.billing_logs ENABLE ROW LEVEL SECURITY;
 ALTER TABLE droweder_ia.projects ENABLE ROW LEVEL SECURITY;
 ALTER TABLE droweder_ia.files ENABLE ROW LEVEL SECURITY;
 ALTER TABLE droweder_ia.assistants ENABLE ROW LEVEL SECURITY;
+ALTER TABLE droweder_ia.token_usage_events ENABLE ROW LEVEL SECURITY;
+ALTER TABLE droweder_ia.token_quotas ENABLE ROW LEVEL SECURITY;
+ALTER TABLE droweder_ia.token_admin_audit ENABLE ROW LEVEL SECURITY;
 
 -- Políticas para Projetos, Arquivos e Assistentes (Acesso por Empresa)
 DROP POLICY IF EXISTS "Users can access their company projects" ON droweder_ia.projects;
@@ -252,6 +291,48 @@ CREATE POLICY "Users can view their company billing logs" ON droweder_ia.billing
             SELECT empresa_id FROM planintex.profiles WHERE id = auth.uid()
         )
     );
+
+DROP POLICY IF EXISTS "Users can insert token usage events for themselves" ON droweder_ia.token_usage_events;
+CREATE POLICY "Users can insert token usage events for themselves" ON droweder_ia.token_usage_events
+    FOR INSERT
+    WITH CHECK (
+        user_id = auth.uid()
+        AND company_id IN (SELECT empresa_id FROM planintex.profiles WHERE id = auth.uid())
+    );
+
+DROP POLICY IF EXISTS "Users can view their company token usage events" ON droweder_ia.token_usage_events;
+CREATE POLICY "Users can view their company token usage events" ON droweder_ia.token_usage_events
+    FOR SELECT
+    USING (
+        company_id IN (SELECT empresa_id FROM planintex.profiles WHERE id = auth.uid())
+    );
+
+DROP POLICY IF EXISTS "Master admin can view all token usage events" ON droweder_ia.token_usage_events;
+CREATE POLICY "Master admin can view all token usage events" ON droweder_ia.token_usage_events
+    FOR SELECT
+    USING ((auth.jwt() ->> 'email') = 'admin@droweder.com.br');
+
+DROP POLICY IF EXISTS "Master admin can manage token quotas" ON droweder_ia.token_quotas;
+CREATE POLICY "Master admin can manage token quotas" ON droweder_ia.token_quotas
+    FOR ALL
+    USING ((auth.jwt() ->> 'email') = 'admin@droweder.com.br')
+    WITH CHECK ((auth.jwt() ->> 'email') = 'admin@droweder.com.br');
+
+DROP POLICY IF EXISTS "Users can view applicable token quotas" ON droweder_ia.token_quotas;
+CREATE POLICY "Users can view applicable token quotas" ON droweder_ia.token_quotas
+    FOR SELECT
+    USING (
+        user_id = auth.uid()
+        OR (
+            user_id IS NULL
+            AND company_id IN (SELECT empresa_id FROM planintex.profiles WHERE id = auth.uid())
+        )
+    );
+
+DROP POLICY IF EXISTS "Master admin can view audit logs" ON droweder_ia.token_admin_audit;
+CREATE POLICY "Master admin can view audit logs" ON droweder_ia.token_admin_audit
+    FOR SELECT
+    USING ((auth.jwt() ->> 'email') = 'admin@droweder.com.br');
 
 -- (Opcional) Política de Insert para Billing Logs se for feito via função de banco ou admin
 -- Mas para o escopo atual, focamos na leitura do cliente.

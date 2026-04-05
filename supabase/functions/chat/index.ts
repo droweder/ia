@@ -40,6 +40,71 @@ Deno.serve(async (req: Request) => {
       throw new Error('Messages array is required');
     }
 
+    const { data: profileData, error: profileError } = await supabaseClient
+      .schema('planintex')
+      .from('profiles')
+      .select('empresa_id')
+      .eq('id', user.id)
+      .single();
+
+    if (profileError) {
+      console.error('Failed to fetch profile for token usage:', profileError);
+    }
+
+    const companyId: string | null = profileData?.empresa_id ?? null;
+
+    if (companyId) {
+      const now = new Date();
+      const monthStart = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1, 0, 0, 0)).toISOString();
+
+      const { data: userQuotaRows } = await supabaseClient
+        .schema('droweder_ia')
+        .from('token_quotas')
+        .select('token_limit')
+        .eq('period', 'monthly')
+        .eq('user_id', user.id)
+        .limit(1);
+
+      const userTokenLimit = userQuotaRows?.[0]?.token_limit ?? null;
+
+      let companyTokenLimit: number | null = null;
+      if (userTokenLimit == null) {
+        const { data: companyQuotaRows } = await supabaseClient
+          .schema('droweder_ia')
+          .from('token_quotas')
+          .select('token_limit')
+          .eq('period', 'monthly')
+          .eq('company_id', companyId)
+          .is('user_id', null)
+          .limit(1);
+
+        companyTokenLimit = companyQuotaRows?.[0]?.token_limit ?? null;
+      }
+
+      const limitToApply = userTokenLimit ?? companyTokenLimit;
+
+      if (limitToApply != null) {
+        const { data: usedRows, error: usedError } = await supabaseClient
+          .schema('droweder_ia')
+          .from('token_usage_events')
+          .select('total_tokens,created_at')
+          .eq('company_id', companyId)
+          .gte('created_at', monthStart);
+
+        if (usedError) {
+          console.error('Failed to compute current token usage:', usedError);
+        } else {
+          const used = (usedRows || []).reduce((acc: number, row: any) => acc + Number(row?.total_tokens || 0), 0);
+          if (used >= Number(limitToApply)) {
+            return new Response(JSON.stringify({ error: 'Token quota exceeded for current period' }), {
+              headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+              status: 402,
+            });
+          }
+        }
+      }
+    }
+
     const OPENROUTER_API_KEY = Deno.env.get('VITE_OPENROUTER_API_KEY') || Deno.env.get('OPENROUTER_API_KEY');
 
     if (!OPENROUTER_API_KEY) {
@@ -98,7 +163,101 @@ Deno.serve(async (req: Request) => {
         throw new Error(errMsg);
     }
 
-    return new Response(response.body, {
+    if (!response.body) {
+      throw new Error('OpenRouter returned an empty response body');
+    }
+
+    const upstreamReader = response.body.getReader();
+    const textDecoder = new TextDecoder();
+    let buffer = '';
+    let usage:
+      | {
+          prompt_tokens?: number;
+          completion_tokens?: number;
+          total_tokens?: number;
+          cost?: number;
+        }
+      | undefined;
+    let modelUsed: string | undefined;
+
+    const stream = new ReadableStream<Uint8Array>({
+      async start(controller) {
+        try {
+          while (true) {
+            const { value, done } = await upstreamReader.read();
+            if (done) break;
+            if (value) {
+              controller.enqueue(value);
+
+              buffer += textDecoder.decode(value, { stream: true });
+              const lines = buffer.split('\n');
+              buffer = lines.pop() ?? '';
+
+              for (const line of lines) {
+                const trimmedLine = line.trim();
+                if (trimmedLine === '' || trimmedLine === 'data: [DONE]') continue;
+                if (!trimmedLine.startsWith('data: ')) continue;
+
+                const payload = trimmedLine.substring(6);
+                if (payload === '[DONE]') continue;
+
+                try {
+                  const chunk = JSON.parse(payload);
+                  if (chunk.model) modelUsed = chunk.model;
+                  if (chunk.usage) usage = chunk.usage;
+                } catch {
+                  void 0;
+                }
+              }
+            }
+          }
+        } catch (e) {
+          console.error('Error streaming from OpenRouter:', e);
+        } finally {
+          try {
+            controller.close();
+          } catch {
+            void 0;
+          }
+
+          try {
+            upstreamReader.releaseLock();
+          } catch {
+            void 0;
+          }
+
+          try {
+            const totalTokens = Number(usage?.total_tokens ?? 0);
+            const promptTokens = Number(usage?.prompt_tokens ?? 0);
+            const completionTokens = Number(usage?.completion_tokens ?? 0);
+            const costBrl = 0;
+
+            if (companyId && totalTokens > 0) {
+              const { error: usageInsertError } = await supabaseClient
+                .schema('droweder_ia')
+                .from('token_usage_events')
+                .insert({
+                  company_id: companyId,
+                  user_id: user.id,
+                  model_used: modelUsed ?? fallbackModels[0],
+                  prompt_tokens: promptTokens,
+                  completion_tokens: completionTokens,
+                  total_tokens: totalTokens,
+                  cost_brl: costBrl,
+                });
+
+              if (usageInsertError) {
+                console.error('Failed to insert token usage event:', usageInsertError);
+              }
+            }
+          } catch (e) {
+            console.error('Failed to persist token usage:', e);
+          }
+        }
+      },
+    });
+
+    return new Response(stream, {
       headers: {
         ...corsHeaders,
         'Content-Type': 'text/event-stream',

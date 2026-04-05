@@ -2,7 +2,7 @@ import { AuroraModalBackground } from './AuroraModalBackground';
 import React, { useState, useEffect, useRef } from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { createPortal } from 'react-dom';
-import { Sun, Moon, LogOut, CreditCard, Building2, User, Settings as SettingsIcon, HelpCircle, Palette, ChevronDown, Plus, Search, FileText, Bot, MoreVertical, Share, UserPlus, Pencil, Folder, Pin, Archive, Trash2, ChevronRight } from 'lucide-react';
+import { Sun, Moon, LogOut, CreditCard, User, Settings as SettingsIcon, HelpCircle, Palette, ChevronDown, Plus, Search, FileText, Bot, MoreVertical, Share, UserPlus, Pencil, Folder, Pin, Archive, Trash2, ChevronRight, KeyRound } from 'lucide-react';
 import { useAuth } from '../contexts/useAuth';
 import { useTheme } from '../contexts/useTheme';
 import { supabase } from '../lib/supabaseClient';
@@ -96,7 +96,6 @@ const Layout: React.FC = () => {
   const [isNoProjectsWarningOpen, setIsNoProjectsWarningOpen] = useState(false);
   const [isSelectProjectModalOpen, setIsSelectProjectModalOpen] = useState(false);
   const [chatToTransferId, setChatToTransferId] = useState<string | null>(null);
-  const [userProfile, setUserProfile] = useState<any>(null);
 
 
 
@@ -246,7 +245,6 @@ const Layout: React.FC = () => {
         .single();
 
       if (userRecord && !userError) {
-        setUserProfile(userRecord);
           setCompanyId(userRecord.empresa_id);
       }
 
@@ -402,14 +400,14 @@ const Layout: React.FC = () => {
                 >
                   <img 
                     src="https://phofwpyxbeulodrzfdjq.supabase.co/storage/v1/object/public/imagens_app/favicom_drowederAI.png" 
-                    alt="Rower AI" 
+                    alt="DRoweder IA" 
                     className="h-8 w-8 object-contain shadow-sm" 
                   />
                 </div>
              ) : (
                 <div className="flex items-center gap-3">
-                    <img src="https://phofwpyxbeulodrzfdjq.supabase.co/storage/v1/object/public/imagens_app/favicom_drowederAI.png" alt="Rower AI" className="h-8 w-8 object-contain" />
-                    <span className="text-lg font-bold text-slate-800 dark:text-white tracking-tight">Rower AI</span>
+                    <img src="https://phofwpyxbeulodrzfdjq.supabase.co/storage/v1/object/public/imagens_app/favicom_drowederAI.png" alt="DRoweder IA" className="h-8 w-8 object-contain" />
+                    <span className="text-lg font-bold text-slate-800 dark:text-white tracking-tight">DRoweder IA</span>
                 </div>
              )}
         </div>
@@ -729,16 +727,6 @@ const Layout: React.FC = () => {
 
                     <div className="border-t border-slate-100 dark:border-white/10 my-1"></div>
 
-                    {(userProfile?.role === 'Admin' || userProfile?.is_superadmin) && (
-                        <button
-                            onClick={() => { navigate('/super-admin/companies'); setShowUserMenu(false); }}
-                            className={`w-full text-left px-4 py-2.5 text-sm hover:bg-slate-50 dark:hover:bg-white/5 flex items-center gap-3 transition-colors ${isActive('/super-admin/companies') ? 'text-blue-600 dark:text-white' : ''}`}
-                        >
-                            <Building2 size={16} className={isActive('/super-admin/companies') ? 'text-blue-600 dark:text-white' : 'text-slate-400 dark:text-gray-400'} />
-                            <span>Empresas</span>
-                        </button>
-                    )}
-
                     <button
                         onClick={() => { navigate('/dashboard/billing'); setShowUserMenu(false); }}
                         className="w-full text-left px-4 py-2.5 text-sm hover:bg-slate-50 dark:hover:bg-white/5 flex items-center gap-3 transition-colors"
@@ -746,6 +734,16 @@ const Layout: React.FC = () => {
                         <CreditCard size={16} className="text-slate-400 dark:text-gray-400" />
                         <span>Faturamento</span>
                     </button>
+
+                    {(user?.email || '').toLowerCase() === 'admin@droweder.com.br' && (
+                        <button
+                            onClick={() => { navigate('/admin/tokens'); setShowUserMenu(false); }}
+                            className="w-full text-left px-4 py-2.5 text-sm hover:bg-slate-50 dark:hover:bg-white/5 flex items-center gap-3 transition-colors"
+                        >
+                            <KeyRound size={16} className="text-slate-400 dark:text-gray-400" />
+                            <span>Tokens</span>
+                        </button>
+                    )}
 
                     <div className="border-t border-slate-100 dark:border-white/10 my-1"></div>
 

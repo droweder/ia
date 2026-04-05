@@ -86,8 +86,8 @@ export const chatWithOpenRouterStream = async (
             if (errorData.error) {
               throw new Error(errorData.error.message || "Erro retornado pela API");
             }
-          } catch (e) {
-            // Not a JSON error, continue
+          } catch {
+            void 0;
           }
         }
       }

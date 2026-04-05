@@ -12,7 +12,7 @@ const ArchivedChats = lazy(() => import('./pages/ArchivedChats'));
 const Files = lazy(() => import('./pages/Files'));
 const Projects = lazy(() => import('./pages/Projects'));
 const Billing = lazy(() => import('./pages/dashboard/Billing'));
-const Companies = lazy(() => import('./pages/admin/Companies'));
+const MasterTokenDashboard = lazy(() => import('./pages/admin/MasterTokenDashboard'));
 const Login = lazy(() => import('./pages/Login'));
 
 function App() {
@@ -38,7 +38,7 @@ function App() {
                   <Route path="files" element={<Files />} />
                   <Route path="projects" element={<Projects />} />
                   <Route path="dashboard/billing" element={<Billing />} />
-                  <Route path="super-admin/companies" element={<Companies />} />
+                  <Route path="admin/tokens" element={<MasterTokenDashboard />} />
                 </Route>
               </Route>
             </Routes>

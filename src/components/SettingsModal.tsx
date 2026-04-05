@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Settings as SettingsIcon, Bell, Lock, Globe, Database, X } from 'lucide-react';
+import { DbConnectionTestPanel } from './DbConnectionTestPanel';
 
 interface SettingsModalProps {
   isOpen: boolean;
@@ -90,7 +91,9 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                         </div>
                     )}
 
-                    {activeTab !== 'geral' && (
+                    {activeTab === 'dados' && <DbConnectionTestPanel />}
+
+                    {activeTab !== 'geral' && activeTab !== 'dados' && (
                         <div className="bg-white/5 backdrop-blur-xl p-6 rounded-xl border border-white/10 shadow-sm animate-in fade-in duration-300 flex items-center justify-center min-h-[300px]">
                             <p className="text-slate-500">Configurações para esta seção ainda não estão disponíveis.</p>
                         </div>
