@@ -6,6 +6,47 @@ export interface StreamCallbacks {
   onDone: (finalText: string, usage?: { prompt_tokens: number; completion_tokens: number; total_tokens: number }) => void;
 }
 
+interface ApiErrorBody {
+  error?: string;
+  code?: string;
+  userMessage?: string;
+  probableCause?: string;
+  suggestedAction?: string;
+  correlationId?: string;
+}
+
+function buildUserFacingError(status: number, rawBody: string): string {
+  let parsed: ApiErrorBody | null = null;
+  try {
+    parsed = JSON.parse(rawBody) as ApiErrorBody;
+  } catch {
+    parsed = null;
+  }
+
+  if (parsed?.userMessage) {
+    const details = [
+      parsed.code ? `Código: ${parsed.code}` : null,
+      parsed.probableCause ? `Causa provável: ${parsed.probableCause}` : null,
+      parsed.suggestedAction ? `Orientação: ${parsed.suggestedAction}` : null,
+      parsed.correlationId ? `CorrelationId: ${parsed.correlationId}` : null,
+    ].filter(Boolean);
+    return `${parsed.userMessage}${details.length ? `\n\n${details.join('\n')}` : ''}`;
+  }
+
+  const providerMessage = parsed?.error || rawBody;
+  if (/insufficient credits|credits/i.test(providerMessage)) {
+    return [
+      'A IA generativa está temporariamente indisponível porque a conta/chave da OpenRouter está sem créditos.',
+      '',
+      'Código: AI_PROVIDER_INSUFFICIENT_CREDITS',
+      'Causa provável: a chave configurada no servidor pertence a uma conta sem créditos ou sem billing ativo.',
+      'Orientação: o administrador deve adicionar créditos em https://openrouter.ai/settings/credits ou configurar uma chave OpenRouter válida. Consultas estruturadas homologadas podem continuar funcionando quando não dependerem do modelo generativo.',
+    ].join('\n');
+  }
+
+  return `Não consegui contatar o serviço de IA agora. Código HTTP: ${status}. Orientação: tente novamente em alguns instantes ou acione o suporte se persistir.`;
+}
+
 export const chatWithOpenRouterStream = async (
   messages: any[],
   systemPrompt: string | undefined,
@@ -33,7 +74,7 @@ export const chatWithOpenRouterStream = async (
     if (!response.ok) {
       let errText = "Erro desconhecido ao contatar IA";
       try { errText = await response.text(); } catch (e) { console.error('Error reading response text', e); }
-      throw new Error(`Erro na API (${response.status}): ${errText}`);
+      throw new Error(buildUserFacingError(response.status, errText));
     }
 
     if (!response.body) throw new Error("Nenhum corpo de resposta retornado pela IA");

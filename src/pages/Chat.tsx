@@ -511,7 +511,7 @@ useEffect(() => {
                     );
                 },
                 onError: (errMsg: string) => {
-                     setError(`Falha na API da IA: ${errMsg}. Verifique sua conexão e tente novamente.`);
+                     setError(errMsg);
                      setLoading(false);
                 },
                 onDone: async (finalText: string) => {
@@ -555,7 +555,7 @@ useEffect(() => {
                                     );
                                 },
                                 onError: (errMsg2: string) => {
-                                    setError(`Falha na API da IA durante SQL: ${errMsg2}.`);
+                                    setError(errMsg2);
                                     setLoading(false);
                                 },
                                 onDone: async (finalText2: string) => {
@@ -574,7 +574,7 @@ useEffect(() => {
 
     } catch (error: any) {
         console.error("LLM Error:", error);
-        setError(`Falha na API da IA: ${error.message || 'Erro de conexão com o servidor'}. Verifique o modelo ou tente novamente.`);
+        setError(error.message || 'Erro de conexão com o serviço de IA. Tente novamente ou acione o suporte se persistir.');
         setLoading(false);
         return false;
     }
