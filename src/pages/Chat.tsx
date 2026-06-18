@@ -11,6 +11,7 @@ pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.j
 import { chatWithOpenRouterStream } from '../lib/openRouterClient';
 import { extractSqlFromAssistantResponse, prepareAiSqlForRpc } from '../lib/extractAiSql';
 import { formatRpcResultForLlm } from '../lib/formatRpcResultForLlm';
+import { buildStructuredQuery, createAiError, createCorrelationId, formatFriendlyError, logAiExecution, structuredQueryToSql, validateSqlSafety, validateStructuredQuery } from '../lib/enterpriseAiQuery';
 import { useOutletContext, useLocation } from 'react-router-dom';
 import type { LayoutContextType } from '../components/Layout';
 import type { OpenRouterMessage, Message } from '../types';
@@ -493,6 +494,8 @@ useEffect(() => {
 
         const messagesForApi = openRouterMessages.filter(m => m.role !== 'system');
 
+        const handledByStructuredQuery = await tryExecuteStructuredEnterpriseQuery(finalMessageContent, conversationId!, tempAiMessageId);
+        if (handledByStructuredQuery) return true;
 
         await chatWithOpenRouterStream(
             messagesForApi,
@@ -577,6 +580,67 @@ useEffect(() => {
     }
 
     return true;
+  };
+
+
+  const tryExecuteStructuredEnterpriseQuery = async (
+    question: string,
+    convId: string,
+    tempId: string,
+  ): Promise<boolean> => {
+    const correlationId = createCorrelationId();
+    const startedAt = performance.now();
+    const structuredQuery = buildStructuredQuery(question, companyId!);
+
+    if (structuredQuery.intent === 'unknown') return false;
+
+    const validationError = validateStructuredQuery(structuredQuery, true);
+    if (validationError) {
+      const content = `${formatFriendlyError(validationError)}\n\nPosso tentar novamente se você informar um período, cliente, número do pedido ou status.`;
+      logAiExecution({ correlationId, question, userId: user!.id, companyId: companyId!, intent: structuredQuery.intent, structuredQuery, errorType: validationError.type });
+      await saveFinalMessage(convId, content, 'structured-query', tempId);
+      return true;
+    }
+
+    try {
+      const sql = structuredQueryToSql(structuredQuery);
+      const sqlSafetyError = validateSqlSafety(sql, companyId!);
+      if (sqlSafetyError) {
+        const content = `${formatFriendlyError(sqlSafetyError)}\n\nNão executei a consulta por segurança. Deseja que eu filtre por período ou liste apenas os 20 pedidos mais recentes?`;
+        logAiExecution({ correlationId, question, userId: user!.id, companyId: companyId!, intent: structuredQuery.intent, structuredQuery, sql, errorType: sqlSafetyError.type });
+        await saveFinalMessage(convId, content, 'structured-query', tempId, sql);
+        return true;
+      }
+
+      setMessages(prev => prev.map(msg => msg.id === tempId ? { ...msg, content: 'Consultando dados reais do Planintex com escopo da sua empresa...' } : msg));
+      const { data: sqlData, error: sqlError } = await supabase.rpc('execute_ai_sql', { query: sql });
+      const rpcErrRaw = (sqlData as { error?: string | { message?: string } } | null)?.error;
+      const rpcErrorMsg = typeof rpcErrRaw === 'string' ? rpcErrRaw : rpcErrRaw && typeof rpcErrRaw === 'object' ? rpcErrRaw.message : undefined;
+      const actualError = sqlError?.message || rpcErrorMsg;
+
+      if (actualError) {
+        const friendlyError = createAiError('SQL_INVALID_ERROR', 'Não consegui buscar os pedidos no Planintex agora.', 'A consulta homologada falhou no banco. Pode haver diferença de schema, coluna ou status.', 'Posso tentar uma listagem mais simples dos 20 pedidos mais recentes ou você pode acionar o suporte com o código abaixo.', actualError);
+        const content = `${formatFriendlyError(friendlyError)}\n\nAlternativas: filtrar por período, informar um cliente específico ou tentar listar os 20 pedidos mais recentes.`;
+        logAiExecution({ correlationId, question, userId: user!.id, companyId: companyId!, intent: structuredQuery.intent, structuredQuery, sql, durationMs: Math.round(performance.now() - startedAt), errorType: friendlyError.type });
+        await saveFinalMessage(convId, content, 'structured-query', tempId, sql);
+        return true;
+      }
+
+      const rows = Array.isArray(sqlData) ? sqlData : [];
+      const heading = structuredQuery.intent === 'sales_orders_awaiting_billing' ? 'Pedidos de venda aguardando faturamento' : 'Pedidos de venda pendentes';
+      const table = rows.length === 0
+        ? 'Não encontrei registros para os critérios informados na empresa ativa.'
+        : rows.slice(0, 50).map((row: any, index: number) => `${index + 1}. Pedido ${row.numero_pedido ?? row.numero ?? '-'} — Cliente: ${row.cliente_nome ?? row.cliente ?? '-'} — Status: ${row.status ?? row.situacao ?? '-'} — Emissão: ${row.data_emissao ?? '-'} — Entrega: ${row.data_entrega ?? '-'} — Valor: ${row.valor_total ?? '-'}`).join('\n');
+      const content = `Resposta baseada em dados reais do Planintex.\n\n${heading}\n\n${table}\n\nCorrelationId: ${correlationId}\n\nSe quiser, posso refinar por período, cliente ou número do pedido.`;
+      logAiExecution({ correlationId, question, userId: user!.id, companyId: companyId!, intent: structuredQuery.intent, structuredQuery, sql, durationMs: Math.round(performance.now() - startedAt), rowCount: rows.length });
+      await saveFinalMessage(convId, content, 'structured-query', tempId, sql);
+      return true;
+    } catch (error: unknown) {
+      const friendlyError = createAiError('CONNECTION_ERROR', 'Não consegui concluir a consulta com segurança.', 'Falha inesperada no fluxo estruturado.', 'Tente novamente ou informe um filtro por período/cliente.', error instanceof Error ? error.message : String(error));
+      logAiExecution({ correlationId, question, userId: user!.id, companyId: companyId!, intent: structuredQuery.intent, structuredQuery, durationMs: Math.round(performance.now() - startedAt), errorType: friendlyError.type });
+      await saveFinalMessage(convId, formatFriendlyError(friendlyError), 'structured-query', tempId);
+      return true;
+    }
   };
 
   const saveFinalMessage = async (convId: string, content: string, model: string, tempId: string, sqlQuery?: string) => {
