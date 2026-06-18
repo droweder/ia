@@ -1,6 +1,58 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "jsr:@supabase/supabase-js@2";
 
+
+class AiFunctionError extends Error {
+  code: string;
+  status: number;
+  userMessage: string;
+  probableCause: string;
+  suggestedAction: string;
+
+  constructor(params: { code: string; status: number; userMessage: string; probableCause: string; suggestedAction: string; technicalMessage?: string }) {
+    super(params.technicalMessage ?? params.userMessage);
+    this.code = params.code;
+    this.status = params.status;
+    this.userMessage = params.userMessage;
+    this.probableCause = params.probableCause;
+    this.suggestedAction = params.suggestedAction;
+  }
+}
+
+function createCorrelationId(): string {
+  return `edge_${Date.now()}_${crypto.randomUUID().slice(0, 8)}`;
+}
+
+function classifyOpenRouterError(status: number, body: string): AiFunctionError {
+  let providerMessage = body;
+  try {
+    const parsed = JSON.parse(body);
+    providerMessage = parsed?.error?.message || parsed?.message || body;
+  } catch {
+    void 0;
+  }
+
+  if (/insufficient credits|credits/i.test(providerMessage)) {
+    return new AiFunctionError({
+      code: 'AI_PROVIDER_INSUFFICIENT_CREDITS',
+      status: 402,
+      userMessage: 'A IA generativa está temporariamente indisponível por falta de créditos no provedor.',
+      probableCause: 'A chave OpenRouter configurada no servidor pertence a uma conta sem créditos ou sem billing ativo.',
+      suggestedAction: 'Peça ao administrador para adicionar créditos em https://openrouter.ai/settings/credits ou configurar uma chave OpenRouter válida.',
+      technicalMessage: providerMessage,
+    });
+  }
+
+  return new AiFunctionError({
+    code: 'AI_PROVIDER_ERROR',
+    status: status >= 500 ? 502 : 400,
+    userMessage: 'Não consegui contatar o provedor de IA agora.',
+    probableCause: `OpenRouter retornou HTTP ${status}.`,
+    suggestedAction: 'Tente novamente em alguns instantes. Se persistir, acione o suporte com o código exibido.',
+    technicalMessage: providerMessage,
+  });
+}
+
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
@@ -151,16 +203,7 @@ Deno.serve(async (req: Request) => {
         const errText = await response.text();
         console.error("OpenRouter API error:", response.status, errText);
 
-        // Try to parse error message if JSON
-        let errMsg = `OpenRouter API error: ${response.status}`;
-        try {
-            const errJson = JSON.parse(errText);
-            if (errJson.error && errJson.error.message) {
-                errMsg = `OpenRouter: ${errJson.error.message}`;
-            }
-        } catch (e) { console.error('Error parsing error JSON', e); }
-
-        throw new Error(errMsg);
+        throw classifyOpenRouterError(response.status, errText);
     }
 
     if (!response.body) {
@@ -267,8 +310,31 @@ Deno.serve(async (req: Request) => {
     });
 
   } catch (error: unknown) {
-    console.error("Function error:", error);
-    return new Response(JSON.stringify({ error: error instanceof Error ? error.message : 'Unknown error' }), {
+    const correlationId = createCorrelationId();
+    console.error("Function error:", { correlationId, error });
+
+    if (error instanceof AiFunctionError) {
+      return new Response(JSON.stringify({
+        error: error.message,
+        code: error.code,
+        userMessage: error.userMessage,
+        probableCause: error.probableCause,
+        suggestedAction: error.suggestedAction,
+        correlationId,
+      }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        status: error.status,
+      });
+    }
+
+    return new Response(JSON.stringify({
+      error: error instanceof Error ? error.message : 'Unknown error',
+      code: 'AI_CHAT_FUNCTION_ERROR',
+      userMessage: 'Não consegui processar sua mensagem agora.',
+      probableCause: 'Ocorreu uma falha inesperada na função de chat.',
+      suggestedAction: 'Tente novamente. Se persistir, acione o suporte com o código exibido.',
+      correlationId,
+    }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       status: 400,
     });
