@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Folder, File as FileIcon, Upload, Plus, Trash2, Search, Loader2 } from 'lucide-react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
+import { Folder, File as FileIcon, Upload, Plus, Trash2, Search, Loader2, ExternalLink } from 'lucide-react';
 import { PageHeader } from '../components/common/PageHeader';
 import { supabase } from '../lib/supabaseClient';
 import { useAuth } from '../contexts/useAuth';
@@ -10,7 +10,12 @@ interface StorageFile {
     updated_at: string;
     created_at: string;
     last_accessed_at: string;
-    metadata: Record<string, any>;
+    metadata: Record<string, unknown> & { size?: number };
+}
+
+interface StorageErrorLike {
+    message: string;
+    statusCode?: string | number;
 }
 
 const Files: React.FC = () => {
@@ -26,38 +31,7 @@ const Files: React.FC = () => {
 
     const fileInputRef = useRef<HTMLInputElement>(null);
 
-    useEffect(() => {
-        const fetchCompanyId = async () => {
-            if (!user) return;
-            const { data } = await supabase
-                .schema('planintex')
-                .from('profiles')
-                .select('empresa_id')
-                .eq('id', user.id)
-                .single();
-
-            if (data?.empresa_id) {
-                setCompanyId(data.empresa_id);
-            }
-        };
-        fetchCompanyId();
-    }, [user]);
-
-    useEffect(() => {
-        if (companyId) {
-            loadSectors();
-        }
-    }, [companyId]);
-
-    useEffect(() => {
-        if (companyId && selectedSector) {
-            loadFiles(selectedSector);
-        } else {
-            setFiles([]);
-        }
-    }, [selectedSector, companyId]);
-
-    const loadSectors = async () => {
+    const loadSectors = useCallback(async () => {
         if (!companyId) return;
         setIsLoading(true);
         try {
@@ -78,9 +52,9 @@ const Files: React.FC = () => {
         } finally {
             setIsLoading(false);
         }
-    };
+    }, [companyId]);
 
-    const loadFiles = async (sector: string) => {
+    const loadFiles = useCallback(async (sector: string) => {
         if (!companyId) return;
         setIsLoading(true);
         try {
@@ -102,7 +76,38 @@ const Files: React.FC = () => {
         } finally {
             setIsLoading(false);
         }
-    };
+    }, [companyId]);
+
+    useEffect(() => {
+        const fetchCompanyId = async () => {
+            if (!user) return;
+            const { data } = await supabase
+                .schema('planintex')
+                .from('profiles')
+                .select('empresa_id')
+                .eq('id', user.id)
+                .single();
+
+            if (data?.empresa_id) {
+                setCompanyId(data.empresa_id);
+            }
+        };
+        fetchCompanyId();
+    }, [user]);
+
+    useEffect(() => {
+        if (companyId) {
+            void loadSectors();
+        }
+    }, [companyId, loadSectors]);
+
+    useEffect(() => {
+        if (companyId && selectedSector) {
+            void loadFiles(selectedSector);
+        } else {
+            setFiles([]);
+        }
+    }, [selectedSector, companyId, loadFiles]);
 
     const handleCreateSector = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -120,12 +125,13 @@ const Files: React.FC = () => {
                 .from('company_files')
                 .upload(filePath, emptyBlob);
 
-            if (error && (error as any).statusCode !== '409') { // ignore conflict if folder exists
+            const storageError = error as StorageErrorLike | null;
+            if (storageError && String(storageError.statusCode) !== '409') { // ignore conflict if folder exists
                 console.error("Error creating sector:", error);
-                if (error.message.includes('Bucket not found')) {
-                    alert("Erro: O bucket 'company_files' não foi encontrado no Supabase. Por favor, crie este bucket (público) no painel do Supabase (Storage) antes de prosseguir com uploads.");
+                if (storageError.message.includes('Bucket not found')) {
+                    alert("Erro: O bucket privado 'company_files' não foi encontrado no Supabase. Por favor, crie este bucket no painel do Supabase (Storage) antes de prosseguir com uploads.");
                 } else {
-                    alert(`Erro ao criar setor: ${error.message}`);
+                    alert(`Erro ao criar setor: ${storageError.message}`);
                 }
             } else {
                 setNewSectorName('');
@@ -155,10 +161,38 @@ const Files: React.FC = () => {
                 if (error) {
                     console.error("Error uploading file:", error);
                     if (error.message.includes('Bucket not found')) {
-                        alert("Erro: O bucket 'company_files' não foi encontrado no Supabase. Por favor, crie este bucket (público) no painel do Supabase (Storage) antes de prosseguir com uploads.");
+                        alert("Erro: O bucket privado 'company_files' não foi encontrado no Supabase. Por favor, crie este bucket no painel do Supabase (Storage) antes de prosseguir com uploads.");
                     } else {
                         alert(`Erro ao fazer upload do arquivo: ${error.message}`);
                     }
+                    continue;
+                }
+
+                const { error: deleteMetadataError } = await supabase
+                    .schema('droweder_ia')
+                    .from('files')
+                    .delete()
+                    .eq('company_id', companyId)
+                    .eq('url', filePath);
+
+                if (deleteMetadataError) {
+                    console.warn('Error clearing previous file metadata:', deleteMetadataError.message);
+                }
+
+                const { error: metadataError } = await supabase
+                    .schema('droweder_ia')
+                    .from('files')
+                    .insert({
+                        company_id: companyId,
+                        name: file.name,
+                        size: file.size,
+                        type: file.type || 'application/octet-stream',
+                        url: filePath,
+                        uploaded_by: user?.id,
+                    });
+
+                if (metadataError) {
+                    console.warn('Error recording file metadata:', metadataError.message);
                 }
             }
 
@@ -183,11 +217,38 @@ const Files: React.FC = () => {
             if (error) {
                 console.error("Error deleting file:", error);
             } else {
+                const { error: metadataError } = await supabase
+                    .schema('droweder_ia')
+                    .from('files')
+                    .delete()
+                    .eq('company_id', companyId)
+                    .eq('url', path);
+
+                if (metadataError) {
+                    console.warn('Error deleting file metadata:', metadataError.message);
+                }
                 setFiles(prev => prev.filter(f => f.name !== fileName));
             }
         } catch (err) {
             console.error(err);
         }
+    };
+
+    const handleOpenFile = async (fileName: string) => {
+        if (!companyId || !selectedSector) return;
+
+        const path = `${companyId}/${selectedSector}/${fileName}`;
+        const { data, error } = await supabase.storage
+            .from('company_files')
+            .createSignedUrl(path, 60 * 60);
+
+        if (error || !data?.signedUrl) {
+            console.error('Error creating signed URL:', error);
+            alert('Não foi possível abrir o arquivo com segurança agora.');
+            return;
+        }
+
+        window.open(data.signedUrl, '_blank', 'noopener,noreferrer');
     };
 
     const formatFileSize = (bytes?: number) => {
@@ -364,6 +425,13 @@ const Files: React.FC = () => {
                                             </p>
                                         </div>
                                     </div>
+                                    <button
+                                        onClick={() => handleOpenFile(file.name)}
+                                        className="flex items-center justify-center gap-2 rounded-lg border border-slate-200 dark:border-white/10 px-3 py-2 text-xs font-medium text-slate-600 hover:text-[#7e639f] hover:border-[#7e639f]/50 dark:text-gray-300 transition-colors"
+                                    >
+                                        <ExternalLink size={14} />
+                                        Abrir com link seguro
+                                    </button>
                                 </div>
                             ))}
                         </div>

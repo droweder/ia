@@ -153,10 +153,15 @@ const Layout: React.FC = () => {
       }
     } else {
       try {
+        if (!companyId) {
+          setToastMessage('Empresa não identificada. Não foi possível criar o assistente.');
+          return;
+        }
+
         const { data, error } = await supabase
           .schema('droweder_ia')
           .from('assistants')
-          .insert([{ name, description, instructions, created_by: user?.id }])
+          .insert([{ name, description, instructions, company_id: companyId, created_by: user?.id }])
           .select();
 
         if (error) {

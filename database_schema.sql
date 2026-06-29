@@ -8,15 +8,6 @@ CREATE SCHEMA IF NOT EXISTS droweder_ia;
 
 -- 2. Tabelas do Schema DRoweder IA
 
--- Adicionando coluna project_id na tabela conversations caso ela já exista
-DO $$
-BEGIN
-    IF NOT EXISTS (SELECT 1 FROM information_schema.columns
-                   WHERE table_schema='droweder_ia' AND table_name='conversations' AND column_name='project_id') THEN
-        ALTER TABLE droweder_ia.conversations ADD COLUMN project_id UUID REFERENCES droweder_ia.projects(id) ON DELETE SET NULL;
-    END IF;
-END $$;
-
 -- Tabela de Projetos
 CREATE TABLE IF NOT EXISTS droweder_ia.projects (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -27,9 +18,22 @@ CREATE TABLE IF NOT EXISTS droweder_ia.projects (
     created_by UUID
 );
 
+-- Adicionando coluna project_id na tabela conversations caso ela já exista.
+-- Este bloco precisa vir depois da criação de projects para a foreign key ser válida.
+DO $$
+BEGIN
+    IF EXISTS (SELECT 1 FROM information_schema.tables
+               WHERE table_schema='droweder_ia' AND table_name='conversations')
+       AND NOT EXISTS (SELECT 1 FROM information_schema.columns
+                       WHERE table_schema='droweder_ia' AND table_name='conversations' AND column_name='project_id') THEN
+        ALTER TABLE droweder_ia.conversations ADD COLUMN project_id UUID REFERENCES droweder_ia.projects(id) ON DELETE SET NULL;
+    END IF;
+END $$;
+
 -- Tabela de Assistentes (Movida para cima para resolver dependência da foreign key em conversations)
 CREATE TABLE IF NOT EXISTS droweder_ia.assistants (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    company_id UUID REFERENCES planintex.empresas(id),
     name TEXT NOT NULL,
     description TEXT,
     instructions TEXT,
@@ -39,9 +43,13 @@ CREATE TABLE IF NOT EXISTS droweder_ia.assistants (
     created_by UUID
 );
 
--- Adicionando coluna created_by na tabela assistants caso ela já exista
+-- Adicionando colunas em assistants caso ela já exista
 DO $$
 BEGIN
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns
+                   WHERE table_schema='droweder_ia' AND table_name='assistants' AND column_name='company_id') THEN
+        ALTER TABLE droweder_ia.assistants ADD COLUMN company_id UUID REFERENCES planintex.empresas(id);
+    END IF;
     IF NOT EXISTS (SELECT 1 FROM information_schema.columns
                    WHERE table_schema='droweder_ia' AND table_name='assistants' AND column_name='created_by') THEN
         ALTER TABLE droweder_ia.assistants ADD COLUMN created_by UUID;
@@ -87,8 +95,18 @@ CREATE TABLE IF NOT EXISTS droweder_ia.messages (
     content TEXT NOT NULL,
     tokens_used INTEGER DEFAULT 0,
     model_used TEXT,
+    sql_query TEXT,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
+
+-- Adicionando coluna sql_query na tabela messages caso ela já exista
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns
+                   WHERE table_schema='droweder_ia' AND table_name='messages' AND column_name='sql_query') THEN
+        ALTER TABLE droweder_ia.messages ADD COLUMN sql_query TEXT;
+    END IF;
+END $$;
 
 
 -- Tabela de Arquivos
@@ -225,23 +243,37 @@ CREATE POLICY "Users can access their company files" ON droweder_ia.files
 DROP POLICY IF EXISTS "Users can access all assistants" ON droweder_ia.assistants;
 CREATE POLICY "Users can access all assistants" ON droweder_ia.assistants
     FOR SELECT
-    USING (true);
+    USING (
+        company_id IS NULL
+        OR company_id IN (SELECT empresa_id FROM planintex.profiles WHERE id = auth.uid())
+    );
 
 DROP POLICY IF EXISTS "Users can create assistants" ON droweder_ia.assistants;
 CREATE POLICY "Users can create assistants" ON droweder_ia.assistants
     FOR INSERT
-    WITH CHECK (true);
+    WITH CHECK (
+        company_id IN (SELECT empresa_id FROM planintex.profiles WHERE id = auth.uid())
+    );
 
 DROP POLICY IF EXISTS "Users can update their own assistants" ON droweder_ia.assistants;
 CREATE POLICY "Users can update their own assistants" ON droweder_ia.assistants
     FOR UPDATE
-    USING (created_by = auth.uid())
-    WITH CHECK (created_by = auth.uid());
+    USING (
+        created_by = auth.uid()
+        AND company_id IN (SELECT empresa_id FROM planintex.profiles WHERE id = auth.uid())
+    )
+    WITH CHECK (
+        created_by = auth.uid()
+        AND company_id IN (SELECT empresa_id FROM planintex.profiles WHERE id = auth.uid())
+    );
 
 DROP POLICY IF EXISTS "Users can delete their own assistants" ON droweder_ia.assistants;
 CREATE POLICY "Users can delete their own assistants" ON droweder_ia.assistants
     FOR DELETE
-    USING (created_by = auth.uid());
+    USING (
+        created_by = auth.uid()
+        AND company_id IN (SELECT empresa_id FROM planintex.profiles WHERE id = auth.uid())
+    );
 
 -- Política para Conversations
 -- Usuários só podem acessar conversas da sua empresa

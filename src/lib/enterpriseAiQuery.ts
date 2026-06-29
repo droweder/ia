@@ -162,6 +162,19 @@ function sqlString(value: string): string {
   return `'${value.replace(/'/g, "''")}'`;
 }
 
+function escapeRegExp(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function hasCompanyScopeFilter(sql: string, empresaId: string): boolean {
+  const companyIdPattern = escapeRegExp(empresaId);
+  const companyFilterPattern = new RegExp(
+    String.raw`\b(?:[a-z_][\w$]*\.)?empresa_id\s*=\s*['"]${companyIdPattern}['"]`,
+    'i',
+  );
+  return companyFilterPattern.test(sql);
+}
+
 export function structuredQueryToSql(query: StructuredQuery): string {
   if (query.entity !== 'sales_order') throw new Error(`Intent ${query.intent} ainda não possui template SQL homologado.`);
   if (!ALLOWED_TABLES.has(SALES_ORDER_TABLE)) throw new Error('Tabela não autorizada para IA.');
@@ -194,8 +207,9 @@ export function validateSqlSafety(sql: string, empresaId: string): FriendlyAiErr
   const normalized = normalize(sql);
   if (!/^\s*(select|with)\b/i.test(sql)) return createAiError('SQL_INVALID_ERROR', 'Consulta bloqueada: somente leitura é permitida.', 'SQL não inicia com SELECT/WITH.', 'Reformule a pergunta para consultar dados, não alterar dados.');
   if (/(insert|update|delete|drop|truncate|alter|create|grant|revoke|;\s*\w+)/i.test(sql)) return createAiError('SQL_INVALID_ERROR', 'Consulta bloqueada por conter comando não permitido.', 'SQL contém operação perigosa ou múltiplos comandos.', 'Use apenas consultas de leitura homologadas.');
-  if (!normalized.includes(`empresa_id = '${empresaId.toLowerCase()}'`) && !normalized.includes(`empresa_id='${empresaId.toLowerCase()}'`)) return createAiError('VALIDATION_ERROR', 'Consulta bloqueada por não restringir a empresa ativa.', 'Filtro empresa_id não encontrado no SQL final.', 'Inclua a empresa ativa no escopo da pergunta.');
-  if (!normalized.includes('limit ')) return createAiError('VALIDATION_ERROR', 'Consulta bloqueada por falta de paginação.', 'LIMIT obrigatório ausente.', 'Solicite uma listagem limitada ou resumida.');
+  if (!hasCompanyScopeFilter(sql, empresaId)) return createAiError('VALIDATION_ERROR', 'Consulta bloqueada por não restringir a empresa ativa.', 'Filtro empresa_id não encontrado no SQL final.', 'Inclua a empresa ativa no escopo da pergunta.');
+  const isAggregateQuery = /\b(count|sum|avg|min|max|string_agg|json_agg|array_agg)\s*\(/i.test(sql);
+  if (!isAggregateQuery && !normalized.includes('limit ')) return createAiError('VALIDATION_ERROR', 'Consulta bloqueada por falta de paginação.', 'LIMIT obrigatório ausente em consulta de listagem.', 'Solicite uma listagem limitada ou resumida.');
   return null;
 }
 

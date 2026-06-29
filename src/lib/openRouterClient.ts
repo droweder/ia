@@ -58,7 +58,7 @@ export const chatWithOpenRouterStream = async (
     if (!session?.access_token) throw new Error("Não autenticado");
 
     // Call our secure edge function
-    const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/chat`, {
+    const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/droweder-chat`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
