@@ -45,7 +45,7 @@ Para proteger a chave da API do OpenRouter, utilizamos uma Supabase Edge Functio
 
 4.  **Faça o Deploy da Função:**
     ```bash
-    supabase functions deploy chat-completion
+    supabase functions deploy droweder-chat
     ```
 
 ## Executando Localmente
@@ -80,7 +80,7 @@ Todas as queries geradas pela IA devem ser executadas sob a identidade da role `
 As tabelas da aplicação `droweder_ia` possuem políticas RLS ativas baseadas no `company_id` do usuário logado.
 
 ### 3. Proteção de API Keys
-A chave do OpenRouter nunca é exposta no frontend. O cliente React chama a Edge Function `chat-completion`, que proxyia a requisição para a LLM de forma segura.
+A chave do OpenRouter nunca é exposta no frontend. O cliente React chama a Edge Function `droweder-chat`, que proxyia a requisição para a LLM de forma segura.
 
 ---
 *MVP v1.0.0 - Deploy pronto para QA/Produção*

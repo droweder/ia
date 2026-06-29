@@ -359,7 +359,7 @@ useEffect(() => {
     let conversationId = activeConversationId;
 
     // Process files
-    const fileUrls: string[] = [];
+    const fileLinks: string[] = [];
     let extractedTextFromFiles = "";
 
     if (files.length > 0) {
@@ -393,7 +393,8 @@ useEffect(() => {
                 // We'll still upload it, even if text extraction fails
             }
 
-            // Upload the file to keep a record and provide a public URL
+            // Upload the file to keep a record. Prefer signed URLs over public URLs
+            // because ERP/company documents can contain sensitive business data.
             const fileName = `${new Date().getTime()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
             const filePath = `${companyId}/${fileName}`;
 
@@ -408,11 +409,32 @@ useEffect(() => {
                 return false;
             }
 
-            const { data } = supabase.storage
+            const { data: signedData, error: signedUrlError } = await supabase.storage
                 .from('company_files')
-                .getPublicUrl(filePath);
+                .createSignedUrl(filePath, 60 * 60);
 
-            fileUrls.push(data.publicUrl);
+            if (signedUrlError) {
+                console.warn('Error creating signed URL for uploaded file:', signedUrlError.message);
+                fileLinks.push(`Arquivo anexado: ${file.name} (armazenado internamente em ${filePath})`);
+            } else if (signedData?.signedUrl) {
+                fileLinks.push(`[${file.name}](${signedData.signedUrl})`);
+            }
+
+            const { error: fileRecordError } = await supabase
+                .schema('droweder_ia')
+                .from('files')
+                .insert({
+                    company_id: companyId,
+                    name: file.name,
+                    size: file.size,
+                    type: file.type || fileExt || 'application/octet-stream',
+                    url: filePath,
+                    uploaded_by: user.id,
+                });
+
+            if (fileRecordError) {
+                console.warn('Error recording uploaded file metadata:', fileRecordError.message);
+            }
         }
     }
 
@@ -425,8 +447,8 @@ useEffect(() => {
     }
 
     // Add visual links
-    if (fileUrls.length > 0) {
-        const links = fileUrls.map(url => `[Arquivo anexado](${url})`).join('\n');
+    if (fileLinks.length > 0) {
+        const links = fileLinks.join('\n');
         finalMessageContent = finalMessageContent ? `${finalMessageContent}\n\n${links}` : links;
     }
 
@@ -520,9 +542,17 @@ useEffect(() => {
                     const extractedSql = extractSqlFromAssistantResponse(finalText);
 
                     if (extractedSql) {
-                        console.log('Executando SQL gerado pela IA:', extractedSql);
+                        const preparedSql = prepareAiSqlForRpc(extractedSql);
+                        const sqlSafetyError = validateSqlSafety(preparedSql, companyId);
+                        if (sqlSafetyError) {
+                            const blockedContent = `${formatFriendlyError(sqlSafetyError)}\n\nNão executei a consulta gerada pela IA por segurança. Tente informar explicitamente um período, limite e a entidade que deseja consultar.`;
+                            await saveFinalMessage(conversationId!, blockedContent, 'sql-safety-block', tempAiMessageId, preparedSql);
+                            return;
+                        }
+
+                        console.log('Executando SQL gerado pela IA:', preparedSql);
                         const { data: sqlData, error: sqlError } = await supabase.rpc('execute_ai_sql', {
-                            query: prepareAiSqlForRpc(extractedSql),
+                            query: preparedSql,
                         });
 
                         const rpcErrRaw = (sqlData as { error?: string | { message?: string } } | null)?.error;
@@ -559,7 +589,7 @@ useEffect(() => {
                                     setLoading(false);
                                 },
                                 onDone: async (finalText2: string) => {
-                                     await saveFinalMessage(conversationId!, finalText2, 'auto', tempAiMessageId, extractedSql);
+                                     await saveFinalMessage(conversationId!, finalText2, 'auto', tempAiMessageId, preparedSql);
                                 }
                             }
                         );

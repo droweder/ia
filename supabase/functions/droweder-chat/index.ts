@@ -53,6 +53,30 @@ function classifyOpenRouterError(status: number, body: string): AiFunctionError 
   });
 }
 
+const freeFallbackModels = [
+  'meta-llama/llama-3.3-70b-instruct:free',
+  'mistralai/mistral-small-3.1-24b-instruct:free',
+  'openrouter/free',
+];
+
+const paidFallbackModels = [
+  'openai/gpt-4o',
+  'anthropic/claude-3.5-sonnet',
+  'google/gemini-2.0-flash-001',
+];
+
+const allowedModelAliases: Record<string, string[]> = {
+  free: freeFallbackModels,
+  auto: paidFallbackModels,
+  'openai/gpt-4o': ['openai/gpt-4o'],
+  'anthropic/claude-3.5-sonnet': ['anthropic/claude-3.5-sonnet'],
+};
+
+function resolveRequestedModels(requestedModel: unknown): string[] {
+  if (typeof requestedModel !== 'string') return freeFallbackModels;
+  return allowedModelAliases[requestedModel] ?? freeFallbackModels;
+}
+
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
@@ -86,7 +110,7 @@ Deno.serve(async (req: Request) => {
         throw new Error('Invalid JSON request body');
     });
 
-    const { messages, systemPrompt } = data;
+    const { messages, systemPrompt, model } = data;
 
     if (!messages || !Array.isArray(messages)) {
       throw new Error('Messages array is required');
@@ -173,13 +197,9 @@ Deno.serve(async (req: Request) => {
 
     console.log("Sending request to OpenRouter (Auto Fallback)", { messageCount: payloadMessages.length });
 
-    // Configuração de Fallback: OpenRouter tentará os modelos nesta ordem.
-    // Garantindo uso apenas de modelos gratuitos de alta performance.
-            const fallbackModels = [
-      'meta-llama/llama-3.3-70b-instruct:free',
-      'mistralai/mistral-small-3.1-24b-instruct:free',
-      'openrouter/free'
-    ];
+    // Configuração de fallback controlada por allowlist. O cliente escolhe um alias/modelo
+    // permitido e a função traduz para uma lista segura antes de chamar a OpenRouter.
+    const fallbackModels = resolveRequestedModels(model);
 
         const requestBody = {
       model: fallbackModels.join(','),
